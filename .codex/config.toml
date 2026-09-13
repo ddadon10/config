@@ -23,6 +23,7 @@ trust_level = "trusted"
 inherit = "all"
 
 [tui]
+whimsy = false
 show_tooltips = false
 notifications = true
 notification_method = "osc9"

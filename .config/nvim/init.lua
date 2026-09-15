@@ -32,17 +32,48 @@ vim.o.wrap = true
 vim.opt.shortmess:append('IscWa')
 
 -- Autosave
-vim.api.nvim_create_autocmd({ 'InsertLeave', 'BufLeave', 'FocusLost' }, {
-    group = vim.api.nvim_create_augroup('ConfigAutosave', { clear = true }),
+local autosave_timers = {}
+local autosave_group = vim.api.nvim_create_augroup('ConfigAutosave', { clear = true })
+
+local function cancel_autosave(buf)
+    if not autosave_timers[buf] then return end
+    autosave_timers[buf]:close()
+    autosave_timers[buf] = nil
+end
+
+local function save_buffer(buf)
+    if not vim.api.nvim_buf_is_valid(buf) or not vim.api.nvim_buf_is_loaded(buf) then return end
+
+    local bo = vim.bo[buf]
+    if not bo.modified or not bo.modifiable or bo.readonly or bo.buftype ~= '' or vim.api.nvim_buf_get_name(buf) == '' then
+        return
+    end
+
+    vim.api.nvim_buf_call(buf, function() vim.cmd('silent update') end)
+end
+
+vim.api.nvim_create_autocmd({ 'InsertLeave', 'TextChanged' }, {
+    group = autosave_group,
+    callback = function(args)
+        cancel_autosave(args.buf)
+        autosave_timers[args.buf] = vim.defer_fn(function()
+            autosave_timers[args.buf] = nil
+            save_buffer(args.buf)
+        end, 1000)
+    end,
+})
+
+vim.api.nvim_create_autocmd({ 'InsertEnter', 'BufWipeout' }, {
+    group = autosave_group,
+    callback = function(args) cancel_autosave(args.buf) end,
+})
+
+vim.api.nvim_create_autocmd({ 'BufLeave', 'FocusLost', 'QuitPre', 'VimSuspend' }, {
+    group = autosave_group,
     nested = true,
     callback = function(args)
-        if not vim.bo[args.buf].modified
-            or vim.bo[args.buf].buftype ~= ''
-            or vim.bo[args.buf].readonly
-            or vim.api.nvim_buf_get_name(args.buf) == '' then
-            return
-        end
-        vim.cmd('lockmarks silent update')
+        cancel_autosave(args.buf)
+        save_buffer(args.buf)
     end,
 })
 

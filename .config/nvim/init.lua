@@ -675,6 +675,42 @@ local function lsp_opts(title, jump1)
     }
 end
 
+local function accept_command_line()
+    if vim.fn.getcmdtype() == '/' or vim.fn.getcmdtype() == '?' then
+        vim.schedule(function()
+            vim.cmd.nohlsearch()
+            vim.cmd('echo')
+        end)
+    end
+    return '<CR>'
+end
+
+local function toggle_symbol_highlight()
+    if #vim.lsp.get_clients({ bufnr = 0, method = 'textDocument/documentHighlight' }) == 0 then return end
+
+    if vim.b.symbol_highlighted then vim.lsp.buf.clear_references() else vim.lsp.buf.document_highlight() end
+    vim.b.symbol_highlighted = not vim.b.symbol_highlighted
+end
+
+local function diff_buffer()
+    local source_window = vim.api.nvim_get_current_win()
+    fzf.buffers({
+        actions = {
+            ['enter'] = function(selected, opts)
+                vim.cmd('diffthis')
+                fzf_actions.buf_vsplit(selected, opts)
+                vim.cmd('diffthis')
+                if vim.api.nvim_win_is_valid(source_window) then vim.api.nvim_set_current_win(source_window) end
+            end,
+        },
+        fzf_opts = { ['--no-multi'] = true },
+        ignore_current_buffer = true,
+        previewer = false,
+        show_unloaded = false,
+        winopts = { height = 0.50, title = 'Diff Buffer' },
+    })
+end
+
 local function close_current_buffer()
     if close_active_diff() then return end
     if vim.bo.buftype ~= '' and #vim.api.nvim_tabpage_list_wins(0) > 1 then return vim.api.nvim_win_close(0, false) end
@@ -685,15 +721,7 @@ end
 vim.keymap.set({ 'n', 'x' }, 'd', '"_d', { desc = 'Delete without copying' })
 vim.keymap.set('n', 's', '/', { desc = 'Search forward' })
 vim.keymap.set('n', 'S', '?', { desc = 'Search backward' })
-vim.keymap.set('c', '<CR>', function()
-    if vim.fn.getcmdtype() == '/' or vim.fn.getcmdtype() == '?' then
-        vim.schedule(function()
-            vim.cmd.nohlsearch()
-            vim.cmd('echo')
-        end)
-    end
-    return '<CR>'
-end, { desc = 'Accept command and clear search highlight', expr = true })
+vim.keymap.set('c', '<CR>', accept_command_line, { desc = 'Accept command and clear search highlight', expr = true })
 vim.keymap.set('n', '<A-h>', '<C-w>h', { desc = 'Move to left window' })
 vim.keymap.set('n', '<A-j>', '<C-w>j', { desc = 'Move to lower window' })
 vim.keymap.set('n', '<A-k>', '<C-w>k', { desc = 'Move to upper window' })
@@ -709,12 +737,7 @@ vim.keymap.set('n', 'ge', function() vim.diagnostic.jump({ count = 1, float = tr
 vim.keymap.set('n', 'gE', function() vim.diagnostic.jump({ count = -1, float = true }) end, { desc = 'Previous Diagnostic' })
 vim.keymap.set('n', 'gh', vim.lsp.buf.hover, { desc = 'Hover' })
 vim.keymap.set('n', 'gi', function() fzf.lsp_implementations(lsp_opts('Implementations')) end, { desc = 'Implementation' })
-vim.keymap.set('n', 'gl', function()
-    if #vim.lsp.get_clients({ bufnr = 0, method = 'textDocument/documentHighlight' }) == 0 then return end
-
-    if vim.b.symbol_highlighted then vim.lsp.buf.clear_references() else vim.lsp.buf.document_highlight() end
-    vim.b.symbol_highlighted = not vim.b.symbol_highlighted
-end, { desc = 'Toggle Symbol Highlight' })
+vim.keymap.set('n', 'gl', toggle_symbol_highlight, { desc = 'Toggle Symbol Highlight' })
 vim.keymap.set('n', 'gp', function() fzf.lsp_definitions(lsp_opts('Peek', false)) end, { desc = 'Peek Definition' })
 vim.keymap.set('n', 'gt', function() fzf.lsp_typedefs(lsp_opts('Type Definitions')) end, { desc = 'Type Definition' })
 vim.keymap.set('n', 'gu', function() fzf.lsp_references(lsp_opts('Usage')) end, { desc = 'References' })
@@ -758,6 +781,7 @@ vim.keymap.set('n', '<Space>gw', function() fzf.git_worktrees() end, { desc = 'W
 
 vim.keymap.set('n', '<Leader>c', 'gcc', { desc = 'Toggle Line Comment', remap = true })
 vim.keymap.set('x', '<Leader>c', 'gc', { desc = 'Toggle Comment', remap = true })
+vim.keymap.set('n', '<Leader>d', diff_buffer, { desc = 'Diff Buffer' })
 vim.keymap.set({ 'n', 'x' }, '<Leader>f', function() vim.lsp.buf.format() end, { desc = 'Format' })
 vim.keymap.set('n', '<Leader>s', '<cmd>write<cr>', { desc = 'Save Buffer' })
 vim.keymap.set('n', 'qq', '<cmd>wqall<cr>', { desc = 'Save all buffers and quit Neovim' })

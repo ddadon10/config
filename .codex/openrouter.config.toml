@@ -1,6 +1,6 @@
 model = "google/gemini-3.8-flash"
 model_provider = "openrouter"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "high"
 service_tier = "default"
 
 [model_providers.openrouter]

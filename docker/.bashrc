@@ -29,6 +29,14 @@ export XDG_CACHE_HOME=/data/cache
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 cp /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
 
+codex-openrouter() {
+    local key
+    IFS= read -rsp 'Openrouter API key: ' key
+    printf '\n'
+    [[ -n "$key" ]] || { echo 'Openrouter API key is required' >&2; return 1; }
+    OPENROUTER_API_KEY="$key" command codex --profile openrouter "$@"
+}
+
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "$GIT_USER_NAME" ] || git config --global user.name "$GIT_USER_NAME"
 [ "$(git config --global --get user.email 2>/dev/null || true)" = "$GIT_USER_EMAIL" ] || git config --global user.email "$GIT_USER_EMAIL"

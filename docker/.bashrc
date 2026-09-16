@@ -27,6 +27,7 @@ export XDG_CACHE_HOME=/data/cache
 
 # Codex
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
+cp /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
 
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "$GIT_USER_NAME" ] || git config --global user.name "$GIT_USER_NAME"

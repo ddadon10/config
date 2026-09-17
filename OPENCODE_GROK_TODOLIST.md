@@ -72,8 +72,8 @@ including a recommended answer. Do not implement a later phase before its decisi
     - Persist local sessions/logs; decide the volume and cleanup mechanics in item 3.
     - Reuse the global `AGENTS.md`, honor project instructions/configuration for trusted projects, and restrict model
       providers to xAI.
-    - Set `OPENCODE_PURE=1`; configure no MCP servers initially. Pure mode disables external plugins but does not block
-      project MCP, standalone custom tools, skills, agents, commands, LSP, or formatters.
+    - Keep OpenCode's default plugin behavior and configure no MCP servers initially. Trusted projects may supply
+      plugins, standalone custom tools, skills, agents, commands, LSP, formatters, or configuration overrides.
     - Remaining interview branches: subagents, skills/custom tools, LSP/formatters, Claude compatibility, compaction,
       logging/telemetry, and any final tool-specific exception.
 - [ ] Produce a least-privilege threat model covering prompt injection, secret exfiltration, malicious repository

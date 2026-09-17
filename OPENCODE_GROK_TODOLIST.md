@@ -67,15 +67,17 @@ including a recommended answer. Do not implement a later phase before its decisi
     - Use the native global xAI endpoint with `xai/grok-4.6` as the main model and `xai/grok-build-0.1` as the small
       model; use `high` reasoning for build and `xhigh` for plan.
     - Enable full autonomy, including secret-like files, external directories, arbitrary shell commands, and no
-      approval prompts. Explicitly accept and document the resulting local secret-exfiltration risk.
+      approval prompts. Apply this literally to every built-in agent, so global permissions also override Plan's edit
+      denial and Explore's read-only restrictions. Explicitly accept and document the resulting local
+      secret-exfiltration risk.
     - Disable OpenCode sharing, disable filesystem snapshots, and disable OpenCode self-updates.
     - Persist local sessions/logs; decide the volume and cleanup mechanics in item 3.
     - Reuse the global `AGENTS.md`, honor project instructions/configuration for trusted projects, and restrict model
       providers to xAI.
     - Keep OpenCode's default plugin behavior and configure no MCP servers initially. Trusted projects may supply
       plugins, standalone custom tools, skills, agents, commands, LSP, formatters, or configuration overrides.
-    - Remaining interview branches: subagents, skills/custom tools, LSP/formatters, Claude compatibility, compaction,
-      logging/telemetry, and any final tool-specific exception.
+    - Remaining interview branches: subagent depth, skills/custom tools, LSP/formatters, Claude compatibility,
+      compaction, logging/telemetry, and any final tool-specific exception.
 - [ ] Produce a least-privilege threat model covering prompt injection, secret exfiltration, malicious repository
       instructions, shell execution, filesystem escape, untrusted plugins/MCP servers, telemetry, sharing, and local
       credential/session exposure.

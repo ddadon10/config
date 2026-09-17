@@ -14,23 +14,30 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 ### 1. Remove OpenRouter and install OpenCode
 
-- [ ] Inventory every tracked OpenRouter reference and confirm the removal scope before editing.
+- [x] Inventory every tracked OpenRouter reference and confirm the removal scope before editing.
   - Known starting points: `.codex/openrouter.config.toml`, `docker/Dockerfile`, and `docker/.bashrc`.
   - Check history or other files only when needed to understand the current alias and credential-injection behavior.
-- [ ] Remove all OpenRouter configuration, startup copying, aliases/functions, and obsolete documentation from this
+- [x] Remove all OpenRouter configuration, startup copying, aliases/functions, and obsolete documentation from this
       repository without changing the normal Codex configuration.
-- [ ] Present viable OpenCode installation approaches, with the simplest fully suitable option first and marked
+- [x] Present viable OpenCode installation approaches, with the simplest fully suitable option first and marked
       `(Recommended)`.
   - Compare an official binary/install script, the `opencode-ai` npm package, and any suitable container-oriented
     installation method.
   - Evaluate reproducibility, version pinning, image size, update policy, supported architectures, and supply-chain
     verification for this Debian development image.
-- [ ] Interview the user about version pinning versus automatic updates and select one installation method.
-- [ ] Add OpenCode to `docker/Dockerfile` using the selected method.
-- [ ] Build or otherwise validate the installation as far as this environment allows; record any Docker-only command
+- [x] Interview the user about version pinning versus automatic updates and select one installation method.
+  - Decision: use the official install script so image rebuilds track the latest OpenCode release.
+  - Decision: pass `--no-modify-path` and manage `PATH` in the repository-owned `docker/.bashrc`.
+- [x] Add OpenCode to `docker/Dockerfile` using the selected method.
+- [x] Build or otherwise validate the installation as far as this environment allows; record any Docker-only command
       the user must run externally.
-- [ ] Confirm `opencode --version` and basic startup work before continuing.
-- [ ] Commit the completed OpenRouter removal and OpenCode installation as one focused milestone.
+  - Live installer validation succeeded in the current container with `--no-modify-path`; Docker itself is unavailable.
+  - Host validation command: `docker build --file docker/Dockerfile --tag ddadon/dev:current .`.
+  - The latest release is resolved when the install layer executes; use `--no-cache` when explicitly checking for an
+    OpenCode update without another Dockerfile change invalidating that layer.
+- [x] Confirm `opencode --version` and basic startup work before continuing.
+  - `/root/.opencode/bin/opencode --version` reported `1.18.31` on 2026-09-17.
+- [x] Commit the completed OpenRouter removal and OpenCode installation as one focused milestone.
 
 ### 2. Explore and design the general OpenCode configuration
 
@@ -175,4 +182,5 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 - [x] Created branch `contingency-opencode-grok` from `trunk`.
 - [x] Wrote this ordered checklist without implementing it.
-- [ ] Next action: begin item 1 by inventorying OpenRouter references, then present the OpenCode installation options.
+- [x] Completed item 1: removed OpenRouter and installed OpenCode through the latest-tracking official installer.
+- [ ] Next action: begin item 2 by creating the exploration workspace and journal, then research the configuration.

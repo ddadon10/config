@@ -144,6 +144,8 @@ RUN npm install -g ccusage && npm cache clean --force
 
 RUN npm install -g @openai/codex@0.154.0 && npm cache clean --force
 
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path
+
 COPY .vimrc /root/.vimrc
 COPY .config/nvim /root/.config/nvim
 RUN nvim --headless "+qa"
@@ -154,7 +156,6 @@ COPY .config/lazygit.yml /root/.config/lazygit/config.yml
 COPY docker/.bashrc /root/.bashrc
 COPY .npmrc /root/.npmrc
 COPY .codex/config.toml /etc/codex/config.toml
-COPY .codex/openrouter.config.toml /etc/codex/openrouter.config.toml
 COPY .codex/skills/ /etc/codex/skills/
 
 COPY AGENTS.md /etc/codex/AGENTS.md

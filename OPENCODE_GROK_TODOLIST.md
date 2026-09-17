@@ -76,8 +76,10 @@ including a recommended answer. Do not implement a later phase before its decisi
       providers to xAI.
     - Keep OpenCode's default plugin behavior and configure no MCP servers initially. Trusted projects may supply
       plugins, standalone custom tools, skills, agents, commands, LSP, formatters, or configuration overrides.
-    - Remaining interview branches: subagent depth, skills/custom tools, LSP/formatters, Claude compatibility,
-      compaction, logging/telemetry, and any final tool-specific exception.
+    - Keep the default one-level subagent delegation: primary agents may launch subagents, but subagents may not launch
+      more agents. Omit the default-valued `subagent_depth` key and validate its effective behavior.
+    - Remaining interview branches: skills/custom tools, LSP/formatters, Claude compatibility, compaction,
+      logging/telemetry, and any final tool-specific exception.
 - [ ] Produce a least-privilege threat model covering prompt injection, secret exfiltration, malicious repository
       instructions, shell execution, filesystem escape, untrusted plugins/MCP servers, telemetry, sharing, and local
       credential/session exposure.

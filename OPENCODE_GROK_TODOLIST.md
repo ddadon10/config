@@ -78,8 +78,10 @@ including a recommended answer. Do not implement a later phase before its decisi
       plugins, standalone custom tools, skills, agents, commands, LSP, formatters, or configuration overrides.
     - Keep the default one-level subagent delegation: primary agents may launch subagents, but subagents may not launch
       more agents. Omit the default-valued `subagent_depth` key and validate its effective behavior.
-    - Remaining interview branches: skills/custom tools, LSP/formatters, Claude compatibility, compaction,
-      logging/telemetry, and any final tool-specific exception.
+    - Allow every agent to discover and load trusted global/project skills without prompts. Rely on the broad global
+      allow rule rather than adding a redundant skill-specific setting.
+    - Remaining interview branches: custom tools, LSP/formatters, Claude compatibility, compaction, logging/telemetry,
+      and any final tool-specific exception.
 - [ ] Produce a least-privilege threat model covering prompt injection, secret exfiltration, malicious repository
       instructions, shell execution, filesystem escape, untrusted plugins/MCP servers, telemetry, sharing, and local
       credential/session exposure.

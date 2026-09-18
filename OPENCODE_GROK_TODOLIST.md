@@ -226,7 +226,7 @@ including a recommended answer. Do not implement a later phase before its decisi
     scans after a live launch found no key in the repository, configuration, OpenCode data/logs, state, or cache.
   - Unavoidable exposure: OpenCode and every unrestricted shell command or plugin it launches can read `XAI_API_KEY`
     for that process lifetime. The key is removed with the process and is prompted again on the next launch.
-- [ ] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
+- [x] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
       policy.
   - Docker is unavailable in this container. Current-process validation proved that the tracked configuration resolves,
     a live Grok request succeeds. Host check after rebuilding: launch
@@ -236,6 +236,14 @@ including a recommended answer. Do not implement a later phase before its decisi
     `opencode session delete <sessionID>`. Rotate the log recoverably by moving
     `/root/.local/share/opencode/log/opencode.log` aside. Reset all durable OpenCode data recoverably by moving
     `/root/.local/share/opencode` to a backup name; the next `opencode-grok` launch recreates it.
+  - First host half completed on 2026-09-18: `/proc/self/mountinfo` confirmed `dev-opencode-home` at
+    `/root/.local/share/opencode`; the rebuilt image resolved the approved configuration, completed a default
+    `xai/grok-4.6` request, and created a session in the mounted data directory. The exact environment key was absent
+    from repository, configuration, data/log, state, and cache files. Recreate once more and confirm the session remains.
+  - Final host validation on 2026-09-18: after another `--rm` container recreation, the same
+    `ses_f4cb47fadffenBpL6bHFo6z6r8` session remained in `opencode session list` and the named volume was mounted at the
+    expected path. The host supplied `XAI_API_KEY` again for testing, but no native `auth.json` existed and an
+    exact-value scan found no key in persistent data/logs, configuration, state, cache, or the repository.
 - [x] Commit the credential and persistence milestone in the same end-of-phase commit as the approved configuration.
   - The later dedicated-volume correction is a separate focused commit so the user's intervening
     `Remove lsp support in opencode` commit remains intact.
@@ -326,6 +334,6 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Completed item 2's research, interview, threat model, configuration design, diagnostics, and live model tests.
 - [x] Implemented item 3's approved prompt and persistence layout; configuration diagnostics, wrapper checks, a live
       Grok request, and exact-key persistence scans passed.
-- [ ] Host-only check: rebuild and recreate the container to confirm `dev-opencode-home` retains
-      `/root/.local/share/opencode`.
-- [ ] Next action after the host check: begin item 4's TUI comparison and interview.
+- [x] Host recreation confirmed `dev-opencode-home` retains `/root/.local/share/opencode` and its sessions without
+      persisting the xAI key in OpenCode files.
+- [ ] Next action: begin item 4's TUI comparison and interview.

@@ -31,7 +31,7 @@ export XDG_CACHE_HOME=/data/cache
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 
 # OpenCode
-oc() {
+ocgrok() {
   local key
   IFS= read -rsp 'xAI API key: ' key
   printf '\n'

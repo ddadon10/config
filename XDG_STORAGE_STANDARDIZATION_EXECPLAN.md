@@ -32,8 +32,9 @@ installation attempts. The implementation will instead provision plugins and par
 `/usr/local/share/nvim/site` and load them from Neovim's normal system `packpath` at runtime.
 
 This is a clean cutover. Do not migrate data from `/root/.local/share/opencode`, preserve compatibility with the old
-layout, seed the new layout from the old named volume, or add transitional detection. Existing volumes may remain
-untouched and unused; deleting them is outside this task.
+layout, seed the new layout from the old named volume, or add transitional detection. After the new layout passes
+cross-container persistence validation, the obsolete `dev-opencode-home` volume will be removed manually on the
+Docker-capable host. No other named volume will be removed.
 
 The completed result must preserve the existing OpenCode key-injection policy, OpenCode and Neovim configuration,
 Neovim features, and the container's other explicit storage locations such as `/root/.codex`, `/root/.m2`,
@@ -194,7 +195,52 @@ Recovery:
 - If a persistent application state causes a startup problem, move only that application's directory beneath
   `/data/state` aside and retry, preserving it for inspection.
 
-### Milestone 5: Record the completed outcome
+### Milestone 5: Remove the obsolete OpenCode volume manually
+
+Affected interfaces:
+
+- Host-side Docker containers and the `dev-opencode-home` named volume.
+- Persistent OpenCode data already validated beneath `/data/share/opencode` and `/data/state/opencode`.
+
+Precondition:
+
+- Complete Milestone 4 successfully, including recreating the container and verifying that OpenCode data and state
+  survive through `dev-data`. Do not remove the old volume before this validation provides the rollback checkpoint.
+
+Steps:
+
+1. Exit the development container so the `--rm` container is removed, then confirm that no remaining container
+   references `dev-opencode-home`:
+
+   ```bash
+   docker ps -a --filter volume=dev-opencode-home --format '{{.ID}} {{.Names}}'
+   ```
+
+   The command must produce no output. If it lists a container, inspect and remove that container only after confirming
+   it is the obsolete development container; do not force-remove the volume from an unknown container.
+2. Confirm the exact named volume exists with `docker volume inspect dev-opencode-home`, then remove only that volume:
+
+   ```bash
+   docker volume rm dev-opencode-home
+   ```
+
+3. Confirm `docker volume inspect dev-opencode-home` now reports that the volume does not exist. Retain `dev-data`,
+   `dev-codex-home`, and `dev-maven`; none is obsolete under the new layout.
+
+Validation and expected results:
+
+- `dev-opencode-home` no longer exists and is no longer referenced by `.zshrc` or any container.
+- Starting `dev` does not recreate `dev-opencode-home`; OpenCode continues using the shared `dev-data` mount.
+- OpenCode sessions and TUI state validated in Milestone 4 remain available.
+
+Recovery:
+
+- Volume deletion is irreversible within this repository. If old OpenCode data might still be needed, stop before
+  `docker volume rm` and retain the volume until it has been backed up or is no longer required.
+- If the removed volume is unexpectedly recreated, recheck the active `.zshrc` definition and any other host scripts
+  for a stale `dev-opencode-home` mount before deleting the newly created empty volume.
+
+### Milestone 6: Record the completed outcome
 
 Affected files and interfaces:
 
@@ -221,7 +267,8 @@ Steps:
 - [ ] Milestone 2: define `XDG_DATA_HOME` and `XDG_STATE_HOME` while retaining the existing cache home.
 - [ ] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
 - [ ] Milestone 4: rebuild and validate paths, application behavior, key handling, and cross-container persistence.
-- [ ] Milestone 5: record final evidence and commit the completed implementation.
+- [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
+- [ ] Milestone 6: record final evidence and commit the completed implementation.
 
 Exact next action: update `.config/nvim/init.lua` and `docker/Dockerfile` so image builds provision plugins and parsers
 under `/usr/local/share/nvim/site`, while normal Neovim startup only loads those system-installed assets.
@@ -250,7 +297,9 @@ under `/usr/local/share/nvim/site`, while normal Neovim startup only loads those
 - The user explicitly chose a clean cutover: no OpenCode data migration, backward-compatibility path, or transition
   logic is required.
 - The existing `dev-opencode-home` volume becomes unused after implementation. Repository code will neither migrate nor
-  delete it.
+  delete it; after the new layout is validated, the user will remove it manually on the Docker-capable host.
+- `dev-data` must not be deleted during cleanup because it becomes the durable home for all XDG data and state in
+  addition to caches. `dev-codex-home` and `dev-maven` also remain active and must be retained.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -260,3 +309,6 @@ under `/usr/local/share/nvim/site`, while normal Neovim startup only loads those
 - 2026-09-18: Created this ExecPlan from the verified repository and running-container state. Recorded the clean-cutover
   requirement, resolved the persistent XDG layout, specified the Neovim system-data prerequisite, and defined focused
   validation and recovery procedures. No runtime or application configuration was changed.
+- 2026-09-18: Added a post-validation manual cleanup milestone for the obsolete `dev-opencode-home` Docker volume.
+  Specified the safety check for container references, the exact removal and verification commands, and the active
+  volumes that must be retained. No implementation or volume operation was performed.

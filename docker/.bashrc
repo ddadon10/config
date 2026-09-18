@@ -43,6 +43,7 @@ ln -sfn /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 # OpenCode
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export OPENCODE_DISABLE_LSP_DOWNLOAD=true
+# See: https://github.com/anomalyco/opencode/blob/014614d35b397775e5d397a490fc72368c894ec2/packages/opencode/src/share/share-next.ts#L23
 export OPENCODE_DISABLE_SHARE=1
 
 # Git

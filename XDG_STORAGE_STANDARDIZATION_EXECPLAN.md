@@ -279,8 +279,8 @@ Steps:
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: rebuild `ddadon/dev:current` once more with the npm cache export, reload the host `.zshrc`, and start
-a fresh `dev` container; then rerun the mount/environment checks before using `/connect`.
+Exact next action: launch plain `opencode`, use `/connect` to store the deliberately expiring xAI key, complete a
+harmless Grok request, toggle the sidebar preference, and exit OpenCode cleanly without exiting the container.
 
 ## Findings and Decisions
 
@@ -342,6 +342,11 @@ a fresh `dev` container; then rerun the mount/environment checks before using `/
   container-only `NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"` export in `docker/.bashrc`; placing the absolute container
   path in the repository `.npmrc` would incorrectly affect host-side npm usage in this checkout. `GOMODCACHE` likewise
   derives its existing child path from `XDG_CACHE_HOME` so both explicit cache bridges share one authoritative root.
+- The final rebuilt-container pre-credential checks passed on 2026-09-18. `/data`, `/workspace`, `/root/.codex`, and
+  `/root/.m2` had the intended mounts, with no mount at `/root/.local/share/opencode`. The environment contained only
+  the three intended XDG variables; npm and Go resolved `/data/cache/npm` and `/data/cache/gomod`; OpenCode resolved
+  config, data, state, cache, and temporary paths correctly and reported zero credentials before `/connect`; and
+  Neovim loaded all 11 image plugins, all 33 parsers, and a Lua parser without creating a user plugin tree.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -378,3 +383,7 @@ a fresh `dev` container; then rerun the mount/environment checks before using `/
   one authoritative cache root. No effective storage destination changed.
 - 2026-09-18: Changed the literal `MANPAGER` value to single quotes for semantic consistency with the alias and other
   non-expanding shell strings. This cosmetic cleanup does not change its effective value.
+- 2026-09-18: Validated the final rebuilt container before credential entry. Confirmed the corrected mounts and cache
+  paths, exact OpenCode and Neovim XDG paths, system-provisioned Neovim assets, and absence of both the obsolete
+  OpenCode mount and pre-existing native credentials. Advanced the exact next action to the interactive `/connect`
+  and session-state test.

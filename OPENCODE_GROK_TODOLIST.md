@@ -41,19 +41,19 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 ### 2. Explore and design the general OpenCode configuration
 
-- [ ] Create an exploration workspace and concise journal following the repository's Explore instructions; report the
+- [x] Create an exploration workspace and concise journal following the repository's Explore instructions; report the
       journal path.
-- [ ] Research current official OpenCode documentation and its original upstream repository for:
+- [x] Research current official OpenCode documentation and its original upstream repository for:
   - Configuration locations, precedence, schemas, environment interpolation, provider definitions, model definitions,
     agents, instructions, permissions, tools, commands, plugins, MCP servers, sharing, updates, snapshots, logging, and
     session storage.
   - The native xAI provider and whether custom provider configuration is necessary or less desirable.
-- [ ] Research current official xAI documentation for Grok 4.6 and `grok-build-0.1`:
+- [x] Research current official xAI documentation for Grok 4.6 and `grok-build-0.1`:
   - Exact model IDs, availability, API compatibility, context/output limits, reasoning controls, tool calling,
     streaming, pricing-relevant settings, rate limits, and supported server-side tools.
-- [ ] Verify every model ID and option against the live xAI API or OpenCode model listing instead of relying solely on
+- [x] Verify every model ID and option against the live xAI API or OpenCode model listing instead of relying solely on
       documentation examples.
-- [ ] Interview the user, one question at a time, and record each answer before writing configuration. Cover at least:
+- [x] Interview the user, one question at a time, and record each answer before writing configuration. Cover at least:
   - Default model and small model responsibilities.
   - Reasoning effort, output verbosity, context limits, compaction, and cost/latency preferences.
   - Whether OpenCode may edit files and run shell commands automatically, must ask, or must deny by default.
@@ -65,7 +65,8 @@ including a recommended answer. Do not implement a later phase before its decisi
   - Whether OpenCode may send repository contents, environment data, or diagnostics anywhere other than xAI.
   - Decisions recorded on 2026-09-17:
     - Use the native global xAI endpoint with `xai/grok-4.6` as the main model and `xai/grok-build-0.1` as the small
-      model; use `high` reasoning for build and `xhigh` for plan.
+      model; explicitly pin `high` reasoning for build and `xhigh` for plan. Keep trivial single-property configuration
+      objects on one line.
     - Enable full autonomy, including secret-like files, external directories, arbitrary shell commands, and no
       approval prompts. Apply this literally to every built-in agent, so global permissions also override Plan's edit
       denial and Explore's read-only restrictions. Explicitly accept and document the resulting local
@@ -80,44 +81,159 @@ including a recommended answer. Do not implement a later phase before its decisi
       more agents. Omit the default-valued `subagent_depth` key and validate its effective behavior.
     - Allow every agent to discover and load trusted global/project skills without prompts. Rely on the broad global
       allow rule rather than adding a redundant skill-specific setting.
-    - Remaining interview branches: custom tools, LSP/formatters, Claude compatibility, compaction, logging/telemetry,
-      and any final tool-specific exception.
-- [ ] Produce a least-privilege threat model covering prompt injection, secret exfiltration, malicious repository
+    - Allow trusted projects to load executable `.opencode/tools` modules automatically. Accept that initialization is
+      not sandboxed and that a custom tool can replace a built-in tool with the same name.
+    - Enable local-only LSP integration and set `OPENCODE_DISABLE_LSP_DOWNLOAD=true`; use only language servers already
+      installed in the image/project. Keep the experimental model-callable LSP tool disabled.
+    - Keep automatic formatters disabled by omitting `formatter`; use each repository's explicit formatting and
+      validation commands instead of background post-edit mutations.
+    - Set `OPENCODE_DISABLE_CLAUDE_CODE=1`; ignore Claude prompt files and `.claude` skills while retaining `AGENTS.md`,
+      native OpenCode extensions, and `.agents` skills.
+    - Keep automatic compaction enabled and tool-output pruning disabled by relying on the defaults; omit a redundant
+      `compaction` block and validate the effective 20k-token safety reserve.
+    - Keep OpenCode's stable 32k output-token default and do not set the experimental output override. Control response
+      verbosity through `AGENTS.md` and prompts because xAI exposes no documented Grok 4.6 verbosity parameter.
+    - Leave experimental OpenTelemetry disabled and export no diagnostic spans; retain only local logs/sessions and
+      required xAI traffic.
+    - Persist local logs at the default INFO level for contingency troubleshooting; accept that logs may contain paths,
+      commands, tool metadata, and error details, and omit a redundant log-level setting.
+    - Allow the default models.dev catalog refresh for current public model metadata; it sends no prompt or repository
+      content. Do not set `OPENCODE_DISABLE_MODELS_FETCH`.
+    - Keep literal full autonomy with no tool-specific exceptions; trusted repositories remain the security boundary.
+- [x] Produce a least-privilege threat model covering prompt injection, secret exfiltration, malicious repository
       instructions, shell execution, filesystem escape, untrusted plugins/MCP servers, telemetry, sharing, and local
       credential/session exposure.
-- [ ] Propose the minimal global `opencode.json`/`opencode.jsonc` configuration and clearly separate user-wide settings
+  - Outcome: the selected policy deliberately matches the current Codex full-access posture and is not least privilege.
+    Trusting the repository and container boundary—not an OpenCode sandbox—is the primary control.
+  - Prompt injection and malicious repository instructions can drive unrestricted reads, writes, shell/network calls,
+    Git operations, and data exfiltration. Use this profile only in repositories whose contents and extensions are
+    trusted; `AGENTS.md` guidance is behavioral rather than an enforceable sandbox.
+  - The xAI key, `.env` files, mounted host paths, other credentials, and external directories are reachable whenever
+    exposed to the OpenCode process or container. ZDR governs xAI retention but cannot protect secrets read or sent by
+    local tools, plugins, MCP servers, or malicious commands.
+  - Project/global plugins and `.opencode/tools` execute local code during loading and can intercept tools or replace
+    built-ins. Project configuration may also add MCP servers despite the empty global MCP policy; each trusted project
+    therefore expands the executable-code and external-recipient boundary.
+  - Sharing and OpenTelemetry are disabled. Expected non-project-content recipients are xAI for model requests and
+    models.dev for public catalog refreshes; future web search, plugins, and MCP integrations require separate review.
+  - Sessions and INFO logs are local but intentionally persistent and may contain prompts, code, paths, commands, tool
+    metadata, and errors. Phase 3 must protect their volume and credentials with appropriate ownership, permissions,
+    retention, and deletion procedures.
+  - Snapshots are disabled, so Git and backups are the recovery controls for destructive edits. Full shell/network
+    authority remains comparable to this repository's current Codex configuration, while OpenCode additionally removes
+    the built-in Plan/Explore tool boundaries.
+- [x] Propose the minimal global `opencode.json`/`opencode.jsonc` configuration and clearly separate user-wide settings
       from any project-specific settings that should be committed here.
-- [ ] Validate the proposed configuration against the current OpenCode schema and with OpenCode's own diagnostics.
-- [ ] Run a harmless Grok 4.6 smoke test and a small-model task; confirm which configuration and model are actually in
+  - Approved global configuration:
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/config.json",
+      "model": "xai/grok-4.6",
+      "small_model": "xai/grok-build-0.1",
+      "enabled_providers": ["xai"],
+      "share": "disabled",
+      "snapshot": false,
+      "autoupdate": false,
+      "lsp": true,
+      "permission": {"*": "allow"},
+      "agent": {"build": {"variant": "high"}, "plan": {"variant": "xhigh"}}
+    }
+    ```
+
+  - Set `OPENCODE_DISABLE_LSP_DOWNLOAD=true` and `OPENCODE_DISABLE_CLAUDE_CODE=1` outside the JSON configuration.
+  - Do not set `OPENCODE_PURE`; keep default plugin behavior.
+- [x] Validate the proposed configuration against the current OpenCode schema and with OpenCode's own diagnostics.
+  - `opencode debug config` on OpenCode 1.18.31 resolved every proposed field and both agent variants exactly.
+- [x] Run a harmless Grok 4.6 smoke test and a small-model task; confirm which configuration and model are actually in
       use.
-- [ ] Commit the approved configuration milestone.
+  - `xai/grok-4.6` with the Build agent and `high` variant returned the requested sentinel.
+  - `xai/grok-build-0.1` with the Build agent returned the requested sentinel; the pinned Build variant caused no error.
+  - The environment-injected key had zero matches in OpenCode config, logs, sessions, state, cache, or exploration files.
+    The temporary source file itself is mode `0644` and must not become the approved credential-storage design.
+- [x] Commit the approved configuration milestone after the repository-managed source and runtime placement are settled
+      in item 3, per the user's instruction to make one commit at the end rather than interim commits.
 
 ### 3. Decide API-key injection and configuration persistence
 
-- [ ] Document exactly where OpenCode reads credentials and where `/connect` stores them, including file permissions,
+- [x] Document exactly where OpenCode reads credentials and where `/connect` stores them, including file permissions,
       plaintext/encryption behavior, precedence, and whether credentials enter logs, shell history, or process
       environments.
-- [ ] Present three materially different credential approaches where viable:
+  - OpenCode 1.18.31 recognizes `XAI_API_KEY` for the native `xai` provider. A launch-time environment key remains in
+    the OpenCode process environment and is inherited by its shell tools, but a hidden-input wrapper can keep the value
+    out of command arguments, shell history, and disk.
+  - `/connect` and `opencode auth login` offer xAI's `Manually enter API Key` method and store the key as unencrypted
+    JSON in `${XDG_DATA_HOME:-~/.local/share}/opencode/auth.json`, written with mode `0600`. With this repository's
+    current environment, the concrete path is `/root/.local/share/opencode/auth.json`.
+  - In the current provider loader, stored API credentials are merged after environment credentials and therefore take
+    precedence when both exist. Stored credentials are not copied into the process environment, although this profile's
+    unrestricted filesystem tools can still read the credential file.
+  - The normal hidden prompt/storage paths do not intentionally log the key; the live environment-key smoke tests found
+    no exact key in OpenCode logs or state. Plugins, arbitrary shell commands, and unrestricted file access remain able
+    to disclose either credential form under the approved full-autonomy policy.
+- [x] Present three materially different credential approaches where viable:
   1. A prompt-on-launch shell function that exports `XAI_API_KEY` only to the OpenCode child process (expected default).
   2. OpenCode's native credential store populated via `/connect`.
   3. Host secret-manager or Docker-secret integration, if it fits this local development workflow.
-- [ ] Interview the user to choose between entering the key for every launch and persisting it across containers.
-- [ ] Design an `opencode-grok` alias or shell function modeled on the former OpenRouter flow, with hidden input, empty
+- [x] Interview the user to choose between entering the key for every launch and persisting it across containers.
+  - Decision on 2026-09-18: use an `opencode-grok` prompt on every launch, matching the former OpenRouter workflow.
+    Keep the key ephemeral: hidden input, reject an empty value, pass `XAI_API_KEY` only to the OpenCode child, and do
+    not write the key to the native credential store, repository, image, shell history, or command arguments.
+- [x] Design an `opencode-grok` alias or shell function modeled on the former OpenRouter flow, with hidden input, empty
       input rejection, no command-line argument exposure, and no key written to disk unless explicitly selected.
-- [ ] Map all OpenCode state that may need persistence: general/TUI config, credentials, sessions, logs, caches,
+- [x] Map all OpenCode state that may need persistence: general/TUI config, credentials, sessions, logs, caches,
       plugins, downloaded packages, and other XDG data/state/cache paths.
-- [ ] Present and compare persistence layouts:
-  - Reuse an existing broad volume only if isolation and ownership remain clear.
-  - Add dedicated OpenCode config/data/cache volumes.
-  - Bake non-secret defaults into the image and keep credentials/session data ephemeral.
-- [ ] Interview the user about which state should survive container recreation and which state must remain ephemeral.
-- [ ] Update `docker/.bashrc`, `docker/Dockerfile`, and `.zshrc` only as required by the approved credential and
+  - `${XDG_CONFIG_HOME:-~/.config}/opencode`: global `opencode.json`, `tui.json`, and global agents, commands, modes,
+    plugins, skills, themes, tools, dependency manifests, and installed plugin packages. Repository-managed defaults can
+    be baked into `/root/.config/opencode`; project `.opencode` content remains in the `/workspace` bind mount.
+  - `${XDG_DATA_HOME:-~/.local/share}/opencode`: `opencode.db` sessions/messages plus logs, plans, truncated tool output,
+    managed worktrees/repository data, and any `auth.json` or `mcp-auth.json`. This is the sensitive durable-data tier.
+  - `${XDG_STATE_HOME:-~/.local/state}/opencode`: recent-model/variant selection, plugin metadata, and process locks. It
+    is convenient rather than essential and can remain ephemeral when the model is pinned in global configuration.
+  - `${XDG_CACHE_HOME:-~/.cache}/opencode`: refreshable models.dev metadata, skill cache, and downloaded helper binaries.
+    This repository already sets `XDG_CACHE_HOME=/data/cache`, so it already lands in the persistent `dev-data` volume.
+  - `${TMPDIR:-/tmp}/opencode`: disposable runtime files. `/root/.opencode/bin/opencode` is the image-installed executable,
+    not the configuration directory, and is restored by rebuilding the image.
+- [x] Present and compare persistence layouts:
+  - Reuse the existing `dev-data` volume for OpenCode data and cache while baking non-secret configuration into the
+    image.
+  - Add a dedicated `dev-opencode-data` named volume while continuing to bake non-secret configuration into the image.
+  - Bind-mount a host directory for directly inspectable and independently backed-up OpenCode data.
+- [x] Interview the user about which state should survive container recreation and which state must remain ephemeral.
+  - Decision on 2026-09-18: reuse the existing `dev-data` volume. The `opencode-grok` child will use
+    `XDG_DATA_HOME=/data`, so its database, sessions, logs, plans, and tool-output data live under `/data/opencode`.
+    Continue using the existing `/data/cache/opencode` cache. Keep credentials ephemeral, bake repository-managed global
+    configuration into the image, and leave recent-model/plugin state and locks under `/root/.local/state/opencode`
+    ephemeral. No additional `.zshrc` volume mount is needed.
+  - Decision on 2026-09-18: keep the repository source of truth at `.config/opencode/opencode.json` and copy it to
+    `/root/.config/opencode/opencode.json` in the image. This mirrors the existing Neovim layout, uses OpenCode's normal
+    global configuration path, and preserves the ability for trusted project configuration to override global values.
+  - Decision on 2026-09-18: retain sessions and the append-only INFO log until manual cleanup. Use
+    `XDG_DATA_HOME=/data opencode session delete <sessionID>` for targeted session removal; document a deliberate full
+    `/data/opencode` reset procedure after OpenCode is stopped. Do not add automatic age-based deletion or `logrotate`.
+- [x] Update `docker/.bashrc`, `docker/Dockerfile`, and `.zshrc` only as required by the approved credential and
       persistence design.
-- [ ] Verify the key is absent from Git, image layers, shell history, process arguments, OpenCode logs, and diagnostic
+  - Added the hidden-input `opencode-grok` function and approved environment flags to `docker/.bashrc`; added the
+    repository-managed global configuration copy to `docker/Dockerfile`. The existing `dev-data` mount already meets
+    the selected layout, so `.zshrc` required no change.
+- [x] Verify the key is absent from Git, image layers, shell history, process arguments, OpenCode logs, and diagnostic
       output; document unavoidable exposure to the target process environment.
+  - The function accepts the key through silent standard input and places only the variable name—not its value—in the
+    tracked shell definition. It passes the key through the child environment, never a command argument. Exact-value
+    scans after a live launch found no key in the repository, configuration, OpenCode data/logs, state, or cache.
+  - Unavoidable exposure: OpenCode and every unrestricted shell command or plugin it launches can read `XAI_API_KEY`
+    for that process lifetime. The key is removed with the process and is prompted again on the next launch.
 - [ ] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
       policy.
-- [ ] Commit the credential and persistence milestone.
+  - Docker is unavailable in this container. Current-process validation proved that the tracked configuration resolves,
+    a live Grok request succeeds, and the database/log land under `/data/opencode`. Host check after rebuilding: launch
+    with `dev`, create a session with `opencode-grok`, exit, launch `dev` again, then run
+    `XDG_DATA_HOME=/data opencode session list` and confirm the session remains while the key is requested again.
+  - Manual cleanup: stop OpenCode before changing its files. Delete one session with
+    `XDG_DATA_HOME=/data opencode session delete <sessionID>`. Rotate the log recoverably by moving
+    `/data/opencode/log/opencode.log` aside. Reset all durable OpenCode data recoverably by moving `/data/opencode` to a
+    backup name; the next `opencode-grok` launch recreates it.
+- [x] Commit the credential and persistence milestone in the same end-of-phase commit as the approved configuration.
 
 ### 4. Match the OpenCode TUI to the current environment
 
@@ -202,4 +318,8 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Created branch `contingency-opencode-grok` from `trunk`.
 - [x] Wrote this ordered checklist without implementing it.
 - [x] Completed item 1: removed OpenRouter and installed OpenCode through the latest-tracking official installer.
-- [ ] Next action: begin item 2 by creating the exploration workspace and journal, then research the configuration.
+- [x] Completed item 2's research, interview, threat model, configuration design, diagnostics, and live model tests.
+- [x] Implemented item 3's approved prompt and persistence layout; configuration diagnostics, wrapper checks, a live
+      Grok request, and exact-key persistence scans passed.
+- [ ] Host-only check: rebuild and recreate the container to confirm the named volume retains `/data/opencode`.
+- [ ] Next action after the host check: begin item 4's TUI comparison and interview.

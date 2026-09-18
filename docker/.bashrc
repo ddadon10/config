@@ -20,6 +20,8 @@ export IS_SANDBOX=1
 export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-$(dpkg --print-architecture)"
 export LANG=C.UTF-8
 export MANPAGER="bat --plain --language man"
+export OPENCODE_DISABLE_CLAUDE_CODE=1
+export OPENCODE_DISABLE_LSP_DOWNLOAD=true
 export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$HOME/go/bin:$PATH"
 export SHELL=/bin/bash
 export TERM=xterm-ghostty
@@ -27,6 +29,15 @@ export XDG_CACHE_HOME=/data/cache
 
 # Codex
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
+
+# OpenCode
+opencode-grok() {
+  local key
+  IFS= read -rsp 'xAI API key: ' key
+  printf '\n'
+  [[ -n "$key" ]] || { printf 'xAI API key is required\n' >&2; return 1; }
+  XAI_API_KEY="$key" XDG_DATA_HOME=/data command opencode "$@"
+}
 
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "$GIT_USER_NAME" ] || git config --global user.name "$GIT_USER_NAME"

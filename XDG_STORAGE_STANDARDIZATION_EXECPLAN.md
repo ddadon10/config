@@ -160,8 +160,10 @@ Steps:
 
 1. Run focused static checks inside the current container after editing: inspect the shell exports and mounts, parse the
    changed Lua through a headless Neovim invocation where possible, and inspect the task diff.
-2. Build `ddadon/dev:current` on the Docker-capable host and start a fresh `dev` container. A clean `dev-data` volume is
-   acceptable; no old OpenCode data must be retained.
+2. Build `ddadon/dev:current` on the Docker-capable host with
+   `docker build --file docker/Dockerfile --tag ddadon/dev:current .`, then start a fresh `dev` container. A clean
+   `dev-data` volume is acceptable; no old OpenCode data must be retained. Do not use `build.sh` for this focused check
+   because it also pushes images and rebuilds the unrelated Git and Azure clients.
 3. Validate all resolved OpenCode and Neovim paths, the absence of config/runtime redirection, and the presence of
    system-installed Neovim plugins and parsers.
 4. Launch Neovim normally and exercise colorscheme loading, Tree-sitter highlighting, and one configured plugin-backed
@@ -271,8 +273,8 @@ Steps:
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: run the complete container-local validation for Milestone 4, inspect the aggregate task diff, and
-prepare the exact Docker-host rebuild and cross-container validation handoff.
+Exact next action: on the Docker-capable host, run `docker build --file docker/Dockerfile --tag ddadon/dev:current .`
+and start `dev`; then execute Milestone 4's rebuilt-image and first-container checks.
 
 ## Findings and Decisions
 
@@ -315,6 +317,12 @@ prepare the exact Docker-host rebuild and cross-container validation handoff.
   `dev-codex-home`, `dev-data`, and `dev-maven`; the project remains a bind mount at `/workspace`.
 - `OPENCODE_GROK_TODOLIST.md` now distinguishes the historically validated dedicated volume from the final shared-XDG
   layout, documents all three concrete OpenCode paths, and warns that `/data` itself is not a disposable cache root.
+- Milestone 4's container-local checks passed on 2026-09-18: both shell files and both OpenCode JSON files parsed; the
+  three intended XDG exports and the remaining mounts matched exactly; OpenCode diagnostics resolved every target
+  path; the exact Neovim config loaded system-provisioned plugins and a Lua parser without creating a user package
+  tree; and `git diff --check` passed across all implementation commits.
+- Docker is unavailable inside this development container, so the rebuilt image contents, real mount table, TUI/model
+  behavior, and cross-container persistence remain host validation rather than inferred results.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -336,3 +344,6 @@ prepare the exact Docker-host rebuild and cross-container validation handoff.
 - 2026-09-18: Completed Milestone 3. Removed the dedicated OpenCode mount, retained the shared data, Codex, and Maven
   volumes, and updated the OpenCode checklist to supersede the old persistence decision with the concrete shared-XDG
   paths and safe cleanup guidance. No data migration, compatibility logic, or secret-handling change was added.
+- 2026-09-18: Completed the container-local portion of Milestone 4. Validated syntax, configuration parsing, exports,
+  mounts, application paths, system-loaded Neovim plugins and parser execution, absence of a user plugin tree, and the
+  aggregate diff. Recorded the focused host build command; Docker-host and recreation checks remain pending.

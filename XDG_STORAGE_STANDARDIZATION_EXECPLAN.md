@@ -38,8 +38,8 @@ Docker-capable host. No other named volume will be removed.
 
 The completed result must use OpenCode's native credential store populated through `/connect`, preserve OpenCode and
 Neovim configuration and features, and preserve the container's other explicit storage locations such as
-`/root/.codex`, `/root/.m2`, `GOMODCACHE`, and `GRADLE_USER_HOME`. The xAI key is deliberately created with a
-server-side expiration date and is not injected through the process environment.
+`/root/.codex`, `/root/.m2`, `GOMODCACHE`, `GRADLE_USER_HOME`, and the npm cache. The xAI key is deliberately created
+with a server-side expiration date and is not injected through the process environment.
 
 ## Plan of Work
 
@@ -95,6 +95,8 @@ Steps:
 2. Keep `XDG_CONFIG_HOME`, `XDG_RUNTIME_DIR`, `XDG_CONFIG_DIRS`, and `XDG_DATA_DIRS` unset.
 3. Ensure `/data/share`, `/data/state`, and `/data/cache` are valid root-owned directories. Preserve the existing
    `/data/cache/gomod`, `/data/cache/npm`, and `/data/gradle` initialization and the explicit Go and Gradle variables.
+   Add `NPM_CONFIG_CACHE=/data/cache/npm` because npm does not consume `XDG_CACHE_HOME` automatically; the pre-created
+   directory alone does not change npm's effective cache path.
 4. Do not inject the xAI key into the process environment. Populate OpenCode's native credential store through
    `/connect`; the resulting `/data/share/opencode/auth.json` persists with the other OpenCode data.
 
@@ -106,6 +108,7 @@ Validation and expected results:
 - OpenCode reports `/root/.config/opencode`, `/data/share/opencode`, `/data/state/opencode`, and
   `/data/cache/opencode` for its config, data, state, and cache paths respectively; its temporary path remains under
   `/tmp`.
+- `npm config get cache` reports `/data/cache/npm` in a new interactive container.
 - Repository-managed Neovim and OpenCode configuration continues to resolve from the image rather than the volume.
 
 Recovery:
@@ -174,8 +177,9 @@ Steps:
    toggle a TUI preference such as sidebar visibility, and exit cleanly.
 6. Recreate the `--rm` container and verify that the OpenCode session and TUI preference survive under `/data`, while
    `opencode auth list` still reports xAI without another key prompt and runtime files do not survive.
-7. Confirm the Codex and Maven volumes, project bind mount, Go module cache, Gradle home, npm cache, and existing
-   repository-managed configuration still resolve as before.
+7. Confirm the Codex and Maven volumes, project bind mount, Go module cache, Gradle home, and repository-managed
+   configuration still resolve as before. Confirm npm now resolves its previously pre-created cache directory at
+   `/data/cache/npm`.
 
 Validation commands and expected evidence include:
 
@@ -275,8 +279,8 @@ Steps:
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: in the rebuilt container, use `/connect` from plain `opencode` to store the expiring xAI key, complete
-a harmless Grok request, toggle the sidebar once, exit OpenCode, and inspect the resulting credential/session state.
+Exact next action: rebuild `ddadon/dev:current` once more with the npm cache export, reload the host `.zshrc`, and start
+a fresh `dev` container; then rerun the mount/environment checks before using `/connect`.
 
 ## Findings and Decisions
 
@@ -333,9 +337,10 @@ a harmless Grok request, toggle the sidebar once, exit OpenCode, and inspect the
   `.zshrc` no longer requests it. The host shell retained the old `dev()` function in memory. OpenCode ignores this
   obsolete mount because its data path resolves to `/data/share/opencode`; the host shell must reload `.zshrc` before
   the persistence-test container is created.
-- npm continues to resolve its cache to `/root/.npm`, matching the unchanged `.npmrc`. The Dockerfile's existing
-  `/data/cache/npm` directory is not an npm configuration setting and is hidden when the pre-existing `dev-data` volume
-  is mounted. This is pre-existing behavior, not an XDG regression, and no unrelated npm change will be added.
+- Rebuilt-image validation found that npm resolved its cache to `/root/.npm`: npm does not consume `XDG_CACHE_HOME`,
+  `.npmrc` had no cache setting, and the Dockerfile merely pre-created `/data/cache/npm`. The selected correction is a
+  container-only `NPM_CONFIG_CACHE=/data/cache/npm` export in `docker/.bashrc`; placing the absolute container path in
+  the repository `.npmrc` would incorrectly affect host-side npm usage in this checkout.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -364,3 +369,6 @@ a harmless Grok request, toggle the sidebar once, exit OpenCode, and inspect the
   xAI key rather than a launch wrapper or environment injection. Recorded successful rebuilt-image validation and the
   stale host-shell `dev()` function that temporarily retained the obsolete mount. Interactive and recreation checks
   remain pending.
+- 2026-09-18: Added the missing container-specific npm cache export after rebuilt-image validation proved that the
+  pre-created `/data/cache/npm` directory alone did not configure npm. Updated the remaining validation and rebuild
+  step without changing the repository `.npmrc` or host-side npm behavior.

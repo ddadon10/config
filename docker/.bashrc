@@ -20,6 +20,7 @@ export IS_SANDBOX=1
 export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-$(dpkg --print-architecture)"
 export LANG=C.UTF-8
 export MANPAGER="bat --plain --language man"
+export NPM_CONFIG_CACHE=/data/cache/npm
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export OPENCODE_DISABLE_LSP_DOWNLOAD=true
 export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$HOME/go/bin:$PATH"

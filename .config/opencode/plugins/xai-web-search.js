@@ -16,10 +16,10 @@ export const XaiWebSearch = async ({ client }) => ({
           body: JSON.stringify({
             model: "grok-4.6",
             input: `Query: ${query}`,
-            instructions: "Do one web search. Answer briefly with a list of source links; prefer primary sources.",
+            instructions: "Perform one web search for the query. Briefly answer it, then list the source links.",
             reasoning: { effort: "low" },
             max_output_tokens: 2000,
-            max_turns: 3,
+            max_turns: 1,
             parallel_tool_calls: false,
             store: false,
             tools: [{ type: "web_search" }],

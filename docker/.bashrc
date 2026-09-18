@@ -32,15 +32,6 @@ export XDG_STATE_HOME=/data/state
 # Codex
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 
-# OpenCode
-ocgrok() {
-  local key
-  IFS= read -rsp 'xAI API key: ' key
-  printf '\n'
-  [[ -n "$key" ]] || { printf 'xAI API key is required\n' >&2; return 1; }
-  XAI_API_KEY="$key" command opencode "$@"
-}
-
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "$GIT_USER_NAME" ] || git config --global user.name "$GIT_USER_NAME"
 [ "$(git config --global --get user.email 2>/dev/null || true)" = "$GIT_USER_EMAIL" ] || git config --global user.email "$GIT_USER_EMAIL"

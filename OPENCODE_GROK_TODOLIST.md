@@ -159,28 +159,26 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Document exactly where OpenCode reads credentials and where `/connect` stores them, including file permissions,
       plaintext/encryption behavior, precedence, and whether credentials enter logs, shell history, or process
       environments.
-  - OpenCode 1.18.31 recognizes `XAI_API_KEY` for the native `xai` provider. A launch-time environment key remains in
-    the OpenCode process environment and is inherited by its shell tools, but a hidden-input wrapper can keep the value
-    out of command arguments, shell history, and disk.
+  - The initially implemented launch-time environment workflow was inherited by OpenCode shell tools. It has been
+    superseded by native credential storage so the key is no longer added to the process environment.
   - `/connect` and `opencode auth login` offer xAI's `Manually enter API Key` method and store the key as unencrypted
     JSON in `${XDG_DATA_HOME:-~/.local/share}/opencode/auth.json`, written with mode `0600`. Under the standardized XDG
     environment, the concrete path is `/data/share/opencode/auth.json`.
   - In the current provider loader, stored API credentials are merged after environment credentials and therefore take
     precedence when both exist. Stored credentials are not copied into the process environment, although this profile's
     unrestricted filesystem tools can still read the credential file.
-  - The normal hidden prompt/storage paths do not intentionally log the key; the live environment-key smoke tests found
-    no exact key in OpenCode logs or state. Plugins, arbitrary shell commands, and unrestricted file access remain able
-    to disclose either credential form under the approved full-autonomy policy.
+  - Native credential storage does not intentionally log the key. Plugins, arbitrary shell commands, and unrestricted
+    file access can still read the credential file under the approved full-autonomy policy.
 - [x] Present three materially different credential approaches where viable:
-  1. A prompt-on-launch shell function that exports `XAI_API_KEY` only to the OpenCode child process (expected default).
+  1. A prompt-on-launch shell function that injects the key only into the OpenCode child process.
   2. OpenCode's native credential store populated via `/connect`.
   3. Host secret-manager or Docker-secret integration, if it fits this local development workflow.
 - [x] Interview the user to choose between entering the key for every launch and persisting it across containers.
-  - Decision on 2026-09-18: use an `opencode-grok` prompt on every launch, matching the former OpenRouter workflow.
-    Keep the key ephemeral: hidden input, reject an empty value, pass `XAI_API_KEY` only to the OpenCode child, and do
-    not write the key to the native credential store, repository, image, shell history, or command arguments.
-- [x] Design an `opencode-grok` alias or shell function modeled on the former OpenRouter flow, with hidden input, empty
-      input rejection, no command-line argument exposure, and no key written to disk unless explicitly selected.
+  - Superseded decision on 2026-09-18: prompt for an ephemeral key on every launch through a shell function.
+  - Final decision on 2026-09-18: create an xAI API key with a deliberate server-side expiration date when contingency
+    access is needed, store it through `/connect`, and launch OpenCode normally. The key must not be tracked, baked into
+    the image, placed in shell history or command arguments, or injected into child-process environments.
+- [x] Remove the superseded prompt-on-launch function after selecting OpenCode's native credential store.
 - [x] Map all OpenCode state that may need persistence: general/TUI config, credentials, sessions, logs, caches,
       plugins, downloaded packages, and other XDG data/state/cache paths.
   - `${XDG_CONFIG_HOME:-~/.config}/opencode`: global `opencode.json`, `tui.json`, and global agents, commands, modes,
@@ -221,24 +219,24 @@ including a recommended answer. Do not implement a later phase before its decisi
     `logrotate`.
 - [x] Update `docker/.bashrc`, `docker/Dockerfile`, and `.zshrc` only as required by the approved credential and
       persistence design.
-  - Added the hidden-input `opencode-grok` function and approved environment flags to `docker/.bashrc`; added the
-    repository-managed global configuration copy to `docker/Dockerfile`; added the `dev-opencode-home` mount to
-    `.zshrc`. The launcher does not override `XDG_DATA_HOME`.
+  - The initial implementation added a hidden-input launch function to `docker/.bashrc`, the repository-managed global
+    configuration copy to `docker/Dockerfile`, and the `dev-opencode-home` mount to `.zshrc`.
   - The later XDG standardization supersedes that mount: `.zshrc` now retains only `dev-data` at `/data`, while
-    `docker/.bashrc` exports the data, state, and cache homes. The key-prompt function remains unchanged.
-- [x] Verify the key is absent from Git, image layers, shell history, process arguments, OpenCode logs, and diagnostic
-      output; document unavoidable exposure to the target process environment.
-  - The function accepts the key through silent standard input and places only the variable name—not its value—in the
-    tracked shell definition. It passes the key through the child environment, never a command argument. Exact-value
-    scans after a live launch found no key in the repository, configuration, OpenCode data/logs, state, or cache.
-  - Unavoidable exposure: OpenCode and every unrestricted shell command or plugin it launches can read `XAI_API_KEY`
-    for that process lifetime. The key is removed with the process and is prompted again on the next launch.
-- [x] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
+    `docker/.bashrc` exports the data, state, and cache homes. The later credential decision removes the key-prompt
+    function; plain `opencode` now uses the native store populated through `/connect`.
+- [x] Verify the earlier key workflow was absent from Git, image layers, shell history, process arguments, OpenCode
+      logs, and diagnostic output; document the replacement storage boundary.
+  - Earlier exact-value scans found no key in the repository, configuration, data/logs, state, or cache. Under the final
+    design, the key is intentionally present only in `/data/share/opencode/auth.json`, which OpenCode writes as mode
+    `0600`; it must remain absent from tracked files, the image, shell history, command arguments, logs, and state.
+  - Unavoidable exposure: OpenCode core, unrestricted shell commands, and plugins run as the same user and can read the
+    credential file. The xAI expiration date limits server-side validity even if the local expired value remains.
+- [ ] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
       policy.
   - Docker is unavailable in this container. Current-process validation proved that the tracked configuration resolves,
-    a live Grok request succeeds. Host check after rebuilding: launch
-    with `dev`, create a session with `opencode-grok`, exit, launch `dev` again, then run
-    `opencode session list` and confirm the session remains while the key is requested again.
+    a live Grok request succeeds. Host check after rebuilding: launch with `dev`, use `/connect` once for xAI, create a
+    session with `opencode`, exit, launch `dev` again, then confirm both `opencode auth list` and
+    `opencode session list` retain their entries without another credential prompt.
   - Manual cleanup: stop OpenCode before changing its files. Delete one session with
     `opencode session delete <sessionID>`. Rotate the log recoverably by moving
     `/data/share/opencode/log/opencode.log` aside. Reset durable OpenCode data recoverably by moving only
@@ -246,11 +244,12 @@ including a recommended answer. Do not implement a later phase before its decisi
     Never treat all of `/data` as disposable because it is shared with other applications.
   - First host half completed on 2026-09-18: `/proc/self/mountinfo` confirmed `dev-opencode-home` at
     `/root/.local/share/opencode`; the rebuilt image resolved the approved configuration, completed a default
-    `xai/grok-4.6` request, and created a session in the mounted data directory. The exact environment key was absent
+    `xai/grok-4.6` request, and created a session in the mounted data directory. The exact test key was absent
     from repository, configuration, data/log, state, and cache files. Recreate once more and confirm the session remains.
   - Final host validation on 2026-09-18: after another `--rm` container recreation, the same
     `ses_f4cb47fadffenBpL6bHFo6z6r8` session remained in `opencode session list` and the named volume was mounted at the
-    expected path. The host supplied `XAI_API_KEY` again for testing, but no native `auth.json` existed and an
+    expected path. The host supplied the key again through the earlier child-process environment, but no native
+    `auth.json` existed and an
     exact-value scan found no key in persistent data/logs, configuration, state, cache, or the repository.
   - The two preceding host checks validate the now-superseded dedicated-volume layout. The standardized XDG layout
     requires a new rebuild and two-container persistence check before `dev-opencode-home` can be deleted manually.
@@ -395,8 +394,10 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Wrote this ordered checklist without implementing it.
 - [x] Completed item 1: removed OpenRouter and installed OpenCode through the latest-tracking official installer.
 - [x] Completed item 2's research, interview, threat model, configuration design, diagnostics, and live model tests.
-- [x] Implemented item 3's approved prompt and persistence layout; configuration diagnostics, wrapper checks, a live
-      Grok request, and exact-key persistence scans passed.
+- [x] Updated item 3 to use `/connect` with an expiring xAI key, removed the launch wrapper and environment injection,
+      and documented the native credential file's persistence and exposure boundaries.
+- [ ] Rebuild and validate the final item 3 workflow: connect xAI once, run plain `opencode`, recreate the container,
+      and confirm credentials and sessions persist without another prompt.
 - [x] Historical host recreation confirmed the superseded `dev-opencode-home` layout retained sessions without
       persisting the xAI key; the replacement shared-XDG layout is implemented and awaits host rebuild validation.
 - [x] Completed item 4: added the approved Gruvbox TUI configuration and validated its load, cursor, mouse, title,

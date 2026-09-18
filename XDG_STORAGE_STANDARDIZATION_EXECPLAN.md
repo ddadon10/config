@@ -376,3 +376,5 @@ a fresh `dev` container; then rerun the mount/environment checks before using `/
 - 2026-09-18: Reorganized `docker/.bashrc` into application-focused sections, retained the ShellCheck-friendly
   `dpkg_arch` assignment for `JAVA_HOME`, and derived the explicit Go and npm cache paths from `XDG_CACHE_HOME` to keep
   one authoritative cache root. No effective storage destination changed.
+- 2026-09-18: Changed the literal `MANPAGER` value to single quotes for semantic consistency with the alias and other
+  non-expanding shell strings. This cosmetic cleanup does not change its effective value.

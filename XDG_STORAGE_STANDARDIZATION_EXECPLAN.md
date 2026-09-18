@@ -279,8 +279,8 @@ Steps:
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: launch plain `opencode`, use `/connect` to store the deliberately expiring xAI key, complete a
-harmless Grok request, toggle the sidebar preference, and exit OpenCode cleanly without exiting the container.
+Exact next action: exit the development container, start a new one with `dev`, and then verify that the xAI credential,
+`Greeting` session, model state, prompt history, and sidebar behavior survived through the shared `dev-data` volume.
 
 ## Findings and Decisions
 
@@ -347,6 +347,11 @@ harmless Grok request, toggle the sidebar preference, and exit OpenCode cleanly 
   the three intended XDG variables; npm and Go resolved `/data/cache/npm` and `/data/cache/gomod`; OpenCode resolved
   config, data, state, cache, and temporary paths correctly and reported zero credentials before `/connect`; and
   Neovim loaded all 11 image plugins, all 33 parsers, and a Lua parser without creating a user plugin tree.
+- The interactive OpenCode checkpoint passed on 2026-09-18. `/connect` stored one xAI API credential in
+  `/data/share/opencode/auth.json` as root-owned mode `0600`, while `XAI_API_KEY` remained unset. A successful Grok
+  interaction created session `ses_f4c4100f2ffeH3148Kjzh1s11P` with title `Greeting`; OpenCode's database and log were
+  written beneath `/data/share/opencode`, and prompt/model state was written beneath `/data/state/opencode`. No secret
+  content was inspected during validation.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -387,3 +392,6 @@ harmless Grok request, toggle the sidebar preference, and exit OpenCode cleanly 
   paths, exact OpenCode and Neovim XDG paths, system-provisioned Neovim assets, and absence of both the obsolete
   OpenCode mount and pre-existing native credentials. Advanced the exact next action to the interactive `/connect`
   and session-state test.
+- 2026-09-18: Recorded the successful interactive OpenCode checkpoint: native xAI credential discovery, restrictive
+  credential-file metadata, absence of environment injection, and the persisted session, database, prompt history,
+  and model-state locations. Advanced the exact next action to cross-container persistence validation.

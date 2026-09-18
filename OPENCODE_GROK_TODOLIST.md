@@ -328,19 +328,37 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 ### 5. Evaluate a `/fast` workflow for Grok
 
-- [ ] Define the desired semantics with the user: lower reasoning, `grok-build-0.1`, a cheaper Grok 4.6 variant, or a
+- [x] Define the desired semantics with the user: lower reasoning, `grok-build-0.1`, a cheaper Grok 4.6 variant, or a
       temporary model switch for the current session.
-- [ ] Check whether current OpenCode provides a native model variant, command, keybinding, agent switch, or equivalent
+  - Decision: `/fast` means xAI Priority Processing for the otherwise unchanged Grok model and reasoning settings. It
+    must send `service_tier: "priority"`; it does not mean lower reasoning or switching to `grok-build-0.1`.
+- [x] Check whether current OpenCode provides a native model variant, command, keybinding, agent switch, or equivalent
       that can implement those semantics.
-- [ ] If native support is insufficient, evaluate in this order:
+  - OpenCode merges arbitrary variant options and namespaces native xAI options correctly, but OpenCode 1.18.31 pins
+    `@ai-sdk/xai@3.0.102`, whose option schema discards `serviceTier` and whose serializers omit `service_tier`.
+  - Vercel AI added complete Chat Completions and Responses support, including returned-tier metadata, in `4.0.38` and
+    backported it to the compatible v3 line in `3.0.120`. OpenCode last bumped its xAI SDK on 2026-07-08, from
+    `3.0.82` to `3.0.102`; its current `dev` branch remains pinned there.
+  - A sanitized direct xAI API probe confirmed that this account and `grok-4.6` accept priority processing and return
+    `service_tier: "priority"`.
+- [x] If native support is insufficient, evaluate in this order:
   1. A custom OpenCode command or dedicated fast agent.
   2. A small local plugin with no external network access or dependencies.
   3. A shell-level alternate launcher only if in-session switching is impossible.
-- [ ] For any plugin, review the exact source, permissions, dependencies, update behavior, and data flows before use;
+  - A custom command can select a separate model while sending a prompt, but is not a clean state-only variant toggle.
+    A plugin or request wrapper could inject the field but would add unnecessary executable code and request access.
+    A versioned SDK override appears possible but would bypass exact-package-name transformations and needs validation.
+- [x] For any plugin, review the exact source, permissions, dependencies, update behavior, and data flows before use;
       do not install an unreviewed third-party plugin.
-- [ ] Implement only the approved approach and document how to enable, identify, and disable fast mode.
-- [ ] Verify the active model/options change as intended and can return safely to Grok 4.6 in the same workflow.
-- [ ] Commit the fast-mode milestone.
+  - No plugin was selected or installed. The user chose to wait for OpenCode to acquire the upstream SDK support.
+- [x] Implement only the approved approach and document how to enable, identify, and disable fast mode.
+  - Approved outcome: make no configuration or runtime change now. Revisit after OpenCode bundles
+    `@ai-sdk/xai@3.0.120` or newer, then use a `fast` model variant with `{"serviceTier":"priority"}` and verify the
+    applied tier from `providerMetadata.xai.serviceTier` where OpenCode exposes it.
+- [x] Verify the active model/options change as intended and can return safely to Grok 4.6 in the same workflow.
+  - Deferred with the implementation. The direct API probe verifies xAI's transport behavior, but no OpenCode
+    fast-mode state exists to enable or disable until its bundled SDK supports the option.
+- [x] Commit the fast-mode milestone.
 
 ### 6. Evaluate web search with OpenCode and Grok
 
@@ -405,4 +423,6 @@ including a recommended answer. Do not implement a later phase before its decisi
       persisting the xAI key; the replacement shared-XDG layout is validated and the obsolete volume is deleted.
 - [x] Completed item 4: added the approved Gruvbox TUI configuration and validated its load, cursor, mouse, title,
       status, default keybindings, and Grok request behavior with OpenCode 1.18.31.
-- [ ] Next action: begin item 5 by defining the intended `/fast` semantics.
+- [x] Completed item 5 as an intentional deferral: `/fast` means xAI Priority Processing, but no workaround is installed
+      while OpenCode remains on `@ai-sdk/xai@3.0.102`; revisit after it naturally updates to `3.0.120` or newer.
+- [ ] Next action: begin item 6 by researching OpenCode `websearch` and xAI native web/X search support and data flows.

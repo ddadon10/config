@@ -36,7 +36,7 @@ opencode-grok() {
   IFS= read -rsp 'xAI API key: ' key
   printf '\n'
   [[ -n "$key" ]] || { printf 'xAI API key is required\n' >&2; return 1; }
-  XAI_API_KEY="$key" XDG_DATA_HOME=/data command opencode "$@"
+  XAI_API_KEY="$key" command opencode "$@"
 }
 
 # Git

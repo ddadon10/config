@@ -197,25 +197,28 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Present and compare persistence layouts:
   - Reuse the existing `dev-data` volume for OpenCode data and cache while baking non-secret configuration into the
     image.
-  - Add a dedicated `dev-opencode-data` named volume while continuing to bake non-secret configuration into the image.
+  - Add a dedicated `dev-opencode-home` named volume while continuing to bake non-secret configuration into the image.
   - Bind-mount a host directory for directly inspectable and independently backed-up OpenCode data.
 - [x] Interview the user about which state should survive container recreation and which state must remain ephemeral.
-  - Decision on 2026-09-18: reuse the existing `dev-data` volume. The `opencode-grok` child will use
-    `XDG_DATA_HOME=/data`, so its database, sessions, logs, plans, and tool-output data live under `/data/opencode`.
-    Continue using the existing `/data/cache/opencode` cache. Keep credentials ephemeral, bake repository-managed global
-    configuration into the image, and leave recent-model/plugin state and locks under `/root/.local/state/opencode`
-    ephemeral. No additional `.zshrc` volume mount is needed.
+  - Superseded decision on 2026-09-18: reusing `dev-data` through child-scoped `XDG_DATA_HOME=/data` would also redirect
+    XDG-aware tools launched by OpenCode, including Neovim. Do not use that layout.
+  - Final decision on 2026-09-18: mount a dedicated `dev-opencode-home` volume at OpenCode's default data directory,
+    `/root/.local/share/opencode`. This persists its database, sessions, logs, plans, tool output, and any credentials
+    deliberately added later without changing `XDG_DATA_HOME` for OpenCode or its child tools. Continue using the
+    existing `/data/cache/opencode` cache; keep recent-model/plugin state and locks ephemeral. The volume name follows
+    `dev-codex-home`, although its exact scope is OpenCode's data directory rather than configuration, cache, or state.
   - Decision on 2026-09-18: keep the repository source of truth at `.config/opencode/opencode.json` and copy it to
     `/root/.config/opencode/opencode.json` in the image. This mirrors the existing Neovim layout, uses OpenCode's normal
     global configuration path, and preserves the ability for trusted project configuration to override global values.
   - Decision on 2026-09-18: retain sessions and the append-only INFO log until manual cleanup. Use
-    `XDG_DATA_HOME=/data opencode session delete <sessionID>` for targeted session removal; document a deliberate full
-    `/data/opencode` reset procedure after OpenCode is stopped. Do not add automatic age-based deletion or `logrotate`.
+    `opencode session delete <sessionID>` for targeted session removal; document a deliberate full
+    `/root/.local/share/opencode` reset procedure after OpenCode is stopped. Do not add automatic age-based deletion or
+    `logrotate`.
 - [x] Update `docker/.bashrc`, `docker/Dockerfile`, and `.zshrc` only as required by the approved credential and
       persistence design.
   - Added the hidden-input `opencode-grok` function and approved environment flags to `docker/.bashrc`; added the
-    repository-managed global configuration copy to `docker/Dockerfile`. The existing `dev-data` mount already meets
-    the selected layout, so `.zshrc` required no change.
+    repository-managed global configuration copy to `docker/Dockerfile`; added the `dev-opencode-home` mount to
+    `.zshrc`. The launcher does not override `XDG_DATA_HOME`.
 - [x] Verify the key is absent from Git, image layers, shell history, process arguments, OpenCode logs, and diagnostic
       output; document unavoidable exposure to the target process environment.
   - The function accepts the key through silent standard input and places only the variable name—not its value—in the
@@ -226,14 +229,16 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [ ] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
       policy.
   - Docker is unavailable in this container. Current-process validation proved that the tracked configuration resolves,
-    a live Grok request succeeds, and the database/log land under `/data/opencode`. Host check after rebuilding: launch
+    a live Grok request succeeds. Host check after rebuilding: launch
     with `dev`, create a session with `opencode-grok`, exit, launch `dev` again, then run
-    `XDG_DATA_HOME=/data opencode session list` and confirm the session remains while the key is requested again.
+    `opencode session list` and confirm the session remains while the key is requested again.
   - Manual cleanup: stop OpenCode before changing its files. Delete one session with
-    `XDG_DATA_HOME=/data opencode session delete <sessionID>`. Rotate the log recoverably by moving
-    `/data/opencode/log/opencode.log` aside. Reset all durable OpenCode data recoverably by moving `/data/opencode` to a
-    backup name; the next `opencode-grok` launch recreates it.
+    `opencode session delete <sessionID>`. Rotate the log recoverably by moving
+    `/root/.local/share/opencode/log/opencode.log` aside. Reset all durable OpenCode data recoverably by moving
+    `/root/.local/share/opencode` to a backup name; the next `opencode-grok` launch recreates it.
 - [x] Commit the credential and persistence milestone in the same end-of-phase commit as the approved configuration.
+  - The later dedicated-volume correction is a separate focused commit so the user's intervening
+    `Remove lsp support in opencode` commit remains intact.
 
 ### 4. Match the OpenCode TUI to the current environment
 
@@ -321,5 +326,6 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Completed item 2's research, interview, threat model, configuration design, diagnostics, and live model tests.
 - [x] Implemented item 3's approved prompt and persistence layout; configuration diagnostics, wrapper checks, a live
       Grok request, and exact-key persistence scans passed.
-- [ ] Host-only check: rebuild and recreate the container to confirm the named volume retains `/data/opencode`.
+- [ ] Host-only check: rebuild and recreate the container to confirm `dev-opencode-home` retains
+      `/root/.local/share/opencode`.
 - [ ] Next action after the host check: begin item 4's TUI comparison and interview.

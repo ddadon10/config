@@ -250,16 +250,69 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 ### 4. Match the OpenCode TUI to the current environment
 
-- [ ] Compare current Codex, Ghostty, shell, Vim/Neovim, and VS Code preferences with supported OpenCode TUI settings.
-- [ ] Research the current dedicated `tui.json` schema and avoid deprecated TUI keys in `opencode.json`.
-- [ ] Propose a minimal TUI configuration using the built-in Gruvbox theme when it matches the current palette.
-- [ ] Configure a non-blinking block cursor if OpenCode can control it reliably; otherwise document the terminal-level
+- [x] Compare current Codex, Ghostty, shell, Vim/Neovim, and VS Code preferences with supported OpenCode TUI settings.
+  - Gruvbox is consistent across Ghostty, Codex, Neovim, and BAT. Ghostty and VS Code disable cursor blinking; Ghostty
+    uses a block cursor. Neovim enables mouse support and uses one-line vertical mouse scrolling; VS Code uses stacked
+    diffs. Codex enables OSC 9 notifications and a dynamic terminal title.
+- [x] Research the current dedicated `tui.json` schema and avoid deprecated TUI keys in `opencode.json`.
+  - OpenCode 1.18.31 loads global TUI settings from `/root/.config/opencode/tui.json`, then merges explicit and project
+    overrides. The existing Dockerfile copies the entire repository-managed `.config/opencode` directory there.
+  - The supported user-facing fields are `theme`, `keybinds`, `leader_timeout`, `attention`, `prompt`, `scroll_speed`,
+    `scroll_acceleration`, `diff_style`, `cursor`, and `mouse`; TUI plugins also have dedicated fields.
+  - Legacy `theme`, `keybinds`, and `tui` keys in `opencode.json` are migration inputs, not the target design.
+- [x] Propose a minimal TUI configuration using the built-in Gruvbox theme when it matches the current palette.
+  - Fixed portion: use built-in `gruvbox`, which includes light and dark palettes and follows the terminal mode unless
+    manually locked.
+- [x] Configure a non-blinking block cursor if OpenCode can control it reliably; otherwise document the terminal-level
       fallback and avoid conflicting cursor controls.
-- [ ] Interview the user about notifications, sounds, mouse support, scrolling/acceleration, diff display, status
+  - Verified that OpenCode supports `"cursor": {"style": "block", "blinking": false}`. It agrees with Ghostty's
+    existing block/non-blinking settings and is therefore the proposed explicit configuration.
+- [x] Interview the user about notifications, sounds, mouse support, scrolling/acceleration, diff display, status
       information, keybindings, and terminal-title behavior.
-- [ ] Check for conflicts with Ghostty's existing cursor and shell-integration settings.
-- [ ] Validate the TUI interactively for color, cursor behavior, diffs, scrolling, notifications, and keybindings.
-- [ ] Commit the approved TUI milestone.
+  - Status gap: OpenCode has no configurable Codex-style status line. It always shows model/provider/variant and
+    context/cost near the prompt; `/status` reports MCP, LSP, formatter, and plugin state.
+  - Decision: accept the built-in status information and do not add executable TUI-plugin code to emulate Codex's
+    five-hour/weekly limits or token-total fields.
+  - Decision: enable terminal-mediated desktop notifications but disable sounds. Notifications occur only when Ghostty
+    is blurred and may expose the generated session title plus a generic status message. Configure
+    `"attention": {"enabled": true, "sound": false}` and omit the default-valued `notifications` field.
+  - Decision: retain the default enabled mouse capture, matching Neovim and allowing clickable controls and TUI wheel
+    scrolling. Omit the redundant `mouse` field.
+  - Decision: set `"scroll_speed": 1` to match Neovim's precise one-line vertical scrolling. Do not configure scroll
+    acceleration because enabling it would override the fixed speed.
+  - Decision: set `"diff_style": "stacked"` to match VS Code's non-side-by-side diff preference at every terminal
+    width instead of letting OpenCode switch layouts automatically.
+  - Decision: keep OpenCode's default keybindings and `ctrl+x` leader. Do not remap Ghostty's Command-derived Control
+    bytes or add a modal plugin; validate the defaults interactively before considering targeted overrides later.
+  - Decision: retain OpenCode's default dynamic terminal title. It displays `OpenCode` or a generated session title,
+    which can reveal task context in Ghostty's tab/window title; add no title environment flag or launcher override.
+  - Decision order: attention/notifications/sounds; mouse capture; scrolling; diff layout; status information;
+    keybindings; terminal title.
+  - Approved global TUI configuration:
+
+    ```json
+    {
+      "$schema": "https://opencode.ai/tui.json",
+      "theme": "gruvbox",
+      "scroll_speed": 1,
+      "diff_style": "stacked",
+      "cursor": {"style": "block", "blinking": false},
+      "attention": {"enabled": true, "sound": false}
+    }
+    ```
+- [x] Check for conflicts with Ghostty's existing cursor and shell-integration settings.
+  - OpenCode and Ghostty both request a non-blinking block cursor. Ghostty's `shell-integration-features = no-cursor`
+    prevents its shell integration from changing the cursor; it does not block a full-screen application from setting
+    the same cursor behavior. No conflicting repository setting was found.
+- [x] Validate the TUI interactively for color, cursor behavior, diffs, scrolling, notifications, and keybindings.
+  - OpenCode 1.18.31 loaded and applied the tracked file without a TUI-config warning. Its terminal output used Gruvbox's
+    `#282828` background, requested a steady block cursor, enabled mouse tracking, and set the `OpenCode` title.
+  - Default `ctrl+x s` opened the status dialog and `ctrl+x q` exited. A harmless Grok 4.6 request returned `TUI_OK`,
+    and the prompt displayed model/provider plus context use and cost. The user confirmed the TUI loads and looks good.
+  - The stacked diff and fixed scroll speed feed the built-in diff viewer directly. Desktop notification delivery could
+    not be simulated from the automation pseudo-terminal because it cannot blur a real Ghostty window; sound is
+    disabled by configuration. The disposable validation session was deleted afterward.
+- [x] Commit the approved TUI milestone.
 
 ### 5. Evaluate a `/fast` workflow for Grok
 
@@ -336,4 +389,6 @@ including a recommended answer. Do not implement a later phase before its decisi
       Grok request, and exact-key persistence scans passed.
 - [x] Host recreation confirmed `dev-opencode-home` retains `/root/.local/share/opencode` and its sessions without
       persisting the xAI key in OpenCode files.
-- [ ] Next action: begin item 4's TUI comparison and interview.
+- [x] Completed item 4: added the approved Gruvbox TUI configuration and validated its load, cursor, mouse, title,
+      status, default keybindings, and Grok request behavior with OpenCode 1.18.31.
+- [ ] Next action: begin item 5 by defining the intended `/fast` semantics.

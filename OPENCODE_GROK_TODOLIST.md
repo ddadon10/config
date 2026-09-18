@@ -231,7 +231,7 @@ including a recommended answer. Do not implement a later phase before its decisi
     `0600`; it must remain absent from tracked files, the image, shell history, command arguments, logs, and state.
   - Unavoidable exposure: OpenCode core, unrestricted shell commands, and plugins run as the same user and can read the
     credential file. The xAI expiration date limits server-side validity even if the local expired value remains.
-- [ ] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
+- [x] Recreate the container and confirm the selected configuration/state persists while secrets follow the approved
       policy.
   - Docker is unavailable in this container. Current-process validation proved that the tracked configuration resolves,
     a live Grok request succeeds. Host check after rebuilding: launch with `dev`, use `/connect` once for xAI, create a
@@ -253,6 +253,9 @@ including a recommended answer. Do not implement a later phase before its decisi
     exact-value scan found no key in persistent data/logs, configuration, state, cache, or the repository.
   - The two preceding host checks validate the now-superseded dedicated-volume layout. The standardized XDG layout
     requires a new rebuild and two-container persistence check before `dev-opencode-home` can be deleted manually.
+  - Final shared-XDG validation on 2026-09-18 confirmed that the native xAI credential, sessions, model state, prompt
+    history, and hidden-sidebar state survived container recreation through `dev-data`. The credential remained
+    root-owned mode `0600`, `XAI_API_KEY` remained unset, and deleting `dev-opencode-home` did not affect active data.
 - [x] Commit the credential and persistence milestone in the same end-of-phase commit as the approved configuration.
   - The later dedicated-volume correction is a separate focused commit so the user's intervening
     `Remove lsp support in opencode` commit remains intact.
@@ -396,10 +399,10 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Completed item 2's research, interview, threat model, configuration design, diagnostics, and live model tests.
 - [x] Updated item 3 to use `/connect` with an expiring xAI key, removed the launch wrapper and environment injection,
       and documented the native credential file's persistence and exposure boundaries.
-- [ ] Rebuild and validate the final item 3 workflow: connect xAI once, run plain `opencode`, recreate the container,
-      and confirm credentials and sessions persist without another prompt.
+- [x] Rebuilt and validated the final item 3 workflow: connected xAI once, ran plain `opencode`, recreated the container,
+      and confirmed credentials and sessions persist without another prompt.
 - [x] Historical host recreation confirmed the superseded `dev-opencode-home` layout retained sessions without
-      persisting the xAI key; the replacement shared-XDG layout is implemented and awaits host rebuild validation.
+      persisting the xAI key; the replacement shared-XDG layout is validated and the obsolete volume is deleted.
 - [x] Completed item 4: added the approved Gruvbox TUI configuration and validated its load, cursor, mouse, title,
       status, default keybindings, and Grok request behavior with OpenCode 1.18.31.
 - [ ] Next action: begin item 5 by defining the intended `/fast` semantics.

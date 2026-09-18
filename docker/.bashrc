@@ -26,7 +26,7 @@ export XDG_STATE_HOME=/data/state
 
 # Go
 export CGO_ENABLED=0
-export GOMODCACHE=/data/cache/gomod
+export GOMODCACHE="${XDG_CACHE_HOME}/gomod"
 
 # Java
 dpkg_arch="$(dpkg --print-architecture)"

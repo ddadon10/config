@@ -95,8 +95,8 @@ Steps:
 2. Keep `XDG_CONFIG_HOME`, `XDG_RUNTIME_DIR`, `XDG_CONFIG_DIRS`, and `XDG_DATA_DIRS` unset.
 3. Ensure `/data/share`, `/data/state`, and `/data/cache` are valid root-owned directories. Preserve the existing
    `/data/cache/gomod`, `/data/cache/npm`, and `/data/gradle` initialization and the explicit Go and Gradle variables.
-   Add `NPM_CONFIG_CACHE=/data/cache/npm` because npm does not consume `XDG_CACHE_HOME` automatically; the pre-created
-   directory alone does not change npm's effective cache path.
+   Derive `GOMODCACHE` and `NPM_CONFIG_CACHE` from `XDG_CACHE_HOME`; npm does not consume the XDG variable
+   automatically, so the pre-created directory alone does not change npm's effective cache path.
 4. Do not inject the xAI key into the process environment. Populate OpenCode's native credential store through
    `/connect`; the resulting `/data/share/opencode/auth.json` persists with the other OpenCode data.
 
@@ -339,8 +339,9 @@ a fresh `dev` container; then rerun the mount/environment checks before using `/
   the persistence-test container is created.
 - Rebuilt-image validation found that npm resolved its cache to `/root/.npm`: npm does not consume `XDG_CACHE_HOME`,
   `.npmrc` had no cache setting, and the Dockerfile merely pre-created `/data/cache/npm`. The selected correction is a
-  container-only `NPM_CONFIG_CACHE=/data/cache/npm` export in `docker/.bashrc`; placing the absolute container path in
-  the repository `.npmrc` would incorrectly affect host-side npm usage in this checkout.
+  container-only `NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"` export in `docker/.bashrc`; placing the absolute container
+  path in the repository `.npmrc` would incorrectly affect host-side npm usage in this checkout. `GOMODCACHE` likewise
+  derives its existing child path from `XDG_CACHE_HOME` so both explicit cache bridges share one authoritative root.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -372,3 +373,6 @@ a fresh `dev` container; then rerun the mount/environment checks before using `/
 - 2026-09-18: Added the missing container-specific npm cache export after rebuilt-image validation proved that the
   pre-created `/data/cache/npm` directory alone did not configure npm. Updated the remaining validation and rebuild
   step without changing the repository `.npmrc` or host-side npm behavior.
+- 2026-09-18: Reorganized `docker/.bashrc` into application-focused sections, retained the ShellCheck-friendly
+  `dpkg_arch` assignment for `JAVA_HOME`, and derived the explicit Go and npm cache paths from `XDG_CACHE_HOME` to keep
+  one authoritative cache root. No effective storage destination changed.

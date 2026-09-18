@@ -279,8 +279,8 @@ Steps:
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: exit the development container, start a new one with `dev`, and then verify that the xAI credential,
-`Greeting` session, model state, prompt history, and sidebar behavior survived through the shared `dev-data` volume.
+Exact next action: launch `opencode` once in the recreated container, confirm that the sidebar has the same visibility
+state it had when the previous container exited, then exit OpenCode and report the visual result.
 
 ## Findings and Decisions
 
@@ -352,6 +352,10 @@ Exact next action: exit the development container, start a new one with `dev`, a
   interaction created session `ses_f4c4100f2ffeH3148Kjzh1s11P` with title `Greeting`; OpenCode's database and log were
   written beneath `/data/share/opencode`, and prompt/model state was written beneath `/data/state/opencode`. No secret
   content was inspected during validation.
+- Cross-container persistence checks passed on 2026-09-18 for all nonvisual OpenCode state. In the recreated container,
+  OpenCode still reported the xAI credential from the root-owned mode-`0600` file, the original `Greeting` session,
+  model state, and prompt history; `XAI_API_KEY` remained unset. `/data` was the only relevant mount and OpenCode still
+  resolved its data and state beneath it. Manual confirmation of sidebar visibility remains pending.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -395,3 +399,6 @@ Exact next action: exit the development container, start a new one with `dev`, a
 - 2026-09-18: Recorded the successful interactive OpenCode checkpoint: native xAI credential discovery, restrictive
   credential-file metadata, absence of environment injection, and the persisted session, database, prompt history,
   and model-state locations. Advanced the exact next action to cross-container persistence validation.
+- 2026-09-18: Verified native credentials, the original session, model state, and prompt history after recreating the
+  container, with no obsolete OpenCode mount or environment key. Advanced the exact next action to the remaining
+  manual sidebar-visibility check before completing Milestone 4.

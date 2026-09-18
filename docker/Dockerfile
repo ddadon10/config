@@ -144,11 +144,20 @@ RUN npm install -g ccusage && npm cache clean --force
 
 RUN npm install -g @openai/codex@0.154.0 && npm cache clean --force
 
-RUN curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path
+# See: https://github.com/anomalyco/opencode/issues/46189
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path && \
+    mv /root/.opencode/bin/opencode /usr/local/bin/opencode && \
+    rmdir /root/.opencode/bin /root/.opencode
+
+COPY .config/opencode /root/.config/opencode
+
+# See: https://github.com/anomalyco/opencode/issues/37888
+RUN opencode_version="$(opencode --version)" && \
+    npm install --prefix /root/.config/opencode "@opencode-ai/plugin@${opencode_version}" && \
+    npm cache clean --force
 
 COPY .vimrc /root/.vimrc
 COPY .config/nvim /root/.config/nvim
-COPY .config/opencode /root/.config/opencode
 RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
 RUN mkdir -p /root/.config/lazygit

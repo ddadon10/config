@@ -15,7 +15,7 @@ export COLORTERM=truecolor
 export EDITOR=nvim
 export LANG=C.UTF-8
 export MANPAGER='bat --plain --language man'
-export PATH="${HOME}/.local/bin:${HOME}/.opencode/bin:${HOME}/go/bin:${PATH}"
+export PATH="${HOME}/.local/bin:${HOME}/go/bin:${PATH}"
 export SHELL=/bin/bash
 export TERM=xterm-ghostty
 
@@ -38,11 +38,12 @@ export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
 # Codex
 export IS_SANDBOX=1
-cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
+ln -sfn /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 
 # OpenCode
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export OPENCODE_DISABLE_LSP_DOWNLOAD=true
+export OPENCODE_DISABLE_SHARE=1
 
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"

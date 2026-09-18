@@ -6,7 +6,6 @@
   "share": "disabled",
   "snapshot": false,
   "autoupdate": false,
-  "lsp": true,
   "permission": {"*": "allow"},
   "agent": {"build": {"variant": "high"}, "plan": {"variant": "xhigh"}}
 }

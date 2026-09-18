@@ -36,9 +36,10 @@ layout, seed the new layout from the old named volume, or add transitional detec
 cross-container persistence validation, the obsolete `dev-opencode-home` volume will be removed manually on the
 Docker-capable host. No other named volume will be removed.
 
-The completed result must preserve the existing OpenCode key-injection policy, OpenCode and Neovim configuration,
-Neovim features, and the container's other explicit storage locations such as `/root/.codex`, `/root/.m2`,
-`GOMODCACHE`, and `GRADLE_USER_HOME`.
+The completed result must use OpenCode's native credential store populated through `/connect`, preserve OpenCode and
+Neovim configuration and features, and preserve the container's other explicit storage locations such as
+`/root/.codex`, `/root/.m2`, `GOMODCACHE`, and `GRADLE_USER_HOME`. The xAI key is deliberately created with a
+server-side expiration date and is not injected through the process environment.
 
 ## Plan of Work
 
@@ -94,8 +95,8 @@ Steps:
 2. Keep `XDG_CONFIG_HOME`, `XDG_RUNTIME_DIR`, `XDG_CONFIG_DIRS`, and `XDG_DATA_DIRS` unset.
 3. Ensure `/data/share`, `/data/state`, and `/data/cache` are valid root-owned directories. Preserve the existing
    `/data/cache/gomod`, `/data/cache/npm`, and `/data/gradle` initialization and the explicit Go and Gradle variables.
-4. Do not change the `ocgrok` function or persist `XAI_API_KEY`; the key must remain scoped to the OpenCode child
-   process exactly as it is now.
+4. Do not inject the xAI key into the process environment. Populate OpenCode's native credential store through
+   `/connect`; the resulting `/data/share/opencode/auth.json` persists with the other OpenCode data.
 
 Validation and expected results:
 
@@ -138,8 +139,9 @@ Validation and expected results:
 - A fresh OpenCode launch creates its database, sessions, logs, and related data under `/data/share/opencode` and its
   TUI/model/prompt state under `/data/state/opencode`.
 - OpenCode does not create a replacement data or state tree under `/root/.local` during normal operation.
-- The hidden API-key prompt still leaves no key in configuration, data, state, cache, logs, shell history, or command
-  arguments; exposure remains limited to the OpenCode process and unrestricted children it launches.
+- Native `/connect` credentials exist only in `/data/share/opencode/auth.json`, written as mode `0600`, and remain
+  absent from tracked configuration, the image, shell history, command arguments, logs, state, cache, and the process
+  environment. OpenCode core, unrestricted commands, and plugins running as the same user can still read the file.
 
 Recovery:
 
@@ -168,10 +170,10 @@ Steps:
    system-installed Neovim plugins and parsers.
 4. Launch Neovim normally and exercise colorscheme loading, Tree-sitter highlighting, and one configured plugin-backed
    command. Confirm startup does not populate the persistent user data directory with image-managed packages.
-5. Launch OpenCode through `ocgrok`, complete a harmless Grok request, toggle a TUI preference such as sidebar
-   visibility, and exit cleanly.
+5. Launch plain `opencode`, use `/connect` to store a deliberately expiring xAI key, complete a harmless Grok request,
+   toggle a TUI preference such as sidebar visibility, and exit cleanly.
 6. Recreate the `--rm` container and verify that the OpenCode session and TUI preference survive under `/data`, while
-   the xAI key must be supplied again and runtime files do not survive.
+   `opencode auth list` still reports xAI without another key prompt and runtime files do not survive.
 7. Confirm the Codex and Maven volumes, project bind mount, Go module cache, Gradle home, npm cache, and existing
    repository-managed configuration still resolve as before.
 
@@ -273,8 +275,8 @@ Steps:
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: on the Docker-capable host, run `docker build --file docker/Dockerfile --tag ddadon/dev:current .`
-and start `dev`; then execute Milestone 4's rebuilt-image and first-container checks.
+Exact next action: in the rebuilt container, use `/connect` from plain `opencode` to store the expiring xAI key, complete
+a harmless Grok request, toggle the sidebar once, exit OpenCode, and inspect the resulting credential/session state.
 
 ## Findings and Decisions
 
@@ -323,6 +325,17 @@ and start `dev`; then execute Milestone 4's rebuilt-image and first-container ch
   tree; and `git diff --check` passed across all implementation commits.
 - Docker is unavailable inside this development container, so the rebuilt image contents, real mount table, TUI/model
   behavior, and cross-container persistence remain host validation rather than inferred results.
+- The host rebuilt `ddadon/dev:current` on 2026-09-18. The new image exposes exactly the three intended XDG variables;
+  resolves all Neovim and OpenCode paths correctly; contains all 11 plugins and 33 parsers under
+  `/usr/local/share/nvim/site`; loads Gruvbox, nvim-tree, nvim-treesitter, and a Lua parser; and creates no user package
+  tree under `/data/share/nvim`.
+- The first rebuilt container still mounted `dev-opencode-home` at `/root/.local/share/opencode` even though tracked
+  `.zshrc` no longer requests it. The host shell retained the old `dev()` function in memory. OpenCode ignores this
+  obsolete mount because its data path resolves to `/data/share/opencode`; the host shell must reload `.zshrc` before
+  the persistence-test container is created.
+- npm continues to resolve its cache to `/root/.npm`, matching the unchanged `.npmrc`. The Dockerfile's existing
+  `/data/cache/npm` directory is not an npm configuration setting and is hidden when the pre-existing `dev-data` volume
+  is mounted. This is pre-existing behavior, not an XDG regression, and no unrelated npm change will be added.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -347,3 +360,7 @@ and start `dev`; then execute Milestone 4's rebuilt-image and first-container ch
 - 2026-09-18: Completed the container-local portion of Milestone 4. Validated syntax, configuration parsing, exports,
   mounts, application paths, system-loaded Neovim plugins and parser execution, absence of a user plugin tree, and the
   aggregate diff. Recorded the focused host build command; Docker-host and recreation checks remain pending.
+- 2026-09-18: Updated the plan for the later credential decision: plain OpenCode now uses `/connect` with an expiring
+  xAI key rather than a launch wrapper or environment injection. Recorded successful rebuilt-image validation and the
+  stale host-shell `dev()` function that temporarily retained the obsolete mount. Interactive and recreation checks
+  remain pending.

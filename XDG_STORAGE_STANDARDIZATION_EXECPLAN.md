@@ -265,13 +265,14 @@ Steps:
 - [x] Wrote and committed this implementation plan without changing runtime configuration.
 - [x] Milestone 1: relocate image-provisioned Neovim plugins and parsers to `/usr/local/share/nvim/site`.
 - [x] Milestone 2: define `XDG_DATA_HOME` and `XDG_STATE_HOME` while retaining the existing cache home.
-- [ ] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
-- [ ] Milestone 4: rebuild and validate paths, application behavior, key handling, and cross-container persistence.
+- [x] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
+- [ ] Milestone 4 (in progress): rebuild and validate paths, application behavior, key handling, and cross-container
+      persistence.
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: remove the `dev-opencode-home` mount from `.zshrc` and update `OPENCODE_GROK_TODOLIST.md` to
-supersede its dedicated-volume decision with the shared persistent XDG layout.
+Exact next action: run the complete container-local validation for Milestone 4, inspect the aggregate task diff, and
+prepare the exact Docker-host rebuild and cross-container validation handoff.
 
 ## Findings and Decisions
 
@@ -310,6 +311,10 @@ supersede its dedicated-volume decision with the shared persistent XDG layout.
   delete it; after the new layout is validated, the user will remove it manually on the Docker-capable host.
 - `dev-data` must not be deleted during cleanup because it becomes the durable home for all XDG data and state in
   addition to caches. `dev-codex-home` and `dev-maven` also remain active and must be retained.
+- Milestone 3 removed the only `dev-opencode-home` mount from `.zshrc`. The remaining development-container volumes are
+  `dev-codex-home`, `dev-data`, and `dev-maven`; the project remains a bind mount at `/workspace`.
+- `OPENCODE_GROK_TODOLIST.md` now distinguishes the historically validated dedicated volume from the final shared-XDG
+  layout, documents all three concrete OpenCode paths, and warns that `/data` itself is not a disposable cache root.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -328,3 +333,6 @@ supersede its dedicated-volume decision with the shared persistent XDG layout.
 - 2026-09-18: Completed Milestone 2. Added the persistent data and state homes beside the existing cache home, created
   their image-level mountpoint directories, and verified exact Neovim and OpenCode path resolution while leaving
   configuration and runtime paths at their defaults. The OpenCode mount remained unchanged pending Milestone 3.
+- 2026-09-18: Completed Milestone 3. Removed the dedicated OpenCode mount, retained the shared data, Codex, and Maven
+  volumes, and updated the OpenCode checklist to supersede the old persistence decision with the concrete shared-XDG
+  paths and safe cleanup guidance. No data migration, compatibility logic, or secret-handling change was added.

@@ -163,8 +163,8 @@ including a recommended answer. Do not implement a later phase before its decisi
     the OpenCode process environment and is inherited by its shell tools, but a hidden-input wrapper can keep the value
     out of command arguments, shell history, and disk.
   - `/connect` and `opencode auth login` offer xAI's `Manually enter API Key` method and store the key as unencrypted
-    JSON in `${XDG_DATA_HOME:-~/.local/share}/opencode/auth.json`, written with mode `0600`. With this repository's
-    current environment, the concrete path is `/root/.local/share/opencode/auth.json`.
+    JSON in `${XDG_DATA_HOME:-~/.local/share}/opencode/auth.json`, written with mode `0600`. Under the standardized XDG
+    environment, the concrete path is `/data/share/opencode/auth.json`.
   - In the current provider loader, stored API credentials are merged after environment credentials and therefore take
     precedence when both exist. Stored credentials are not copied into the process environment, although this profile's
     unrestricted filesystem tools can still read the credential file.
@@ -189,7 +189,7 @@ including a recommended answer. Do not implement a later phase before its decisi
   - `${XDG_DATA_HOME:-~/.local/share}/opencode`: `opencode.db` sessions/messages plus logs, plans, truncated tool output,
     managed worktrees/repository data, and any `auth.json` or `mcp-auth.json`. This is the sensitive durable-data tier.
   - `${XDG_STATE_HOME:-~/.local/state}/opencode`: recent-model/variant selection, plugin metadata, and process locks. It
-    is convenient rather than essential and can remain ephemeral when the model is pinned in global configuration.
+    is convenient rather than essential, but now persists beneath `/data/state/opencode` with other XDG state.
   - `${XDG_CACHE_HOME:-~/.cache}/opencode`: refreshable models.dev metadata, skill cache, and downloaded helper binaries.
     This repository already sets `XDG_CACHE_HOME=/data/cache`, so it already lands in the persistent `dev-data` volume.
   - `${TMPDIR:-/tmp}/opencode`: disposable runtime files. `/root/.opencode/bin/opencode` is the image-installed executable,
@@ -201,12 +201,17 @@ including a recommended answer. Do not implement a later phase before its decisi
   - Bind-mount a host directory for directly inspectable and independently backed-up OpenCode data.
 - [x] Interview the user about which state should survive container recreation and which state must remain ephemeral.
   - Superseded decision on 2026-09-18: reusing `dev-data` through child-scoped `XDG_DATA_HOME=/data` would also redirect
-    XDG-aware tools launched by OpenCode, including Neovim. Do not use that layout.
-  - Final decision on 2026-09-18: mount a dedicated `dev-opencode-home` volume at OpenCode's default data directory,
+    XDG-aware tools launched by OpenCode, including Neovim. That direct `/data` layout was not used.
+  - Superseded decision on 2026-09-18: mount a dedicated `dev-opencode-home` volume at OpenCode's default data directory,
     `/root/.local/share/opencode`. This persists its database, sessions, logs, plans, tool output, and any credentials
     deliberately added later without changing `XDG_DATA_HOME` for OpenCode or its child tools. Continue using the
     existing `/data/cache/opencode` cache; keep recent-model/plugin state and locks ephemeral. The volume name follows
     `dev-codex-home`, although its exact scope is OpenCode's data directory rather than configuration, cache, or state.
+  - Final decision on 2026-09-18: standardize the container on `XDG_DATA_HOME=/data/share`,
+    `XDG_STATE_HOME=/data/state`, and `XDG_CACHE_HOME=/data/cache`, all backed by `dev-data`. OpenCode therefore stores
+    durable application data under `/data/share/opencode`, durable TUI/model/plugin state under `/data/state/opencode`,
+    and disposable caches under `/data/cache/opencode`. Neovim image assets move to `/usr/local/share/nvim/site`, so
+    redirecting its user data no longer hides or duplicates image-installed plugins and parsers.
   - Decision on 2026-09-18: keep the repository source of truth at `.config/opencode/opencode.json` and copy it to
     `/root/.config/opencode/opencode.json` in the image. This mirrors the existing Neovim layout, uses OpenCode's normal
     global configuration path, and preserves the ability for trusted project configuration to override global values.
@@ -219,6 +224,8 @@ including a recommended answer. Do not implement a later phase before its decisi
   - Added the hidden-input `opencode-grok` function and approved environment flags to `docker/.bashrc`; added the
     repository-managed global configuration copy to `docker/Dockerfile`; added the `dev-opencode-home` mount to
     `.zshrc`. The launcher does not override `XDG_DATA_HOME`.
+  - The later XDG standardization supersedes that mount: `.zshrc` now retains only `dev-data` at `/data`, while
+    `docker/.bashrc` exports the data, state, and cache homes. The key-prompt function remains unchanged.
 - [x] Verify the key is absent from Git, image layers, shell history, process arguments, OpenCode logs, and diagnostic
       output; document unavoidable exposure to the target process environment.
   - The function accepts the key through silent standard input and places only the variable name—not its value—in the
@@ -234,8 +241,9 @@ including a recommended answer. Do not implement a later phase before its decisi
     `opencode session list` and confirm the session remains while the key is requested again.
   - Manual cleanup: stop OpenCode before changing its files. Delete one session with
     `opencode session delete <sessionID>`. Rotate the log recoverably by moving
-    `/root/.local/share/opencode/log/opencode.log` aside. Reset all durable OpenCode data recoverably by moving
-    `/root/.local/share/opencode` to a backup name; the next `opencode-grok` launch recreates it.
+    `/data/share/opencode/log/opencode.log` aside. Reset durable OpenCode data recoverably by moving only
+    `/data/share/opencode` to a backup name; move `/data/state/opencode` separately only when state also needs resetting.
+    Never treat all of `/data` as disposable because it is shared with other applications.
   - First host half completed on 2026-09-18: `/proc/self/mountinfo` confirmed `dev-opencode-home` at
     `/root/.local/share/opencode`; the rebuilt image resolved the approved configuration, completed a default
     `xai/grok-4.6` request, and created a session in the mounted data directory. The exact environment key was absent
@@ -244,6 +252,8 @@ including a recommended answer. Do not implement a later phase before its decisi
     `ses_f4cb47fadffenBpL6bHFo6z6r8` session remained in `opencode session list` and the named volume was mounted at the
     expected path. The host supplied `XAI_API_KEY` again for testing, but no native `auth.json` existed and an
     exact-value scan found no key in persistent data/logs, configuration, state, cache, or the repository.
+  - The two preceding host checks validate the now-superseded dedicated-volume layout. The standardized XDG layout
+    requires a new rebuild and two-container persistence check before `dev-opencode-home` can be deleted manually.
 - [x] Commit the credential and persistence milestone in the same end-of-phase commit as the approved configuration.
   - The later dedicated-volume correction is a separate focused commit so the user's intervening
     `Remove lsp support in opencode` commit remains intact.
@@ -387,8 +397,8 @@ including a recommended answer. Do not implement a later phase before its decisi
 - [x] Completed item 2's research, interview, threat model, configuration design, diagnostics, and live model tests.
 - [x] Implemented item 3's approved prompt and persistence layout; configuration diagnostics, wrapper checks, a live
       Grok request, and exact-key persistence scans passed.
-- [x] Host recreation confirmed `dev-opencode-home` retains `/root/.local/share/opencode` and its sessions without
-      persisting the xAI key in OpenCode files.
+- [x] Historical host recreation confirmed the superseded `dev-opencode-home` layout retained sessions without
+      persisting the xAI key; the replacement shared-XDG layout is implemented and awaits host rebuild validation.
 - [x] Completed item 4: added the approved Gruvbox TUI configuration and validated its load, cursor, mouse, title,
       status, default keybindings, and Grok request behavior with OpenCode 1.18.31.
 - [ ] Next action: begin item 5 by defining the intended `/fast` semantics.

@@ -30,7 +30,6 @@ dev() {
     --mount "type=volume,src=dev-codex-home,dst=/root/.codex" \
     --mount "type=volume,src=dev-data,dst=/data" \
     --mount "type=volume,src=dev-maven,dst=/root/.m2" \
-    --mount "type=volume,src=dev-opencode-home,dst=/root/.local/share/opencode" \
     --workdir /workspace \
     ddadon/dev:current
 }

@@ -169,6 +169,7 @@ COPY .codex/config.toml /etc/codex/config.toml
 COPY .codex/skills/ /etc/codex/skills/
 
 COPY AGENTS.md /etc/codex/AGENTS.md
+RUN ln -s /etc/codex/AGENTS.md /root/.config/opencode/AGENTS.md
 
 RUN mkdir -p /data/share /data/state /data/cache/gomod /data/cache/npm /data/gradle
 

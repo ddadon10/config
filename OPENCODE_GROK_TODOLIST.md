@@ -362,18 +362,58 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 ### 6. Evaluate web search with OpenCode and Grok
 
-- [ ] Research OpenCode's `websearch` tool availability, provider restrictions, search backend, data flow, credentials,
+- [x] Research OpenCode's `websearch` tool availability, provider restrictions, search backend, data flow, credentials,
       retention, citations, and permission controls.
-- [ ] Research xAI's native web/X search tools for Grok 4.6 and `grok-build-0.1`, including availability through the API,
+  - OpenCode 1.18.31 exposes its client-side `websearch` tool automatically only for the OpenCode/OpenCode Go
+    providers, or for any provider when `OPENCODE_ENABLE_EXA` or `OPENCODE_ENABLE_PARALLEL` is truthy. It calls the
+    selected provider's anonymous hosted MCP endpoint; it is not a provider-native model tool.
+  - `OPENCODE_ENABLE_EXA=1` selects `https://mcp.exa.ai/mcp`. Exa receives the query and search options; OpenCode then
+    passes returned text to xAI as tool output. The `websearch` permission uses the query as its pattern, and the
+    approved global allow rule runs it without confirmation.
+  - Exa requires no API key in this mode, but it is an additional data recipient outside the xAI ZDR boundary. Its
+    public privacy policy says Query Data may be used for service improvement, training, and fine-tuning and warns
+    against submitting personal information. Returned web content is untrusted and is passed to a fully autonomous
+    agent without content sanitization, so search-result prompt injection remains an accepted risk.
+- [x] Research xAI's native web/X search tools for Grok 4.6 and `grok-build-0.1`, including availability through the API,
       citations, domains/date filters, pricing, ZDR compatibility, and whether OpenCode's xAI integration exposes them.
-- [ ] Run controlled comparisons for freshness, source quality, citations, latency, failures, and prompt-injection
+  - xAI Responses supports provider-executed `web_search` and `x_search`, native citations, domain/handle/date filters,
+    and image/video options. A direct request with `store:false` returned `x-zero-data-retention: true` for this team.
+  - OpenCode uses xAI Responses and its bundled `@ai-sdk/xai@3.0.102` already implements both provider tools, but
+    OpenCode registers neither. Model options, permissions, ordinary custom tools, and current plugin hooks cannot add
+    a provider-defined tool to the original request.
+- [x] Run controlled comparisons for freshness, source quality, citations, latency, failures, and prompt-injection
       handling.
-- [ ] Prefer native Grok search only if OpenCode exposes it reliably and it meets the security/privacy requirements;
+  - One fixed-date query asked for the latest stable OpenCode release using official GitHub sources. Native Grok 4.6
+    found the correct `v1.18.31` release in 18.986 seconds with one search and a valid citation. Native Grok Build took
+    55.742 seconds, searched 12 times, cost roughly ten times as much, and incorrectly called an unpublished v2 tag a
+    stable release. This is a controlled example, not a general benchmark, but it rejects Grok Build as the default
+    research model.
+  - Raw anonymous Exa and Parallel searches returned in approximately one second but were slightly stale for this
+    rapidly changing target. Their raw retrieval output is not directly comparable to a complete model answer.
+  - Every evaluated route can deliver hostile page content to the autonomous model. OpenCode's Exa/Parallel path has
+    no prompt-injection sanitizer; xAI-native search reduces recipients but does not make retrieved content trusted.
+- [x] Prefer native Grok search only if OpenCode exposes it reliably and it meets the security/privacy requirements;
       otherwise present OpenCode search, a reviewed plugin/MCP integration, or no search as explicit alternatives.
-- [ ] Interview the user about permitted search providers, acceptable query/content disclosure, approval behavior, and
+  - Native xAI search best matches the desired privacy boundary but is unavailable in the current OpenCode integration.
+    Exact same-request support requires an OpenCode source change. A custom plugin can stay xAI-only, but must make a
+    separate native-search model request and return its result to the main conversation.
+  - Reviewed `emilsvennesson/opencode-websearch` at commit
+    `775eac481fcf778080ef1effedb32988dd10974a`; its xAI adapter uses that separate-request custom-tool design rather than
+    injecting native search into the original request.
+- [x] Interview the user about permitted search providers, acceptable query/content disclosure, approval behavior, and
       whether search should be enabled by default.
-- [ ] Configure the chosen path with least privilege and verify which service receives each query.
-- [ ] Commit the web-search milestone.
+  - Decision on 2026-09-18: enable anonymous Exa search by default as a small temporary change, accepting disclosure of
+    search queries to Exa and automatic execution under the existing full-autonomy permission. Keep xAI as the only
+    model provider; do not add an Exa credential, Parallel, MCP configuration, or third-party plugin.
+  - Future follow-up, not required for this milestone: replace Exa with a small repository-owned xAI-only custom tool.
+    It should use native `fetch`, the existing OpenCode credential, `grok-4.6`, `store:false`, a mandatory positive ZDR
+    response header, compact answer/citation output, and focused tests. Remove the Exa flag only after live validation.
+- [x] Configure the chosen path with least privilege and verify which service receives each query.
+  - `docker/.bashrc` exports `OPENCODE_ENABLE_EXA=1` in its OpenCode section. A fresh shell exposed `websearch` to the
+    Build agent, and one live Grok 4.6 call used it exactly once. The completed tool event identified provider `exa`,
+    title `Exa Web Search`, and the requested official `opencode.ai/docs/tools` result. The disposable session was
+    deleted afterward.
+- [x] Commit the web-search milestone.
 
 ### 7. Verify prompt caching with xAI ZDR enabled
 
@@ -425,4 +465,6 @@ including a recommended answer. Do not implement a later phase before its decisi
       status, default keybindings, and Grok request behavior with OpenCode 1.18.31.
 - [x] Completed item 5 as an intentional deferral: `/fast` means xAI Priority Processing, but no workaround is installed
       while OpenCode remains on `@ai-sdk/xai@3.0.102`; revisit after it naturally updates to `3.0.120` or newer.
-- [ ] Next action: begin item 6 by researching OpenCode `websearch` and xAI native web/X search support and data flows.
+- [x] Completed item 6 with temporary anonymous Exa search enabled by default. Native xAI search is preferred but not
+      exposed by OpenCode 1.18.31; a small repository-owned xAI-only custom tool is deferred as a future replacement.
+- [ ] Next action: begin item 7 by verifying prompt caching for Grok 4.6 and Grok Build while xAI ZDR is enabled.

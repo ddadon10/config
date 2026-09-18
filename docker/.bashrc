@@ -43,6 +43,7 @@ cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 # OpenCode
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export OPENCODE_DISABLE_LSP_DOWNLOAD=true
+export OPENCODE_ENABLE_EXA=1
 
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"

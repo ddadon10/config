@@ -149,7 +149,7 @@ RUN curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path
 COPY .vimrc /root/.vimrc
 COPY .config/nvim /root/.config/nvim
 COPY .config/opencode /root/.config/opencode
-RUN nvim --headless "+qa"
+RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
 RUN mkdir -p /root/.config/lazygit
 COPY .config/lazygit.yml /root/.config/lazygit/config.yml

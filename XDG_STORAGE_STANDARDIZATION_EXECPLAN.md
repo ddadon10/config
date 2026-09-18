@@ -263,15 +263,15 @@ Steps:
 - [x] Resolved the target XDG layout, configuration/runtime exclusions, Neovim system-data design, and clean-cutover
       policy.
 - [x] Wrote and committed this implementation plan without changing runtime configuration.
-- [ ] Milestone 1: relocate image-provisioned Neovim plugins and parsers to `/usr/local/share/nvim/site`.
+- [x] Milestone 1: relocate image-provisioned Neovim plugins and parsers to `/usr/local/share/nvim/site`.
 - [ ] Milestone 2: define `XDG_DATA_HOME` and `XDG_STATE_HOME` while retaining the existing cache home.
 - [ ] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
 - [ ] Milestone 4: rebuild and validate paths, application behavior, key handling, and cross-container persistence.
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: update `.config/nvim/init.lua` and `docker/Dockerfile` so image builds provision plugins and parsers
-under `/usr/local/share/nvim/site`, while normal Neovim startup only loads those system-installed assets.
+Exact next action: add `XDG_DATA_HOME=/data/share` and `XDG_STATE_HOME=/data/state` to `docker/.bashrc`, and ensure the
+Dockerfile creates the three persistent XDG home directories beneath `/data`.
 
 ## Findings and Decisions
 
@@ -288,6 +288,11 @@ under `/usr/local/share/nvim/site`, while normal Neovim startup only loads those
   `vim.pack.add`, or it will attempt to install another copy beneath `/data/share`.
 - `/usr/local/share/nvim/site` is already present in Neovim's default `packpath`, so it is the selected immutable
   destination for image-provisioned packages and parsers.
+- Milestone 1 uses one plugin table with explicit package names. `DEV_IMAGE_BUILD=1` enables `vim.pack.add` and parser
+  installation only for the Docker build; normal startup uses `packadd` for each system-installed optional package.
+- The exact edited Neovim configuration was validated with disposable system and user XDG trees on 2026-09-18. It
+  provisioned all 11 plugins and 33 parsers, loaded Gruvbox and nvim-treesitter, parsed Lua successfully at runtime,
+  and did not create a package tree beneath the simulated user data home.
 - The selected persistent layout is `/data/share`, `/data/state`, and `/data/cache`, all backed by `dev-data`. This makes
   resetting the entire `dev-data` volume destructive to sessions, credentials deliberately stored by applications,
   editor state, and caches; cleanup guidance must target child directories.
@@ -312,3 +317,6 @@ under `/usr/local/share/nvim/site`, while normal Neovim startup only loads those
 - 2026-09-18: Added a post-validation manual cleanup milestone for the obsolete `dev-opencode-home` Docker volume.
   Specified the safety check for container references, the exact removal and verification commands, and the active
   volumes that must be retained. No implementation or volume operation was performed.
+- 2026-09-18: Completed Milestone 1. Split Neovim image provisioning from runtime loading, installed image assets under
+  the system data path in the Dockerfile, and validated the exact configuration with all 11 plugins and 33 parsers in
+  disposable XDG trees. No persistent XDG environment or container mount was changed yet.

@@ -276,12 +276,11 @@ Steps:
 - [x] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
 - [x] Milestone 4: rebuild and validate paths, application behavior, key handling, and cross-container
       persistence.
-- [ ] Milestone 5 (in progress): manually remove only the obsolete `dev-opencode-home` volume after successful
+- [x] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful
       validation.
-- [ ] Milestone 6: record final evidence and commit the completed implementation.
+- [x] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: exit the development container, confirm on the Docker host that no container references
-`dev-opencode-home`, then inspect and remove only that obsolete named volume using the Milestone 5 commands.
+Exact next action: none; the storage standardization plan is complete.
 
 ## Findings and Decisions
 
@@ -358,6 +357,10 @@ Exact next action: exit the development container, confirm on the Docker host th
   model state, and prompt history; `XAI_API_KEY` remained unset. `/data` was the only relevant mount and OpenCode still
   resolved its data and state beneath it. The user then confirmed that the sidebar remained hidden after recreation,
   completing the visual state check and Milestone 4.
+- The user confirmed deletion of the obsolete `dev-opencode-home` volume on 2026-09-18. A subsequent `dev` container
+  had no mount at `/root/.local/share/opencode`, mounted only `dev-data` at `/data` for OpenCode storage, and retained
+  the root-owned mode-`0600` xAI credential plus all prior sessions. The deleted volume was therefore not recreated,
+  and removal did not affect active OpenCode data.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -406,3 +409,6 @@ Exact next action: exit the development container, confirm on the Docker host th
   manual sidebar-visibility check before completing Milestone 4.
 - 2026-09-18: Completed Milestone 4 after the user confirmed that hidden sidebar state survived container recreation.
   Advanced the plan to the guarded host-side inspection and removal of only the obsolete `dev-opencode-home` volume.
+- 2026-09-18: Completed Milestones 5 and 6 after the user deleted `dev-opencode-home` and the next `dev` container
+  confirmed that it was not remounted or recreated while all shared-XDG OpenCode credentials and sessions remained
+  intact. Recorded final evidence and marked the storage standardization plan complete.

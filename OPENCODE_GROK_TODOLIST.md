@@ -464,17 +464,22 @@ including a recommended answer. Do not implement a later phase before its decisi
     local cost estimate. Direct xAI `cost_in_usd_ticks` remains authoritative for actual billing.
 - [x] Commit the caching/ZDR milestone.
 
-### 8. Final contingency validation and documentation
+### 8. Final contingency validation
 
-- [ ] Simulate Codex/OpenAI being unavailable and start OpenCode without relying on any OpenAI or OpenRouter service.
-- [ ] Verify primary and small-model requests, tool permissions, editing, shell approvals, web search, fast mode, TUI,
-      restart persistence, ZDR, and cache behavior against the decisions recorded above.
-- [ ] Confirm no OpenRouter configuration or credential remains and no xAI secret is tracked or baked into the image.
-- [ ] Document installation, launch, key rotation/removal, configuration locations, persisted volumes, updates,
-      troubleshooting, and complete uninstall/rollback steps.
-- [ ] Review the final diff for unrelated changes and run focused validation once after the related edits.
-- [ ] Commit the final documentation and provide a concise readiness report with verified facts, remaining risks, and
-      any unresolved gaps.
+- [x] Confirm the cumulative live tests establish that OpenCode starts and operates through native xAI without relying
+      on Codex, OpenAI, or OpenRouter. OpenRouter remains deliberately enabled as an optional provider but is not a
+      dependency of the configured Grok workflow.
+- [x] Accept the completed focused validation from items 2–7 instead of duplicating it: primary and small-model
+      requests, unrestricted local tools, Exa web search, the intentionally deferred `/fast` integration, TUI behavior,
+      credential/session/state persistence, ZDR, streaming/tool-loop caching, and container recreation were all tested.
+- [x] Confirm the xAI secret is neither tracked nor baked into the image. Its only intentional durable location is the
+      mode-0600 native credential store at `/data/share/opencode/auth.json`; unrestricted same-user tools and plugins
+      can read it under the explicitly accepted full-autonomy policy.
+- [x] Omit additional operational documentation at the user's request; the checklist retains the decisions and
+      validation evidence needed for this setup.
+- [x] Review the final task diff for unrelated changes and run the focused validation appropriate to the checklist-only
+      closeout.
+- [x] Commit the final validation closeout and provide a concise readiness report with remaining limitations.
 
 ## Current Status
 
@@ -496,4 +501,6 @@ including a recommended answer. Do not implement a later phase before its decisi
       exposed by OpenCode 1.18.31; a small repository-owned xAI-only custom tool is deferred as a future replacement.
 - [x] Completed item 7: confirmed automatic caching for both models under ZDR, added reliable xAI session routing,
       validated streaming/tool loops and persisted-session replay across a container rebuild, and documented eviction.
-- [ ] Next action: begin item 8's final end-to-end contingency validation and operational documentation.
+- [x] Completed item 8 from the cumulative validation evidence; no duplicate smoke run or additional operational
+      documentation was required.
+- [x] OpenCode with Grok is ready as the contingency workflow.

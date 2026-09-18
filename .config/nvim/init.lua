@@ -78,21 +78,25 @@ vim.api.nvim_create_autocmd({ 'BufLeave', 'FocusLost', 'QuitPre', 'VimSuspend' }
 })
 
 -- Plugins
-vim.pack.add({
-    'https://github.com/ellisonleao/gruvbox.nvim',
-    'https://github.com/ibhagwan/fzf-lua',
-    'https://github.com/lewis6991/gitsigns.nvim',
-    'https://github.com/neovim/nvim-lspconfig',
-    'https://github.com/mfussenegger/nvim-jdtls',
-    'https://github.com/nvim-mini/mini.nvim',
-    'https://github.com/nvim-tree/nvim-tree.lua',
-    'https://github.com/nvim-treesitter/nvim-treesitter',
-    'https://github.com/stevearc/aerial.nvim',
-    'https://github.com/stevearc/quicker.nvim',
-    'https://github.com/unblevable/quick-scope',
-}, {
-    confirm = false,
-})
+local plugins = {
+    { src = 'https://github.com/ellisonleao/gruvbox.nvim', name = 'gruvbox.nvim' },
+    { src = 'https://github.com/ibhagwan/fzf-lua', name = 'fzf-lua' },
+    { src = 'https://github.com/lewis6991/gitsigns.nvim', name = 'gitsigns.nvim' },
+    { src = 'https://github.com/neovim/nvim-lspconfig', name = 'nvim-lspconfig' },
+    { src = 'https://github.com/mfussenegger/nvim-jdtls', name = 'nvim-jdtls' },
+    { src = 'https://github.com/nvim-mini/mini.nvim', name = 'mini.nvim' },
+    { src = 'https://github.com/nvim-tree/nvim-tree.lua', name = 'nvim-tree.lua' },
+    { src = 'https://github.com/nvim-treesitter/nvim-treesitter', name = 'nvim-treesitter' },
+    { src = 'https://github.com/stevearc/aerial.nvim', name = 'aerial.nvim' },
+    { src = 'https://github.com/stevearc/quicker.nvim', name = 'quicker.nvim' },
+    { src = 'https://github.com/unblevable/quick-scope', name = 'quick-scope' },
+}
+
+if vim.env.DEV_IMAGE_BUILD == '1' then
+    vim.pack.add(plugins, { confirm = false })
+else
+    for _, plugin in ipairs(plugins) do vim.cmd.packadd(plugin.name) end
+end
 
 -- MiniClue
 local miniclue = require('mini.clue')
@@ -548,7 +552,7 @@ local treesitter_parsers = {
     'yaml',
 }
 
-require('nvim-treesitter').install(treesitter_parsers):wait()
+if vim.env.DEV_IMAGE_BUILD == '1' then require('nvim-treesitter').install(treesitter_parsers):wait() end
 
 vim.api.nvim_create_autocmd('FileType', {
     group = vim.api.nvim_create_augroup('ConfigTreesitter', { clear = true }),

@@ -9,37 +9,46 @@ alias gpush='git push'
 alias grep='grep --color=auto'
 alias ls='ls -aF --color=auto'
 
-# Environment
-export CGO_ENABLED=0
+# General
 export BAT_THEME=gruvbox-dark
 export COLORTERM=truecolor
 export EDITOR=nvim
-export GOMODCACHE=/data/cache/gomod
-export GRADLE_USER_HOME=/data/gradle
-export IS_SANDBOX=1
-export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-$(dpkg --print-architecture)"
 export LANG=C.UTF-8
-export MANPAGER="bat --plain --language man"
-export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+export MANPAGER='bat --plain --language man'
+export PATH="${HOME}/.local/bin:${HOME}/go/bin:${PATH}"
 export SHELL=/bin/bash
 export TERM=xterm-ghostty
+
+# XDG
 export XDG_CACHE_HOME=/data/cache
+export XDG_DATA_HOME=/data/share
+export XDG_STATE_HOME=/data/state
+
+# Go
+export CGO_ENABLED=0
+export GOMODCACHE="${XDG_CACHE_HOME}/gomod"
+
+# Java
+dpkg_arch="$(dpkg --print-architecture)"
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-${dpkg_arch}"
+export GRADLE_USER_HOME=/data/gradle
+
+# Node
+export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
 # Codex
-cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
-cp /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
+export IS_SANDBOX=1
+ln -sfn /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 
-codex-openrouter() {
-    local key
-    IFS= read -rsp 'Openrouter API key: ' key
-    printf '\n'
-    [[ -n "$key" ]] || { echo 'Openrouter API key is required' >&2; return 1; }
-    OPENROUTER_API_KEY="$key" command codex --profile openrouter "$@"
-}
+# OpenCode
+export OPENCODE_DISABLE_CLAUDE_CODE=1
+export OPENCODE_DISABLE_LSP_DOWNLOAD=true
+# See: https://github.com/anomalyco/opencode/blob/014614d35b397775e5d397a490fc72368c894ec2/packages/opencode/src/share/share-next.ts#L23
+export OPENCODE_DISABLE_SHARE=1
 
 # Git
-[ "$(git config --global --get user.name 2>/dev/null || true)" = "$GIT_USER_NAME" ] || git config --global user.name "$GIT_USER_NAME"
-[ "$(git config --global --get user.email 2>/dev/null || true)" = "$GIT_USER_EMAIL" ] || git config --global user.email "$GIT_USER_EMAIL"
+[ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"
+[ "$(git config --global --get user.email 2>/dev/null || true)" = "${GIT_USER_EMAIL}" ] || git config --global user.email "${GIT_USER_EMAIL}"
 
 # PS1
 ps1_debian_red='\[\033[38;2;206;0;86m\]'

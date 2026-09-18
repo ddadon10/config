@@ -144,9 +144,21 @@ RUN npm install -g ccusage && npm cache clean --force
 
 RUN npm install -g @openai/codex@0.154.0 && npm cache clean --force
 
+# See: https://github.com/anomalyco/opencode/issues/46189
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --no-modify-path && \
+    mv /root/.opencode/bin/opencode /usr/local/bin/opencode && \
+    rmdir /root/.opencode/bin /root/.opencode
+
+COPY .config/opencode /root/.config/opencode
+
+# See: https://github.com/anomalyco/opencode/issues/37888
+RUN opencode_version="$(opencode --version)" && \
+    npm install --prefix /root/.config/opencode "@opencode-ai/plugin@${opencode_version}" && \
+    npm cache clean --force
+
 COPY .vimrc /root/.vimrc
 COPY .config/nvim /root/.config/nvim
-RUN nvim --headless "+qa"
+RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
 RUN mkdir -p /root/.config/lazygit
 COPY .config/lazygit.yml /root/.config/lazygit/config.yml
@@ -154,11 +166,11 @@ COPY .config/lazygit.yml /root/.config/lazygit/config.yml
 COPY docker/.bashrc /root/.bashrc
 COPY .npmrc /root/.npmrc
 COPY .codex/config.toml /etc/codex/config.toml
-COPY .codex/openrouter.config.toml /etc/codex/openrouter.config.toml
 COPY .codex/skills/ /etc/codex/skills/
 
 COPY AGENTS.md /etc/codex/AGENTS.md
+RUN ln -s /etc/codex/AGENTS.md /root/.config/opencode/AGENTS.md
 
-RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle
+RUN mkdir -p /data/share /data/state /data/cache/gomod /data/cache/npm /data/gradle
 
 CMD ["/bin/bash"]

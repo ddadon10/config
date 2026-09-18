@@ -14,10 +14,9 @@ export const XaiWebSearch = async ({ client }) => ({
           method: "POST",
           headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "grok-4.6",
+            model: "grok-4.20-non-reasoning",
             input: `Query: ${query}`,
             instructions: "Perform one web search for the query. Briefly answer it, then list the source links.",
-            reasoning: { effort: "low" },
             max_output_tokens: 2000,
             max_turns: 1,
             parallel_tool_calls: false,

@@ -417,25 +417,52 @@ including a recommended answer. Do not implement a later phase before its decisi
 
 ### 7. Verify prompt caching with xAI ZDR enabled
 
-- [ ] Research official xAI prompt-caching behavior for both selected models and determine whether ZDR changes cache
+- [x] Research official xAI prompt-caching behavior for both selected models and determine whether ZDR changes cache
       eligibility, retention, routing, billing, or observability.
-- [ ] Inspect OpenCode's xAI request path for stable conversation/cache identifiers, prefix preservation, reasoning
+- [x] Inspect OpenCode's xAI request path for stable conversation/cache identifiers, prefix preservation, reasoning
       content handling, and exposure of cached-token usage.
-- [ ] Confirm ZDR on the actual API responses using xAI's documented response indicator; do not infer it only from the
+- [x] Confirm ZDR on the actual API responses using xAI's documented response indicator; do not infer it only from the
       console setting.
-- [ ] Establish a repeatable test with one initial request and multiple same-session follow-ups whose prompt prefix is
+- [x] Establish a repeatable test with one initial request and multiple same-session follow-ups whose prompt prefix is
       large and stable enough to qualify for caching.
-- [ ] Capture request-independent evidence from response usage or debug telemetry without logging prompts or the API
+- [x] Capture request-independent evidence from response usage or debug telemetry without logging prompts or the API
       key; compare first-request and follow-up cached-token counts, latency, and billed usage where available.
-- [ ] Repeat with Grok 4.6 and `grok-build-0.1`, streaming and tool calls if they are part of the final workflow, and
+- [x] Repeat with Grok 4.6 and `grok-build-0.1`, streaming and tool calls if they are part of the final workflow, and
       after a container restart if persisted sessions are expected to continue.
-- [ ] If caching misses, isolate whether OpenCode mutates prior messages, omits a cache/conversation identifier, drops
+  - Grok 4.6 and Grok Build passed direct and OpenCode tests. OpenCode's normal streaming path, separate-process
+    persisted-session continuation, and a 13-step Grok Build function-tool loop all reported cache reads.
+  - Before the external image rebuild, the repository-owned plugin was loaded and exercised directly from the tracked
+    configuration directory because Docker is unavailable inside the container.
+  - After the user's rebuild, OpenCode loaded the baked plugin from `/root/.config/opencode/plugins`, and the prepared
+    session survived through `dev-data`. Its first continuation reused only the 512-token common prefix, showing that
+    the earlier server cache entry had expired or been evicted during the rebuild interval; an immediate next turn
+    reused 9,472 tokens and charged only 99 ordinary input tokens, confirming the header still worked. The disposable
+    session was then deleted.
+- [x] If caching misses, isolate whether OpenCode mutates prior messages, omits a cache/conversation identifier, drops
       reasoning content, changes tools/system prompts, or uses an incompatible endpoint.
-- [ ] Evaluate a minimal configuration, upstream issue, or reviewed plugin only after identifying the failure cause;
+  - OpenCode 1.18.31 uses xAI Chat Completions but supplies the Responses-style `promptCacheKey`; the pinned xAI SDK
+    rejects that unknown option. Automatic caching still works, but one Grok 4.6 follow-up fell from 8,832 to 2,432
+    cached tokens because no sticky-routing identifier reached xAI.
+  - The pinned chat converter omits assistant reasoning parts during replay. Live tests show stable-prefix reuse still
+    works, including tool loops, although this can limit how far a reasoning conversation's cached prefix extends.
+- [x] Evaluate a minimal configuration, upstream issue, or reviewed plugin only after identifying the failure cause;
       never weaken ZDR merely to obtain cache hits without an explicit user decision.
-- [ ] Record a clear conclusion: caching confirmed, caching unavailable, or unresolved, including evidence and cost/
+  - Added `.config/opencode/plugins/xai-cache-routing.js`, a five-line xAI-only `chat.headers` hook that sends the
+    OpenCode session ID as xAI's documented `x-grok-conv-id`. It makes no additional request and reads no credential.
+  - Four temporary-plugin follow-ups and two tracked-plugin follow-ups remained on the long cached prefix. The tracked
+    plugin auto-discovered successfully from the repository configuration through `XDG_CONFIG_HOME=/workspace/.config`.
+- [x] Record a clear conclusion: caching confirmed, caching unavailable, or unresolved, including evidence and cost/
       privacy implications.
-- [ ] Commit the caching/ZDR milestone.
+  - Caching is confirmed for both models with ZDR. Twelve direct Chat/Responses API responses all returned the canonical
+    `x-zero-data-retention: true`; repeated calls reused nearly all 11–12k input tokens. On Chat Completions, exact xAI
+    billed cost fell from $0.026508 to about $0.0079 for Grok 4.6 and from $0.0122626 to about $0.0028–$0.0030 for Grok
+    Build. Latency improved for Grok 4.6 but was variable for Grok Build, so no latency guarantee is inferred.
+  - xAI guarantees that ZDR prompts/outputs are not persisted to disk, while cache entries are server-local and may be
+    evicted at any time. The exact cache-memory lifecycle under ZDR is not documented; live compatibility is confirmed,
+    but transient inference-memory behavior is an evidence-based inference rather than an explicit xAI statement.
+  - OpenCode exposes cache hits as `step_finish.part.tokens.cache.read` and uses the discounted cache-input rate in its
+    local cost estimate. Direct xAI `cost_in_usd_ticks` remains authoritative for actual billing.
+- [x] Commit the caching/ZDR milestone.
 
 ### 8. Final contingency validation and documentation
 
@@ -467,4 +494,6 @@ including a recommended answer. Do not implement a later phase before its decisi
       while OpenCode remains on `@ai-sdk/xai@3.0.102`; revisit after it naturally updates to `3.0.120` or newer.
 - [x] Completed item 6 with temporary anonymous Exa search enabled by default. Native xAI search is preferred but not
       exposed by OpenCode 1.18.31; a small repository-owned xAI-only custom tool is deferred as a future replacement.
-- [ ] Next action: begin item 7 by verifying prompt caching for Grok 4.6 and Grok Build while xAI ZDR is enabled.
+- [x] Completed item 7: confirmed automatic caching for both models under ZDR, added reliable xAI session routing,
+      validated streaming/tool loops and persisted-session replay across a container rebuild, and documented eviction.
+- [ ] Next action: begin item 8's final end-to-end contingency validation and operational documentation.

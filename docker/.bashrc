@@ -9,33 +9,44 @@ alias gpush='git push'
 alias grep='grep --color=auto'
 alias ls='ls -aF --color=auto'
 
-# Environment
-export CGO_ENABLED=0
+# General
 export BAT_THEME=gruvbox-dark
 export COLORTERM=truecolor
 export EDITOR=nvim
-export GOMODCACHE=/data/cache/gomod
-export GRADLE_USER_HOME=/data/gradle
-export IS_SANDBOX=1
-export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-$(dpkg --print-architecture)"
 export LANG=C.UTF-8
 export MANPAGER="bat --plain --language man"
-export NPM_CONFIG_CACHE=/data/cache/npm
-export OPENCODE_DISABLE_CLAUDE_CODE=1
-export OPENCODE_DISABLE_LSP_DOWNLOAD=true
-export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$HOME/go/bin:$PATH"
+export PATH="${HOME}/.local/bin:${HOME}/.opencode/bin:${HOME}/go/bin:${PATH}"
 export SHELL=/bin/bash
 export TERM=xterm-ghostty
+
+# XDG
 export XDG_CACHE_HOME=/data/cache
 export XDG_DATA_HOME=/data/share
 export XDG_STATE_HOME=/data/state
 
+# Go
+export CGO_ENABLED=0
+export GOMODCACHE=/data/cache/gomod
+
+# Java
+dpkg_arch="$(dpkg --print-architecture)"
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-${dpkg_arch}"
+export GRADLE_USER_HOME=/data/gradle
+
+# Node
+export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
+
 # Codex
+export IS_SANDBOX=1
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md
 
+# OpenCode
+export OPENCODE_DISABLE_CLAUDE_CODE=1
+export OPENCODE_DISABLE_LSP_DOWNLOAD=true
+
 # Git
-[ "$(git config --global --get user.name 2>/dev/null || true)" = "$GIT_USER_NAME" ] || git config --global user.name "$GIT_USER_NAME"
-[ "$(git config --global --get user.email 2>/dev/null || true)" = "$GIT_USER_EMAIL" ] || git config --global user.email "$GIT_USER_EMAIL"
+[ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"
+[ "$(git config --global --get user.email 2>/dev/null || true)" = "${GIT_USER_EMAIL}" ] || git config --global user.email "${GIT_USER_EMAIL}"
 
 # PS1
 ps1_debian_red='\[\033[38;2;206;0;86m\]'

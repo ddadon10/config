@@ -264,14 +264,14 @@ Steps:
       policy.
 - [x] Wrote and committed this implementation plan without changing runtime configuration.
 - [x] Milestone 1: relocate image-provisioned Neovim plugins and parsers to `/usr/local/share/nvim/site`.
-- [ ] Milestone 2: define `XDG_DATA_HOME` and `XDG_STATE_HOME` while retaining the existing cache home.
+- [x] Milestone 2: define `XDG_DATA_HOME` and `XDG_STATE_HOME` while retaining the existing cache home.
 - [ ] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
 - [ ] Milestone 4: rebuild and validate paths, application behavior, key handling, and cross-container persistence.
 - [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: add `XDG_DATA_HOME=/data/share` and `XDG_STATE_HOME=/data/state` to `docker/.bashrc`, and ensure the
-Dockerfile creates the three persistent XDG home directories beneath `/data`.
+Exact next action: remove the `dev-opencode-home` mount from `.zshrc` and update `OPENCODE_GROK_TODOLIST.md` to
+supersede its dedicated-volume decision with the shared persistent XDG layout.
 
 ## Findings and Decisions
 
@@ -299,6 +299,11 @@ Dockerfile creates the three persistent XDG home directories beneath `/data`.
 - Configuration remains at the default `/root/.config` and is copied from the repository during image construction.
   No configuration directory will be placed in a volume.
 - Runtime files remain ephemeral. `XDG_RUNTIME_DIR`, `XDG_CONFIG_DIRS`, and `XDG_DATA_DIRS` will not be overridden.
+- Milestone 2 added only `XDG_DATA_HOME=/data/share` and `XDG_STATE_HOME=/data/state` beside the existing cache home.
+  Shell syntax passed, and no config, runtime, config-dirs, or data-dirs override was added.
+- With the intended environment, Neovim resolved config, data, state, cache, and run beneath `/root/.config/nvim`,
+  `/data/share/nvim`, `/data/state/nvim`, `/data/cache/nvim`, and `/tmp`. OpenCode resolved the equivalent paths beneath
+  `/root/.config/opencode`, `/data/share/opencode`, `/data/state/opencode`, `/data/cache/opencode`, and `/tmp/opencode`.
 - The user explicitly chose a clean cutover: no OpenCode data migration, backward-compatibility path, or transition
   logic is required.
 - The existing `dev-opencode-home` volume becomes unused after implementation. Repository code will neither migrate nor
@@ -320,3 +325,6 @@ Dockerfile creates the three persistent XDG home directories beneath `/data`.
 - 2026-09-18: Completed Milestone 1. Split Neovim image provisioning from runtime loading, installed image assets under
   the system data path in the Dockerfile, and validated the exact configuration with all 11 plugins and 33 parsers in
   disposable XDG trees. No persistent XDG environment or container mount was changed yet.
+- 2026-09-18: Completed Milestone 2. Added the persistent data and state homes beside the existing cache home, created
+  their image-level mountpoint directories, and verified exact Neovim and OpenCode path resolution while leaving
+  configuration and runtime paths at their defaults. The OpenCode mount remained unchanged pending Milestone 3.

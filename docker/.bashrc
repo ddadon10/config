@@ -26,6 +26,8 @@ export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$HOME/go/bin:$PATH"
 export SHELL=/bin/bash
 export TERM=xterm-ghostty
 export XDG_CACHE_HOME=/data/cache
+export XDG_DATA_HOME=/data/share
+export XDG_STATE_HOME=/data/state
 
 # Codex
 cp /etc/codex/AGENTS.md /root/.codex/AGENTS.md

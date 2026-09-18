@@ -161,6 +161,6 @@ COPY .codex/skills/ /etc/codex/skills/
 
 COPY AGENTS.md /etc/codex/AGENTS.md
 
-RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle
+RUN mkdir -p /data/share /data/state /data/cache/gomod /data/cache/npm /data/gradle
 
 CMD ["/bin/bash"]

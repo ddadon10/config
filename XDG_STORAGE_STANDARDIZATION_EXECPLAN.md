@@ -274,13 +274,14 @@ Steps:
 - [x] Milestone 1: relocate image-provisioned Neovim plugins and parsers to `/usr/local/share/nvim/site`.
 - [x] Milestone 2: define `XDG_DATA_HOME` and `XDG_STATE_HOME` while retaining the existing cache home.
 - [x] Milestone 3: remove the dedicated OpenCode mount and update the superseded checklist decision.
-- [ ] Milestone 4 (in progress): rebuild and validate paths, application behavior, key handling, and cross-container
+- [x] Milestone 4: rebuild and validate paths, application behavior, key handling, and cross-container
       persistence.
-- [ ] Milestone 5: manually remove only the obsolete `dev-opencode-home` volume after successful validation.
+- [ ] Milestone 5 (in progress): manually remove only the obsolete `dev-opencode-home` volume after successful
+      validation.
 - [ ] Milestone 6: record final evidence and commit the completed implementation.
 
-Exact next action: launch `opencode` once in the recreated container, confirm that the sidebar has the same visibility
-state it had when the previous container exited, then exit OpenCode and report the visual result.
+Exact next action: exit the development container, confirm on the Docker host that no container references
+`dev-opencode-home`, then inspect and remove only that obsolete named volume using the Milestone 5 commands.
 
 ## Findings and Decisions
 
@@ -355,7 +356,8 @@ state it had when the previous container exited, then exit OpenCode and report t
 - Cross-container persistence checks passed on 2026-09-18 for all nonvisual OpenCode state. In the recreated container,
   OpenCode still reported the xAI credential from the root-owned mode-`0600` file, the original `Greeting` session,
   model state, and prompt history; `XAI_API_KEY` remained unset. `/data` was the only relevant mount and OpenCode still
-  resolved its data and state beneath it. Manual confirmation of sidebar visibility remains pending.
+  resolved its data and state beneath it. The user then confirmed that the sidebar remained hidden after recreation,
+  completing the visual state check and Milestone 4.
 - Official references used to resolve the design are the
   [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir/0.8/) and
   [Neovim standard-path documentation](https://neovim.io/doc/user/starting/#standard-path).
@@ -402,3 +404,5 @@ state it had when the previous container exited, then exit OpenCode and report t
 - 2026-09-18: Verified native credentials, the original session, model state, and prompt history after recreating the
   container, with no obsolete OpenCode mount or environment key. Advanced the exact next action to the remaining
   manual sidebar-visibility check before completing Milestone 4.
+- 2026-09-18: Completed Milestone 4 after the user confirmed that hidden sidebar state survived container recreation.
+  Advanced the plan to the guarded host-side inspection and removal of only the obsolete `dev-opencode-home` volume.

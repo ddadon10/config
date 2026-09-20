@@ -2,8 +2,8 @@
 set -euo pipefail
 
 if [[ ${1:-} == "--install" ]]; then
-  curl -fsSL "https://github.com/lima-vm/lima/releases/download/v2.2.0/lima-2.2.0-Darwin-arm64.tar.gz" |
-    sudo tar --extract --modification-time --no-same-owner --verbose --directory /usr/local
+  lima_url="https://github.com/lima-vm/lima/releases/download/v2.2.0/lima-2.2.0-Darwin-arm64.tar.gz"
+  curl -fsSL "${lima_url}" | sudo tar --extract --modification-time --no-same-owner --verbose --directory /usr/local
 fi
 
 limactl list azure >/dev/null 2>&1 || limactl create --tty=false --name=azure lima/azure.yaml

@@ -390,12 +390,13 @@ README commands.
 - [x] Created and validated `lima/azure.yaml` as specified in Milestone 1.
 - [x] Implemented and syntax-checked `setup-lima.sh`; exercised fresh, complete, partial, and invalid-argument paths with
   command stubs because the macOS runtime is outside this container.
-- [ ] Implement and syntax-check the Azure-context image workflow in `build.sh`.
+- [x] Implemented and syntax-checked the Azure-context image workflow in `build.sh`; exercised first-build,
+  repeat-build, reject-if-running, and build-failure cleanup paths with command stubs.
 - [ ] Implement and syntax-check the isolated `azure()` lifecycle in `.zshrc`.
 - [ ] Write the self-contained installation and operation documentation in `README.md`.
 - [ ] Execute the macOS integration checks and record their exact results.
-- [ ] Exact next action: update the Azure section of `build.sh`, run focused static and stubbed lifecycle checks, update
-  this plan, and commit the plan and script.
+- [ ] Exact next action: replace `azure()` in `.zshrc`, run focused static and stubbed lifecycle checks, update this plan,
+  and commit the plan and shell configuration.
 
 ## Findings and Decisions
 
@@ -449,6 +450,11 @@ README commands.
   and a fresh state creates the instance and context, starts it, builds and inspects the image only through the `azure`
   context, stops it, and leaves the selected context unchanged. The install/update path and real Lima/Docker integration
   still require the Apple-silicon macOS host.
+- `build.sh` passes `bash -n` and ShellCheck at warning severity. Stubbed lifecycle tests verified that the first Azure
+  build skips the absent previous image, a repeat build tags and pushes it, every Azure image operation carries
+  `--context azure`, a running VM is rejected without Lima mutation, and a simulated build status of 42 is preserved
+  while the VM is stopped exactly once. The pre-existing dev/git commands and final default-context prune remain
+  unqualified and therefore stay on Docker Desktop.
 
 ## Audit Log
 
@@ -474,3 +480,7 @@ README commands.
   compatible-version validation, non-destructive runtime-state handling, explicit-context instance creation and initial
   image build, context preservation, and failure-safe VM cleanup. Static checks and simulated state/lifecycle checks
   passed; host installation and integration remain pending on macOS.
+- 2026-09-20: Reworked only the Azure section of `build.sh` to require a stopped VM, own its start/stop lifecycle, build
+  directly in the `azure` engine, conditionally preserve and publish the previous image, publish the current image, and
+  prune that engine through explicit context selection. Static checks and simulated success, rejection, and failure
+  paths passed; real image construction and registry publishing remain pending on macOS.

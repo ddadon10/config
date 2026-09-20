@@ -7,8 +7,7 @@ if [[ ${1:-} == "--install" ]]; then
 fi
 
 limactl list azure >/dev/null 2>&1 || limactl create --tty=false --name=azure lima/azure.yaml
-docker context inspect azure >/dev/null 2>&1 ||
-  docker context create azure --docker "host=$(limactl list azure --format 'unix://{{.Dir}}/sock/docker.sock')"
+docker context inspect azure >/dev/null 2>&1 || docker context create azure --docker "host=$(limactl list azure --format 'unix://{{.Dir}}/sock/docker.sock')"
 
 limactl start azure
 docker --context azure build --file docker/Azure.Dockerfile --tag ddadon/azureclient:current .

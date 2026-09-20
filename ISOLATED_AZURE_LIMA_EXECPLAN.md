@@ -387,14 +387,14 @@ README commands.
 - [x] Interviewed and resolved the VM resource, backend, proxy, port-forwarding, SSH, and guest-update choices.
 - [x] Replaced runtime pulls with an explicit Azure-context build and `--pull=never` policy in the plan.
 - [x] Defined `setup-lima.sh` as the non-destructive setup and optional latest-Lima install/update entry point.
-- [ ] Create and validate `lima/azure.yaml` as specified in Milestone 1.
+- [x] Created and validated `lima/azure.yaml` as specified in Milestone 1.
 - [ ] Implement and syntax-check `setup-lima.sh`.
 - [ ] Implement and syntax-check the Azure-context image workflow in `build.sh`.
 - [ ] Implement and syntax-check the isolated `azure()` lifecycle in `.zshrc`.
 - [ ] Write the self-contained installation and operation documentation in `README.md`.
 - [ ] Execute the macOS integration checks and record their exact results.
-- [ ] Exact next action: create `lima/azure.yaml`, update this Progress section plus the Findings and Audit Log, stage only
-  the plan and YAML, and create the first implementation commit.
+- [ ] Exact next action: implement `setup-lima.sh`, run its focused static and simulated state checks, update this plan,
+  and commit the plan and script.
 
 ## Findings and Decisions
 
@@ -439,10 +439,10 @@ README commands.
   Lima updater without recreating valid Azure state.
 - Setup distinguishes absent, complete, and partial runtime state. It creates only from the fully absent state, treats a
   matching stopped instance and context as complete, and rejects partial, mismatched, or running state without teardown.
-- The exact final YAML has not yet been validated. An exploratory configuration containing the now-removed `vmType` and
-  an incomplete port-ignore rule was used to expose the `guestIPMustBeZero` default; Milestone 1 must validate the agreed
-  final form before creating the VM.
-- No implementation files have been changed while writing or revising this plan.
+- The final `lima/azure.yaml` passed `limactl validate` using the Lima v2.2.0 binary and templates at upstream commit
+  `de0816ea4bdc5267b428ab21025889b8dd785526`. Template expansion returned `2`, `2GiB`, `20GiB`, `null`, and `false` for
+  the selected resource, mount, and proxy fields. It also produced the all-interface TCP/UDP ignore rule before a
+  separate inherited rootless-Docker Unix-socket forwarding rule.
 
 ## Audit Log
 
@@ -461,3 +461,6 @@ README commands.
   image build, and optional latest stable Lima installation/update through GitHub release metadata; added platform,
   ownership, state, cleanup, documentation, validation, recovery, scope, and progress requirements. No implementation or
   host runtime state was changed.
+- 2026-09-20: Implemented `lima/azure.yaml` with the agreed resource limits, null host mounts, suppressed automatic
+  TCP/UDP forwarding, retained inherited Docker Unix-socket forwarding, and disabled proxy propagation. Validated the
+  final effective configuration with Lima v2.2.0; no VM or Docker runtime state was created in the Linux container.

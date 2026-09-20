@@ -30,10 +30,9 @@ Relevant current repository state:
 - [`build.sh`](/workspace/build.sh) currently builds, tags, pushes, and prunes the Azure image through the caller's default
   Docker context. Its Azure operations must move to the explicit `azure` context without changing the dev or git image
   workflows.
-- `setup-lima.sh` does not exist. It will become the single documented entry point for optional Lima installation/update,
-  configuration validation, instance and Docker-context creation, and the initial Azure image build.
-- [`README.md`](/workspace/README.md) currently contains only the repository title and is the appropriate place for host
-  installation and one-time setup instructions.
+- [`setup-lima.sh`](/workspace/setup-lima.sh) is the entry point for optional Lima installation/update, configuration
+  validation, instance and Docker-context creation, and the initial Azure image build.
+- [`README.md`](/workspace/README.md) contains only the repository title and remains unchanged by explicit user direction.
 - The branch was clean at plan time. Lima v2.2.0 is installed on the user's Apple-silicon macOS host under `/usr/local`;
   it is intentionally unavailable inside this development container.
 
@@ -253,7 +252,7 @@ docker --context azure build --file docker/Azure.Dockerfile --tag ddadon/azurecl
 limactl stop azure
 ```
 
-`setup-lima.sh` performs the initial build. The manual sequence is a documented recovery path; subsequent repository-wide
+`setup-lima.sh` performs the initial build. The manual sequence above is the recovery path; subsequent repository-wide
 builds use the guarded Azure section in `build.sh`. The explicit context and no-pull runtime policy prevent the managed
 workflow from silently placing or running the Azure image in Docker Desktop. Do not remove `--context azure` even though
 `--pull=never` is also present.
@@ -261,45 +260,10 @@ workflow from silently placing or running the Azure image in Docker Desktop. Do 
 Run `zsh -n .zshrc` after the related edit. Do not source the function from this Linux container as behavioral
 validation, because the actual Lima and Docker endpoints exist only on macOS.
 
-### Milestone 5: Document installation, setup, operation, and recovery
+### Milestone 5: Keep repository documentation unchanged
 
-Expand [`README.md`](/workspace/README.md) with a focused Azure/Lima section covering:
-
-1. The separate-kernel architecture and the fact that Docker Desktop remains the default backend.
-2. The two setup modes from the repository root:
-
-   ```sh
-   ./setup-lima.sh           # Use an already-installed compatible Lima.
-   ./setup-lima.sh --install # Install or update to GitHub's latest stable Lima, then set up Azure if needed.
-   ```
-
-   Explain dynamic release resolution, the Apple-silicon-only guard, required commands, `--no-same-owner`, and expected
-   `root:wheel` ownership under `/usr/local`. State that `--install` is also the supported Lima update command and does not
-   recreate a valid existing Azure instance or context. Retain the resolved raw install command as troubleshooting detail,
-   not as the primary setup interface.
-3. The setup script's non-destructive state rules, initial image build, stopped final state, and partial-setup recovery.
-   Document `docker login` separately as required for publishing through `build.sh`, not for setup or normal `azure()`
-   execution.
-4. Build and update behavior: `build.sh` starts a stopped `azure` VM, builds and pushes the Azure image through that
-   context, prunes dangling images there, and stops the VM. Its dev and git sections continue to use Docker Desktop.
-5. Normal operation: invoke `azure`, authenticate to Azure inside the disposable container, exit when finished, and
-   expect the VM to stop. Note that first startup provisions Docker and can take longer.
-6. The selected VM profile: two CPUs, 2 GiB of memory, a sparse 20 GiB logical disk ceiling, native architecture, no
-   explicit VM backend, no host proxy propagation, and no automatic guest TCP/UDP forwarding. Explain that actual host
-   disk allocation grows with guest writes and can remain allocated after guest files or Docker layers are deleted.
-7. The explicit persistence model: the VM's image cache and Docker network persist; the session container and its cloud
-   configuration are removed by `--rm`; no macOS directory is mounted; no forensic-erasure guarantee is made.
-8. The global-configuration assumption: the workflow trusts the checked-in YAML and does not defend against a user's
-   `$LIMA_HOME/_config/default.yaml` or `override.yaml` weakening it. Operators using those files must inspect their
-   effective configuration before creating or starting `azure`.
-9. Inspection and recovery commands: `limactl list azure`, `docker context inspect azure`, `limactl start azure`,
-   `limactl stop azure`, `docker --context azure image inspect ddadon/azureclient:current`, and a manual context-qualified
-   rebuild. Document `docker context rm azure` and
-   `limactl delete azure` only as intentional teardown actions, with a warning that deleting the VM removes its disk and
-   cached images. Never make teardown automatic.
-
-Keep the README instructions self-contained. A reader should not need this ExecPlan or prior conversation to install,
-configure, operate, or troubleshoot the Azure environment.
+Do not expand [`README.md`](/workspace/README.md). The user explicitly removed the generated operator guide after review;
+the README remains its original `# Config` title only.
 
 ### Milestone 6: Validate the complete behavior on macOS
 
@@ -371,13 +335,12 @@ The expected task files are exactly:
 - `setup-lima.sh`
 - `build.sh`
 - `.zshrc`
-- `README.md`
 
 Do not modify `docker/Azure.Dockerfile`, Docker Desktop configuration, or other repository files unless new evidence makes
 that necessary and the decision is first recorded here. Code rollback is by reverting the task's local commits. Runtime
 rollback is separate: stop `azure`, remove only the Docker context if it is incorrect, and retain the VM disk unless the
 operator explicitly chooses destructive deletion. Recreating either runtime object must use the checked-in YAML and
-README commands.
+setup script.
 
 ## Progress
 
@@ -394,8 +357,7 @@ README commands.
   repeat-build, reject-if-running, and build-failure cleanup paths with command stubs.
 - [x] Implemented and syntax-checked the isolated `azure()` lifecycle in `.zshrc`; exercised success, rejection,
   missing-image, container-failure, and stop-failure paths with command stubs under zsh.
-- [x] Wrote the self-contained installation, update, operation, publishing, persistence, inspection, recovery, and
-  teardown documentation in `README.md`.
+- [x] Restored `README.md` to its original title-only content by user direction.
 - [x] Completed the full static validation set and safe container-side simulated integration checks.
 - [ ] Execute the macOS integration checks and record their exact results.
 - [ ] Exact next action: from the repository on the Apple-silicon Mac, run `./setup-lima.sh`, then execute the Milestone 6
@@ -420,8 +382,8 @@ README commands.
   wrapper therefore never assumes ownership of a VM started elsewhere.
 - The user explicitly rejected `tmpfs` complexity. `--rm` is the selected cleanup mechanism, with the documented disk
   persistence limitation.
-- Installation guidance belongs in `README.md`; the YAML receives only concise comments explaining the security-relevant
-  no-mount and port-forwarding settings, and `.zshrc` remains operational code rather than installation documentation.
+- The generated operator guide was too broad for this repository and was removed by user direction. `README.md` remains
+  unchanged apart from its original title.
 - The selected resource profile is two CPUs, 2 GiB of memory, and a 20 GiB primary disk. The disk is sparse: 20 GiB is
   its logical ceiling, while host allocation grows with written data and may not shrink after guest deletion.
 - `vmType` and `arch` are omitted. Lima's supported macOS default and native architecture are sufficient, the Azure image
@@ -439,7 +401,7 @@ README commands.
   targets the `azure` context for every Azure image operation and owns the VM lifecycle only from a stopped state.
 - Runtime uses `--pull=never`, not an omitted pull option, because Docker's default missing-image policy could otherwise
   contact the registry. A missing image is an actionable build error, and runtime registry availability is irrelevant.
-- `setup-lima.sh` is the only documented setup entry point. Its `--install` mode resolves the latest stable GitHub release
+- `setup-lima.sh` is the setup entry point. Its `--install` mode resolves the latest stable GitHub release
   tag, validates the Apple-silicon macOS target and tag shape, installs with `--no-same-owner`, and doubles as a future
   Lima updater without recreating valid Azure state.
 - Setup distinguishes absent, complete, and partial runtime state. It creates only from the fully absent state, treats a
@@ -463,10 +425,6 @@ README commands.
   cleanup after a missing image, preservation of a container exit status of 37, reporting of a stop-only status of 55,
   and preservation of the container failure when both the container and stop fail. Testing also caught and removed use
   of zsh's read-only special parameter `status` from cleanup before commit.
-- `README.md` now documents the separate-kernel boundary, both setup modes, dynamic arm64 installation and ownership
-  requirements, idempotent and partial-state behavior, explicit-context build and runtime flows, resource and
-  persistence semantics, global-override assumption, inspection commands, manual image recovery, and destructive
-  teardown warning. The documented commands match the implemented `setup-lima.sh`, `build.sh`, `.zshrc`, and YAML names.
 - Final container-side validation passed: `zsh -n .zshrc`, `bash -n build.sh`, `bash -n setup-lima.sh`, ShellCheck at
   warning severity for both Bash scripts, `git diff --check`, and Lima v2.2.0 configuration validation. Effective template
   queries returned CPU `2`, memory `2GiB`, disk `20GiB`, mounts `null`, proxy propagation `false`, the full-port
@@ -521,3 +479,6 @@ README commands.
   static policy, and simulated state/lifecycle suite passed, including installer safeguards and failure-status cleanup.
   Recorded the exact macOS-only integration gap and left the host milestone open rather than claiming VM behavior that
   this container cannot observe.
+- 2026-09-20: Removed the generated Azure/Lima operator guide from `README.md` at the user's request and restored its
+  original title-only content. Updated the plan to make repository documentation explicitly out of scope; no runtime or
+  implementation behavior changed in this correction.

@@ -58,15 +58,51 @@ alias gpull='_gitclient pull'
 alias gpush='_gitclient push'
 
 # Azure Client
-azure() {
-  docker network create azure >/dev/null 2>&1 || true
-  docker run \
+azure() (
+  local azure_status
+  if ! azure_status=$(limactl list azure --format '{{.Status}}'); then
+    print -u2 'Error: cannot inspect Lima instance azure. Run ./setup-lima.sh from the configuration repository.'
+    return 1
+  fi
+  if [[ $azure_status != Stopped ]]; then
+    print -u2 "Error: Lima instance azure must be Stopped before use (current: $azure_status)."
+    return 1
+  fi
+
+  limactl start azure || return
+
+  cleanup() {
+    local command_status=$?
+    trap - EXIT HUP INT TERM
+    local stop_status=0
+    limactl stop azure || stop_status=$?
+    if (( command_status == 0 && stop_status != 0 )); then
+      command_status=$stop_status
+    fi
+    exit "$command_status"
+  }
+  trap cleanup EXIT
+  trap 'exit 129' HUP
+  trap 'exit 130' INT
+  trap 'exit 143' TERM
+
+  if ! docker --context azure image inspect ddadon/azureclient:current >/dev/null 2>&1; then
+    print -u2 'Error: ddadon/azureclient:current is unavailable in Lima. Run ./build.sh from the configuration repository.'
+    return 1
+  fi
+  if ! docker --context azure network inspect azure >/dev/null 2>&1; then
+    docker --context azure network create azure >/dev/null
+  fi
+
+  docker --context azure run \
+    --pull=never \
     --rm \
     --interactive \
     --tty \
+    --detach-keys "ctrl-_" \
     --network azure \
     ddadon/azureclient:current
-}
+)
 
 # Shell customization
 export PS1="%n@mbp %~ %% "

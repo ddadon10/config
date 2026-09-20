@@ -392,11 +392,12 @@ README commands.
   command stubs because the macOS runtime is outside this container.
 - [x] Implemented and syntax-checked the Azure-context image workflow in `build.sh`; exercised first-build,
   repeat-build, reject-if-running, and build-failure cleanup paths with command stubs.
-- [ ] Implement and syntax-check the isolated `azure()` lifecycle in `.zshrc`.
+- [x] Implemented and syntax-checked the isolated `azure()` lifecycle in `.zshrc`; exercised success, rejection,
+  missing-image, container-failure, and stop-failure paths with command stubs under zsh.
 - [ ] Write the self-contained installation and operation documentation in `README.md`.
 - [ ] Execute the macOS integration checks and record their exact results.
-- [ ] Exact next action: replace `azure()` in `.zshrc`, run focused static and stubbed lifecycle checks, update this plan,
-  and commit the plan and shell configuration.
+- [ ] Exact next action: write the self-contained Lima/Azure instructions in `README.md`, inspect them against the
+  implemented interfaces, update this plan, and commit the plan and documentation.
 
 ## Findings and Decisions
 
@@ -455,6 +456,11 @@ README commands.
   `--context azure`, a running VM is rejected without Lima mutation, and a simulated build status of 42 is preserved
   while the VM is stopped exactly once. The pre-existing dev/git commands and final default-context prune remain
   unqualified and therefore stay on Docker Desktop.
+- `.zshrc` passes `zsh -n`. Direct stubbed execution under zsh verified creation of a missing Azure network, the complete
+  explicit-context `--pull=never --rm` run command, one stop after success, rejection of a running VM without mutation,
+  cleanup after a missing image, preservation of a container exit status of 37, reporting of a stop-only status of 55,
+  and preservation of the container failure when both the container and stop fail. Testing also caught and removed use
+  of zsh's read-only special parameter `status` from cleanup before commit.
 
 ## Audit Log
 
@@ -484,3 +490,7 @@ README commands.
   directly in the `azure` engine, conditionally preserve and publish the previous image, publish the current image, and
   prune that engine through explicit context selection. Static checks and simulated success, rejection, and failure
   paths passed; real image construction and registry publishing remain pending on macOS.
+- 2026-09-20: Replaced `azure()` with a subshell-scoped Lima lifecycle that rejects non-stopped state, starts and always
+  stops the VM it owns, checks the local Azure-engine image, creates the isolated network when missing, and runs the
+  disposable container with explicit context and no-pull policy. Syntax and simulated zsh lifecycle/failure checks
+  passed; real interactive and signal behavior remain pending on macOS.

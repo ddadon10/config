@@ -60,7 +60,7 @@ alias gpush='_gitclient push'
 # Azure Client
 azure() {
   limactl start azure || return
-  docker --context azure run --pull=never --rm -it ddadon/azureclient:current
+  docker --context azure run --rm -it ddadon/azureclient:current
   limactl stop azure
 }
 

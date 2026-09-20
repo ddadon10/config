@@ -1,18 +1,12 @@
 minimumLimaVersion: 2.2.0
 base: template:docker
-
 cpus: 2
 memory: 2GiB
 disk: 20GiB
-
-# Keep macOS files outside the Azure VM.
 mounts: null
-
-# Ignore all automatic IP-port forwards; template:docker's separate Docker Unix-socket rule remains.
 portForwards:
 - guestIP: 0.0.0.0
   guestIPMustBeZero: false
   proto: any
   ignore: true
-
 propagateProxyEnv: false

@@ -12,12 +12,12 @@ docker push ddadon/gitclient:previous
 docker push ddadon/gitclient:current
 
 limactl start azure
-trap 'limactl stop azure' EXIT
 
 docker --context azure tag ddadon/azureclient:current ddadon/azureclient:previous
 docker --context azure build --file docker/Azure.Dockerfile --tag ddadon/azureclient:current .
 docker --context azure push ddadon/azureclient:previous
 docker --context azure push ddadon/azureclient:current
 docker --context azure image prune --force
+limactl stop azure
 
 docker image prune --force

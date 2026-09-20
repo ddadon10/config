@@ -133,9 +133,10 @@ Start the VM, install one `EXIT` trap that stops it, and build `ddadon/azureclie
 ### Milestone 3: Build and publish the Azure image through Lima
 
 Update only the Azure section of [`build.sh`](/workspace/build.sh). Leave the dev and git image operations on their
-existing default Docker backend. Start `azure` and install one `EXIT` trap to stop it. Assume `setup-lima.sh` already
-created `ddadon/azureclient:current`, tag that image as `previous`, build `current`, push both tags, and prune dangling
-images. Every Azure image operation must specify `--context azure`; retain the final unqualified Docker Desktop prune.
+existing default Docker backend. Start `azure` and assume `setup-lima.sh` already created
+`ddadon/azureclient:current`; tag that image as `previous`, build `current`, push both tags, and prune dangling Azure
+images. Then stop `azure` before the final unqualified Docker Desktop prune. Every Azure image operation must specify
+`--context azure`. Do not install cleanup traps; if an intermediate command fails, the operator stops the VM manually.
 Run `bash -n build.sh` after the edit.
 
 ### Milestone 4: Replace `azure()` with the isolated lifecycle
@@ -211,7 +212,7 @@ Then perform the following focused host integration checks. Record actual result
    not change networking. Do not broaden this into a VPN redesign.
 
 The milestone passes only when install/update resolution, non-destructive setup, the no-mount invariant, explicit context
-selection, straight-line runtime stop behavior, build cleanup, Azure-engine image placement,
+selection, straight-line runtime and successful-build stop behavior, Azure-engine image placement,
 and unchanged Docker Desktop default are all observed. If cleanup fails, preserve the VM for diagnosis, stop it
 explicitly, inspect Lima logs, and do not delete its disk.
 
@@ -247,8 +248,8 @@ setup script.
 - [x] Created and validated `lima/azure.yaml` as specified in Milestone 1.
 - [x] Simplified and syntax-checked `setup-lima.sh` to pinned optional installation, shallow object existence checks, and
   one build cleanup trap.
-- [x] Simplified and syntax-checked the Azure section of `build.sh` to straight-line previous/current publishing with one
-  EXIT cleanup trap.
+- [x] Simplified and syntax-checked the Azure section of `build.sh` to straight-line previous/current publishing and an
+  explicit stop before the final Docker Desktop prune.
 - [x] Simplified and syntax-checked `azure()` to the selected straight-line start, Docker run, and stop lifecycle.
 - [x] Restored `README.md` to its original title-only content by user direction.
 - [x] Completed the full static validation set and safe container-side simulated integration checks.
@@ -291,8 +292,8 @@ setup script.
 - The workflow trusts the local YAML and does not add runtime guards for global Lima defaults or overrides. This is an
   explicit operator assumption rather than a claim that global configuration cannot affect the VM.
 - The Azure image is built directly into the Lima Docker engine. `build.sh` assumes setup created the current image, then
-  uses a straight-line tag, build, push-both-tags, and prune sequence through the explicit `azure` context. Its single
-  EXIT trap stops Lima when the script ends.
+  uses a straight-line tag, build, push-both-tags, and prune sequence through the explicit `azure` context. It stops Lima
+  before the final Docker Desktop prune; an earlier failure intentionally leaves manual VM cleanup to the operator.
 - Runtime intentionally uses Docker's default pull policy because setup builds the image before use.
 - `setup-lima.sh --install` installs the hardcoded Lima v2.2.0 Darwin arm64 archive with `--no-same-owner`; it deliberately
   performs no API version resolution, platform guard, ownership check, or post-install validation.
@@ -306,8 +307,8 @@ setup script.
   missing-object creation, existing-object reuse, explicit-context build, and EXIT-trap stop. Real Lima/Docker integration
   still requires the Apple-silicon macOS host.
 - `build.sh` passes `bash -n` and ShellCheck at warning severity. Stubbed lifecycle tests verified the straight-line
-  previous/current operations, explicit Azure context, and EXIT-trap stop after success or build failure. The pre-existing
-  dev/git commands and final default-context prune remain unqualified and therefore stay on Docker Desktop.
+  previous/current operations, explicit Azure context, and normal stop before the final default-context prune. The
+  pre-existing dev/git commands and final prune remain unqualified and therefore stay on Docker Desktop.
 - `.zshrc` passes `zsh -n`. The final minimal wrapper keeps only start failure propagation, the explicit-context
   `--rm -it` Docker run using the image built during setup, and a following VM stop.
 - Final container-side validation passed: `zsh -n .zshrc`, `bash -n build.sh`, `bash -n setup-lima.sh`, ShellCheck at
@@ -374,3 +375,5 @@ setup script.
 - 2026-09-20: Simplified the Azure section of `build.sh` to a straight-line lifecycle with one EXIT cleanup trap while
   preserving previous/current tags and pushes. Removed runtime `--pull=never` from `.zshrc` because setup builds the image
   before use.
+- 2026-09-20: Removed the `build.sh` EXIT trap at the user's direction and added a normal `limactl stop azure` after the
+  Azure prune and before the final Docker Desktop prune. Intermediate failures now intentionally require manual cleanup.

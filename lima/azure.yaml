@@ -1,0 +1,12 @@
+minimumLimaVersion: 2.2.0
+base: template:docker
+cpus: 2
+memory: 2GiB
+disk: 20GiB
+mounts: null
+portForwards:
+- guestIP: 0.0.0.0
+  guestIPMustBeZero: false
+  proto: any
+  ignore: true
+propagateProxyEnv: false

@@ -59,13 +59,13 @@ alias gpush='_gitclient push'
 
 # Azure Client
 azure() {
-  docker network create azure >/dev/null 2>&1 || true
-  docker run \
+  limactl start azure || return
+  docker --context azure run \
     --rm \
     --interactive \
     --tty \
-    --network azure \
     ddadon/azureclient:current
+  limactl stop azure
 }
 
 # Shell customization

@@ -8,7 +8,7 @@ disk: 20GiB
 # Keep macOS files outside the Azure VM.
 mounts: null
 
-# Retain Unix-socket forwarding from template:docker, but suppress TCP/UDP forwarding.
+# Ignore all automatic IP-port forwards; template:docker's separate Docker Unix-socket rule remains.
 portForwards:
 - guestIP: 0.0.0.0
   guestIPMustBeZero: false

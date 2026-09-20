@@ -394,10 +394,11 @@ README commands.
   repeat-build, reject-if-running, and build-failure cleanup paths with command stubs.
 - [x] Implemented and syntax-checked the isolated `azure()` lifecycle in `.zshrc`; exercised success, rejection,
   missing-image, container-failure, and stop-failure paths with command stubs under zsh.
-- [ ] Write the self-contained installation and operation documentation in `README.md`.
+- [x] Wrote the self-contained installation, update, operation, publishing, persistence, inspection, recovery, and
+  teardown documentation in `README.md`.
 - [ ] Execute the macOS integration checks and record their exact results.
-- [ ] Exact next action: write the self-contained Lima/Azure instructions in `README.md`, inspect them against the
-  implemented interfaces, update this plan, and commit the plan and documentation.
+- [ ] Exact next action: run the complete static validation set and every safe container-side simulated integration
+  check, record exact results and macOS-only gaps, then commit the final plan evidence.
 
 ## Findings and Decisions
 
@@ -461,6 +462,10 @@ README commands.
   cleanup after a missing image, preservation of a container exit status of 37, reporting of a stop-only status of 55,
   and preservation of the container failure when both the container and stop fail. Testing also caught and removed use
   of zsh's read-only special parameter `status` from cleanup before commit.
+- `README.md` now documents the separate-kernel boundary, both setup modes, dynamic arm64 installation and ownership
+  requirements, idempotent and partial-state behavior, explicit-context build and runtime flows, resource and
+  persistence semantics, global-override assumption, inspection commands, manual image recovery, and destructive
+  teardown warning. The documented commands match the implemented `setup-lima.sh`, `build.sh`, `.zshrc`, and YAML names.
 
 ## Audit Log
 
@@ -494,3 +499,7 @@ README commands.
   stops the VM it owns, checks the local Azure-engine image, creates the isolated network when missing, and runs the
   disposable container with explicit context and no-pull policy. Syntax and simulated zsh lifecycle/failure checks
   passed; real interactive and signal behavior remain pending on macOS.
+- 2026-09-20: Expanded `README.md` into a self-contained operator guide for the isolated Azure environment, including
+  installation and updates, daily sessions, publishing, the resource/security/persistence model, inspection, recovery,
+  and intentional teardown. Cross-checked the documented object names, image, contexts, paths, flags, and commands
+  against the implemented files.

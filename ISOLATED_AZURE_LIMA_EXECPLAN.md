@@ -388,13 +388,14 @@ README commands.
 - [x] Replaced runtime pulls with an explicit Azure-context build and `--pull=never` policy in the plan.
 - [x] Defined `setup-lima.sh` as the non-destructive setup and optional latest-Lima install/update entry point.
 - [x] Created and validated `lima/azure.yaml` as specified in Milestone 1.
-- [ ] Implement and syntax-check `setup-lima.sh`.
+- [x] Implemented and syntax-checked `setup-lima.sh`; exercised fresh, complete, partial, and invalid-argument paths with
+  command stubs because the macOS runtime is outside this container.
 - [ ] Implement and syntax-check the Azure-context image workflow in `build.sh`.
 - [ ] Implement and syntax-check the isolated `azure()` lifecycle in `.zshrc`.
 - [ ] Write the self-contained installation and operation documentation in `README.md`.
 - [ ] Execute the macOS integration checks and record their exact results.
-- [ ] Exact next action: implement `setup-lima.sh`, run its focused static and simulated state checks, update this plan,
-  and commit the plan and script.
+- [ ] Exact next action: update the Azure section of `build.sh`, run focused static and stubbed lifecycle checks, update
+  this plan, and commit the plan and script.
 
 ## Findings and Decisions
 
@@ -443,6 +444,11 @@ README commands.
   `de0816ea4bdc5267b428ab21025889b8dd785526`. Template expansion returned `2`, `2GiB`, `20GiB`, `null`, and `false` for
   the selected resource, mount, and proxy fields. It also produced the all-interface TCP/UDP ignore rule before a
   separate inherited rootless-Docker Unix-socket forwarding rule.
+- `setup-lima.sh` passes `bash -n` and ShellCheck at warning severity. Stubbed command tests verified that a complete
+  stopped state exits without mutation, a partial state is rejected without mutation, invalid arguments print usage,
+  and a fresh state creates the instance and context, starts it, builds and inspects the image only through the `azure`
+  context, stops it, and leaves the selected context unchanged. The install/update path and real Lima/Docker integration
+  still require the Apple-silicon macOS host.
 
 ## Audit Log
 
@@ -464,3 +470,7 @@ README commands.
 - 2026-09-20: Implemented `lima/azure.yaml` with the agreed resource limits, null host mounts, suppressed automatic
   TCP/UDP forwarding, retained inherited Docker Unix-socket forwarding, and disabled proxy propagation. Validated the
   final effective configuration with Lima v2.2.0; no VM or Docker runtime state was created in the Linux container.
+- 2026-09-20: Added executable `setup-lima.sh` with guarded latest-release installation/update, ownership checks,
+  compatible-version validation, non-destructive runtime-state handling, explicit-context instance creation and initial
+  image build, context preservation, and failure-safe VM cleanup. Static checks and simulated state/lifecycle checks
+  passed; host installation and integration remain pending on macOS.

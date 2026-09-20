@@ -396,9 +396,10 @@ README commands.
   missing-image, container-failure, and stop-failure paths with command stubs under zsh.
 - [x] Wrote the self-contained installation, update, operation, publishing, persistence, inspection, recovery, and
   teardown documentation in `README.md`.
+- [x] Completed the full static validation set and safe container-side simulated integration checks.
 - [ ] Execute the macOS integration checks and record their exact results.
-- [ ] Exact next action: run the complete static validation set and every safe container-side simulated integration
-  check, record exact results and macOS-only gaps, then commit the final plan evidence.
+- [ ] Exact next action: from the repository on the Apple-silicon Mac, run `./setup-lima.sh`, then execute the Milestone 6
+  host checks against the real Lima VM, Docker Desktop, registry credentials, interactive terminal, VPN, and signals.
 
 ## Findings and Decisions
 
@@ -466,6 +467,19 @@ README commands.
   requirements, idempotent and partial-state behavior, explicit-context build and runtime flows, resource and
   persistence semantics, global-override assumption, inspection commands, manual image recovery, and destructive
   teardown warning. The documented commands match the implemented `setup-lima.sh`, `build.sh`, `.zshrc`, and YAML names.
+- Final container-side validation passed: `zsh -n .zshrc`, `bash -n build.sh`, `bash -n setup-lima.sh`, ShellCheck at
+  warning severity for both Bash scripts, `git diff --check`, and Lima v2.2.0 configuration validation. Effective template
+  queries returned CPU `2`, memory `2GiB`, disk `20GiB`, mounts `null`, proxy propagation `false`, the full-port
+  all-interface ignore rule, and the separate inherited Docker Unix-socket rule.
+- Final simulated integration covered setup from outside the repository; no-argument avoidance of the GitHub API;
+  complete, partial, running, and mismatched state handling; unchanged context selection; latest-tag URL construction;
+  `--no-same-owner`; ownership and malformed-tag rejection before download/extraction; first and repeat image builds;
+  running-state build rejection; cleanup with preserved failures; missing-image behavior; network creation; `--rm` and
+  `--pull=never`; and stop-only failure reporting. Static auditing found no `docker context use`, `DOCKER_HOST`, or
+  `DOCKER_CONTEXT`, and every Azure-engine Docker operation explicitly selects `--context azure`.
+- This Linux container cannot execute the real macOS integration portion. No Lima VM, Docker context, Docker image,
+  registry push, Azure login, VPN request, filesystem-mount inspection, interactive terminal, or signal cleanup was
+  exercised on the user's Mac. Those observations remain required before the final milestone can be checked off.
 
 ## Audit Log
 
@@ -503,3 +517,7 @@ README commands.
   installation and updates, daily sessions, publishing, the resource/security/persistence model, inspection, recovery,
   and intentional teardown. Cross-checked the documented object names, image, contexts, paths, flags, and commands
   against the implemented files.
+- 2026-09-20: Completed all validation possible in the Linux workspace. The combined syntax, lint, Lima v2.2 template,
+  static policy, and simulated state/lifecycle suite passed, including installer safeguards and failure-status cleanup.
+  Recorded the exact macOS-only integration gap and left the host milestone open rather than claiming VM behavior that
+  this container cannot observe.

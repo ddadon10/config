@@ -21,5 +21,5 @@ docker --context azure build --file docker/Azure.Dockerfile --tag ddadon/azurecl
 docker --context azure push ddadon/azureclient:previous
 docker --context azure push ddadon/azureclient:current
 
-limactl stop azure
 docker --context azure image prune --force
+limactl stop azure

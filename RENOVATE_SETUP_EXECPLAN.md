@@ -88,8 +88,8 @@ executed in this container; this limitation must be recorded rather than represe
 - [ ] **External follow-up:** Install the Mend Renovate GitHub App and confirm its first authenticated run resolves the
   grouped Lima and k9s release-attachment dependencies.
 
-Exact next action: commit the verified implementation and this completed local-execution record. After publication,
-install the hosted App and inspect its first Dependency Dashboard/update run.
+Exact next action: install the hosted App after publishing this branch, then inspect its first Dependency
+Dashboard/update run for authenticated Lima and k9s resolution.
 
 ## Findings and Decisions
 
@@ -138,3 +138,5 @@ install the hosted App and inspect its first Dependency Dashboard/update run.
   tags. Recorded successful strict validation, exact extraction counts, successful Docker/npm lookups, upstream hash
   checks, shell syntax checks, and the GitHub-token/Docker/macOS validation boundaries so the commit accurately reflects
   what was and was not proven locally.
+- 2026-09-21: Recorded implementation commit `1944ae7` and advanced the exact next action to the external hosted-App
+  run. This closes local execution while keeping the remaining authenticated integration check explicit.

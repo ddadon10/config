@@ -10,7 +10,8 @@ installs, stable/latest download channels, installer scripts, and Neovim default
 The observable result is a repository-level Renovate configuration that validates strictly and whose actionable local
 extraction and lookup output contains only the selected dependencies. The native Dockerfile manager may report
 unversioned apt installs, but it must skip them as `unspecified-version`. Debian image references will retain
-human-readable dated tags and gain OCI digests. Codex will retain an exact npm version. Lima will retain a readable
+human-readable rolling-channel tags and OCI digests. Codex will retain an exact npm version and receive updates without
+the three-day npm release-age delay inherited from `config:best-practices`. Lima will retain a readable
 release version in both its installer and `minimumLimaVersion`, gain SHA-256 verification for its macOS arm64 archive,
 and update those values together. k9s will retain readable per-architecture versions adjacent to its existing SHA-256
 values and update both architectures together.
@@ -40,14 +41,16 @@ Dockerfile manager and explicitly declared regex custom managers. Add narrowly m
   `github-release-attachments`.
 
 Group the multiple Lima records and multiple k9s records by package so each tool changes atomically. Do not declare
-custom managers for any rolling dependency. Validation succeeds when strict config validation reports no errors or
-migrations and extraction lists the intended managers without capturing unrelated values.
+custom managers for any rolling dependency. Add a package rule scoped to the npm datasource and `@openai/codex` that
+sets `minimumReleaseAge` to `null`; this opts Codex out of the preset's three-day delay without changing the policy for
+other npm dependencies. Validation succeeds when strict config validation reports no errors or migrations and
+extraction lists the intended managers without capturing unrelated values.
 
 ### Milestone 2: Make selected immutable inputs representable and verifiable
 
-Update the three `FROM` instructions to `dated-tag@sha256:digest` using the current Docker Hub manifest-list digests.
-Keep `sid-YYYYMMDD` for the main image and `stable-YYYYMMDD-slim` for the Azure and Git images so update pull requests
-remain understandable.
+Update the three `FROM` instructions to `rolling-tag@sha256:digest` using the current Docker Hub manifest-list digests.
+Use `sid` for the main image and `stable-slim` for the Azure and Git images. Renovate must leave those tag names fixed
+and update only their digests as the rolling channels advance; no custom Debian versioning rules are needed.
 
 Refactor the Lima install block to define a GitHub release tag and SHA-256 beside one another, derive the archive name
 and URL from that tag, download the archive in the current directory, verify it with the macOS-provided `shasum`,
@@ -97,8 +100,9 @@ Dashboard/update run for authenticated Lima and k9s resolution.
 
 - Intentional `latest`, stable-channel, unversioned, and default-branch selectors are features of this repository and
   are excluded from Renovate ownership unless the user later opts one in.
-- Dated Debian tags plus digests were chosen over channel-only tags because they combine an understandable image date
-  with immutable OCI identity. Apt packages remain rolling and therefore the whole built image is not fully
+- Debian rolling-channel tags plus digests were chosen because the channel movement is intentional while each committed
+  build must retain an immutable OCI identity. Renovate updates the digest behind `sid` and `stable-slim` natively, so
+  no custom Debian versioning is required. Apt packages remain rolling and therefore the whole built image is not fully
   reproducible solely from the base-image digest.
 - The hosted Mend Renovate GitHub App was selected over a self-hosted GitHub Action because all chosen updates can use
   built-in datasources and no executable post-upgrade task is required.
@@ -112,9 +116,15 @@ Dashboard/update run for authenticated Lima and k9s resolution.
   `sha256:c1acdb109bacb5adf0f2078892ac177ee2e2ce6f88e96c5b743998b5489d36a9` for `sid-20260824` and
   `sha256:04634311a8d5fc442b6eb06d792293c4f3e2268652ca7634e00ce8ef5cc0a28a` for
   `stable-20260824-slim`. Renovate independently resolved both digests during lookup.
-- Default Docker versioning considered the dated Debian tags unsupported. Narrow regex-versioning rules were added for
-  `sid-YYYYMMDD` and `stable-YYYYMMDD-slim`; a subsequent live lookup successfully proposed `sid-20260918` and
-  `stable-20260918-slim` together with their new digests.
+- A focused live run confirmed that default Docker handling treats `sid` and `stable-slim` as unversioned rolling tags
+  while still resolving and proposing digest-only updates. This is the desired behavior and permits removal of the two
+  dated-tag regex-versioning rules.
+- `config:best-practices` applies a three-day minimum release age to npm packages. The Codex record is narrowly exempted
+  with `minimumReleaseAge: null` because rapid Codex updates are intentional; the preset delay remains for all other npm
+  dependencies.
+- Strict validation succeeded with Renovate `44.101.0`. A full local dry run resolved Codex `0.155.1` at two days old,
+  created a non-pending update proposal from `0.154.0`, and reported only that one actionable update. It also confirmed
+  all three Debian rolling tags resolve to their committed current digests with no pending image updates.
 - Strict validation succeeded with Renovate `44.99.0`. The local npm installation could not load its optional native
   RE2 binary and transparently validated with JavaScript `RegExp`; all configured expressions avoid RE2-incompatible
   features.
@@ -153,3 +163,8 @@ Dashboard/update run for authenticated Lima and k9s resolution.
   into and removed from the current directory, following the user's requested simpler lifecycle.
 - 2026-09-21: Made the final Lima archive cleanup idempotent with `rm -f`, as requested.
 - 2026-09-21: Replaced permanent Lima archive deletion with `trash`, as requested, so cleanup remains recoverable.
+- 2026-09-21: Replaced the dated Debian snapshot tags with digest-pinned `sid` and `stable-slim` rolling channels after a
+  focused Renovate run proved native digest updates work without custom versioning. Removed the two Debian regex rules,
+  kept Codex on npm, and exempted only `@openai/codex` from the three-day npm minimum release age as requested. Strict
+  validation and a full local dry run then proved the two-day-old Codex `0.155.1` update is proposed without a pending
+  stability delay and the new Debian digests are current.

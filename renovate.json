@@ -42,16 +42,9 @@
   ],
   "packageRules": [
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["debian"],
-      "matchCurrentValue": "/^sid-/",
-      "versioning": "regex:^(?<compatibility>sid)-(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})$"
-    },
-    {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["debian"],
-      "matchCurrentValue": "/^stable-/",
-      "versioning": "regex:^(?<compatibility>stable)-(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})-slim$"
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@openai/codex"],
+      "minimumReleaseAge": null
     },
     {
       "matchPackageNames": ["lima-vm/lima"],

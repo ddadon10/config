@@ -13,9 +13,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^setup-lima\\.sh$/"],
-      "matchStrings": [
-        "lima_version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+lima_sha256=\"(?<currentDigest>[a-f0-9]{64})\""
-      ],
+      "matchStrings": ["lima_version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+lima_sha256=\"(?<currentDigest>[a-f0-9]{64})\""],
       "packageNameTemplate": "lima-vm/lima",
       "datasourceTemplate": "github-release-attachments",
       "versioningTemplate": "semver"
@@ -32,9 +30,7 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^docker\\/Azure\\.Dockerfile$/"],
-      "matchStrings": [
-        "arch=\"(?:amd64|arm64)\"\\s+version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+checksum=\"(?<currentDigest>[a-f0-9]{64})\""
-      ],
+      "matchStrings": ["arch=\"(?:amd64|arm64)\"\\s+version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+checksum=\"(?<currentDigest>[a-f0-9]{64})\""],
       "packageNameTemplate": "derailed/k9s",
       "datasourceTemplate": "github-release-attachments",
       "versioningTemplate": "semver"

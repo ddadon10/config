@@ -1,6 +1,6 @@
 # check=skip=SecretsUsedInArgOrEnv;error=true
 
-FROM debian:stable-20260824-slim
+FROM debian:13-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 ARG DEBIAN_FRONTEND=noninteractive

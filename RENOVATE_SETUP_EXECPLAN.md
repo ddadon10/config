@@ -7,12 +7,13 @@ Renovate must manage only four dependency groups: the three Debian base-image re
 pinned Lima release, and the pinned k9s release. All unversioned apt packages, other global npm packages, Go `@latest`
 installs, stable/latest download channels, installer scripts, and Neovim default branches must remain unmanaged.
 
-The observable result is a repository-level Renovate configuration that validates strictly and whose local extraction
-and lookup output contains only the selected dependencies. Debian image references will retain human-readable dated
-tags and gain OCI digests. Codex will retain an exact npm version. Lima will retain a readable release version in both
-its installer and `minimumLimaVersion`, gain SHA-256 verification for its macOS arm64 archive, and update those values
-together. k9s will retain readable per-architecture versions adjacent to its existing SHA-256 values and update both
-architectures together.
+The observable result is a repository-level Renovate configuration that validates strictly and whose actionable local
+extraction and lookup output contains only the selected dependencies. The native Dockerfile manager may report
+unversioned apt installs, but it must skip them as `unspecified-version`. Debian image references will retain
+human-readable dated tags and gain OCI digests. Codex will retain an exact npm version. Lima will retain a readable
+release version in both its installer and `minimumLimaVersion`, gain SHA-256 verification for its macOS arm64 archive,
+and update those values together. k9s will retain readable per-architecture versions adjacent to its existing SHA-256
+values and update both architectures together.
 
 Relevant initial state:
 
@@ -64,8 +65,8 @@ are mutated by these file changes.
 Run the following focused checks once after the related edits:
 
 1. `npx --yes --package renovate -- renovate-config-validator --strict`.
-2. Renovate local extraction with debug logging and `--platform=local --dry-run=extract`; confirm only Docker images,
-   Codex, Lima, and k9s are extracted.
+2. Renovate local extraction with debug logging and `--platform=local --dry-run=extract`; confirm the actionable records
+   are limited to Docker images, Codex, Lima, and k9s, and any unversioned apt records are skipped.
 3. Renovate local lookup with `--platform=local`; confirm the npm, Docker, GitHub release, and release-attachment
    datasources resolve successfully, including both architecture-specific k9s hashes and the Lima hash.
 4. Shell syntax checks for the changed shell/Dockerfile heredoc scripts and direct SHA-256 verification of the selected
@@ -116,8 +117,10 @@ Dashboard/update run for authenticated Lima and k9s resolution.
 - Strict validation succeeded with Renovate `44.99.0`. The local npm installation could not load its optional native
   RE2 binary and transparently validated with JavaScript `RegExp`; all configured expressions avoid RE2-incompatible
   features.
-- Local extraction found exactly eight dependency records: three Debian image occurrences, Codex, two grouped Lima
-  records, and two grouped k9s architecture records. No rolling dependency was extracted.
+- Local extraction found eight selected dependency records: three Debian image occurrences, Codex, two grouped Lima
+  records, and two grouped k9s architecture records. A fresh extraction also reported 63 apt install occurrences from
+  the native Dockerfile manager, all with `skipReason: unspecified-version`; they are not update candidates and retain
+  their intentional rolling behavior.
 - Live unauthenticated lookup resolved Docker and npm successfully and found update proposals for the dated Debian
   images and Codex. It could not execute GitHub-backed release lookups because Renovate requires a GitHub token; none is
   present in this environment. The hosted App supplies that token. Direct upstream checksum manifests independently
@@ -142,3 +145,6 @@ Dashboard/update run for authenticated Lima and k9s resolution.
   run. This closes local execution while keeping the remaining authenticated integration check explicit.
 - 2026-09-21: Renamed `renovate.json5` to `renovate.json` because the configuration uses strict JSON and contains no
   comments or JSON5-only syntax. Updated all ExecPlan references and revalidated discovery under the canonical name.
+- 2026-09-21: Corrected the extraction description after the fresh canonical-name run exposed 63 native Dockerfile apt
+  records that earlier cached output omitted. They are all skipped as `unspecified-version`; revised the success
+  criterion and findings to distinguish discovered-but-skipped apt names from the eight selected update records.

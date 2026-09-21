@@ -29,7 +29,7 @@ Relevant initial state:
 
 ### Milestone 1: Establish the repository-level Renovate policy
 
-Create `renovate.json5` with the Renovate schema and `config:best-practices`. Restrict `enabledManagers` to the native
+Create `renovate.json` with the Renovate schema and `config:best-practices`. Restrict `enabledManagers` to the native
 Dockerfile manager and explicitly declared regex custom managers. Add narrowly matched custom managers for:
 
 - The Codex version in `docker/Dockerfile`, using the `npm` datasource.
@@ -82,7 +82,7 @@ executed in this container; this limitation must be recorded rather than represe
 - [x] Implementation and validation approach resolved.
 - [x] Initial ExecPlan committed as `a8a0094`.
 - [x] Current Debian, Lima, and k9s digests retrieved and verified.
-- [x] `renovate.json5` added and selected dependency representations updated.
+- [x] `renovate.json` added and selected dependency representations updated.
 - [x] Strict configuration validation and local extraction/lookup checks completed.
 - [x] Validation evidence, final outcome, and the remaining hosted-app check recorded.
 - [ ] **External follow-up:** Install the Mend Renovate GitHub App and confirm its first authenticated run resolves the
@@ -132,7 +132,7 @@ Dashboard/update run for authenticated Lima and k9s resolution.
 - 2026-09-21: Created this ExecPlan after repository inspection. It records the user-approved narrow scope, resolves
   the manager/datasource design, defines implementation and recovery steps, and establishes validation criteria before
   any implementation changes are made.
-- 2026-09-21: Implemented the scoped Renovate policy in `renovate.json5`; pinned the three Debian base-image references
+- 2026-09-21: Implemented the scoped Renovate policy in `renovate.json`; pinned the three Debian base-image references
   to verified OCI digests; added verified Lima archive hashing; exposed grouped Lima and k9s version/digest records; and
   added narrow Debian dated-tag versioning after live lookup revealed the default Docker scheme could not advance those
   tags. Recorded successful strict validation, exact extraction counts, successful Docker/npm lookups, upstream hash
@@ -140,3 +140,5 @@ Dashboard/update run for authenticated Lima and k9s resolution.
   what was and was not proven locally.
 - 2026-09-21: Recorded implementation commit `1944ae7` and advanced the exact next action to the external hosted-App
   run. This closes local execution while keeping the remaining authenticated integration check explicit.
+- 2026-09-21: Renamed `renovate.json5` to `renovate.json` because the configuration uses strict JSON and contains no
+  comments or JSON5-only syntax. Updated all ExecPlan references and revalidated discovery under the canonical name.

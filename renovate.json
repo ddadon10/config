@@ -12,6 +12,15 @@
     },
     {
       "customType": "regex",
+      "managerFilePatterns": ["/^docker\\/Dockerfile$/"],
+      "matchStrings": ["opencode\\.ai/install \\| bash -s -- --version (?<currentValue>\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?)"],
+      "packageNameTemplate": "anomalyco/opencode",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
       "managerFilePatterns": ["/^setup-lima\\.sh$/"],
       "matchStrings": ["lima_version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+lima_sha256=\"(?<currentDigest>[a-f0-9]{64})\""],
       "packageNameTemplate": "lima-vm/lima",

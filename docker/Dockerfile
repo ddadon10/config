@@ -142,7 +142,7 @@ RUN go install github.com/sosedoff/pgweb@latest && go clean -cache -modcache
 
 RUN npm install -g ccusage && npm cache clean --force
 
-RUN npm install -g @openai/codex@0.154.0 && npm cache clean --force
+RUN npm install -g @openai/codex@0.155.1 && npm cache clean --force
 
 # See: https://github.com/anomalyco/opencode/issues/46189
 RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 1.18.31 --no-modify-path && \

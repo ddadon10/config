@@ -2,8 +2,16 @@
 set -euo pipefail
 
 if [[ ${1:-} == "--install" ]]; then
-  lima_url="https://github.com/lima-vm/lima/releases/download/v2.2.0/lima-2.2.0-Darwin-arm64.tar.gz"
-  curl -fsSL "${lima_url}" | sudo tar --extract --modification-time --no-same-owner --verbose --directory /usr/local
+  lima_version="v2.2.0"
+  lima_sha256="bbdef91774885a0d05f7b048c4eb89ae2bcf3a0c252ae7ca7934e63df76d93c3"
+  lima_url="https://github.com/lima-vm/lima/releases/download/${lima_version}/lima-${lima_version#v}-Darwin-arm64.tar.gz"
+  lima_archive=$(mktemp)
+  trap 'rm -f "${lima_archive}"' EXIT
+  curl -fsSLo "${lima_archive}" "${lima_url}"
+  echo "${lima_sha256}  ${lima_archive}" | shasum --algorithm 256 --check
+  sudo tar --extract --modification-time --no-same-owner --verbose --directory /usr/local --file "${lima_archive}"
+  rm "${lima_archive}"
+  trap - EXIT
 fi
 
 limactl list azure >/dev/null 2>&1 || limactl create --tty=false --name=azure lima/azure.yaml

@@ -80,14 +80,16 @@ executed in this container; this limitation must be recorded rather than represe
 
 - [x] Repository state and selected dependency scope inspected.
 - [x] Implementation and validation approach resolved.
-- [ ] **In progress:** Commit this initial ExecPlan.
-- [ ] Retrieve and verify the current Debian and Lima digests.
-- [ ] Add `renovate.json5` and update the selected dependency representations.
-- [ ] Run strict configuration validation and local extraction/lookup checks.
-- [ ] Record validation evidence, final outcome, and exact remaining hosted-app check.
+- [x] Initial ExecPlan committed as `a8a0094`.
+- [x] Current Debian, Lima, and k9s digests retrieved and verified.
+- [x] `renovate.json5` added and selected dependency representations updated.
+- [x] Strict configuration validation and local extraction/lookup checks completed.
+- [x] Validation evidence, final outcome, and the remaining hosted-app check recorded.
+- [ ] **External follow-up:** Install the Mend Renovate GitHub App and confirm its first authenticated run resolves the
+  grouped Lima and k9s release-attachment dependencies.
 
-Exact next action: commit this ExecPlan alone, then retrieve the current upstream digests before editing implementation
-files.
+Exact next action: commit the verified implementation and this completed local-execution record. After publication,
+install the hosted App and inspect its first Dependency Dashboard/update run.
 
 ## Findings and Decisions
 
@@ -104,9 +106,35 @@ files.
   preserve the appropriate representation in each file.
 - k9s needs one version/digest record per architecture because one Renovate dependency record supports one
   `currentDigest`; grouping the records preserves atomic updates.
+- Docker Hub reported the current OCI index digests as
+  `sha256:c1acdb109bacb5adf0f2078892ac177ee2e2ce6f88e96c5b743998b5489d36a9` for `sid-20260824` and
+  `sha256:04634311a8d5fc442b6eb06d792293c4f3e2268652ca7634e00ce8ef5cc0a28a` for
+  `stable-20260824-slim`. Renovate independently resolved both digests during lookup.
+- Default Docker versioning considered the dated Debian tags unsupported. Narrow regex-versioning rules were added for
+  `sid-YYYYMMDD` and `stable-YYYYMMDD-slim`; a subsequent live lookup successfully proposed `sid-20260918` and
+  `stable-20260918-slim` together with their new digests.
+- Strict validation succeeded with Renovate `44.99.0`. The local npm installation could not load its optional native
+  RE2 binary and transparently validated with JavaScript `RegExp`; all configured expressions avoid RE2-incompatible
+  features.
+- Local extraction found exactly eight dependency records: three Debian image occurrences, Codex, two grouped Lima
+  records, and two grouped k9s architecture records. No rolling dependency was extracted.
+- Live unauthenticated lookup resolved Docker and npm successfully and found update proposals for the dated Debian
+  images and Codex. It could not execute GitHub-backed release lookups because Renovate requires a GitHub token; none is
+  present in this environment. The hosted App supplies that token. Direct upstream checksum manifests independently
+  confirmed the committed Lima hash and both existing k9s hashes.
+- `bash -n` succeeded for `setup-lima.sh` and the extracted k9s Dockerfile heredoc. The Lima installer's checksum command
+  was exercised successfully. Both staged and unstaged diff checks passed.
+- Docker builds and the macOS Lima installation were not run because this container cannot run Docker and is not a
+  macOS arm64 host.
 
 ## Audit Log
 
 - 2026-09-21: Created this ExecPlan after repository inspection. It records the user-approved narrow scope, resolves
   the manager/datasource design, defines implementation and recovery steps, and establishes validation criteria before
   any implementation changes are made.
+- 2026-09-21: Implemented the scoped Renovate policy in `renovate.json5`; pinned the three Debian base-image references
+  to verified OCI digests; added verified Lima archive hashing; exposed grouped Lima and k9s version/digest records; and
+  added narrow Debian dated-tag versioning after live lookup revealed the default Docker scheme could not advance those
+  tags. Recorded successful strict validation, exact extraction counts, successful Docker/npm lookups, upstream hash
+  checks, shell syntax checks, and the GitHub-token/Docker/macOS validation boundaries so the commit accurately reflects
+  what was and was not proven locally.

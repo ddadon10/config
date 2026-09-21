@@ -1,6 +1,6 @@
 # check=error=true
 
-FROM debian:stable-20260824-slim
+FROM debian:stable-20260824-slim@sha256:04634311a8d5fc442b6eb06d792293c4f3e2268652ca7634e00ce8ef5cc0a28a
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -28,12 +28,20 @@ RUN az aks install-cli
 # Install k9s
 RUN <<EOF
     case "$(uname -m)" in
-        x86_64) arch="amd64" checksum="c3752ad51a5a4015a113819c4eeb6e55a4d0e4b8e652494797532f6fc8161dd7" ;;
-        aarch64) arch="arm64" checksum="3ee05c82e5f9198928a4e86133608ba6a2c10a2244d6a7789e820f78319d640c" ;;
+        x86_64)
+            arch="amd64"
+            version="v0.51.0"
+            checksum="c3752ad51a5a4015a113819c4eeb6e55a4d0e4b8e652494797532f6fc8161dd7"
+            ;;
+        aarch64)
+            arch="arm64"
+            version="v0.51.0"
+            checksum="3ee05c82e5f9198928a4e86133608ba6a2c10a2244d6a7789e820f78319d640c"
+            ;;
         *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
     esac
 
-    curl -fsSLo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/v0.51.0/k9s_Linux_${arch}.tar.gz"
+    curl -fsSLo k9s.tar.gz "https://github.com/derailed/k9s/releases/download/${version}/k9s_Linux_${arch}.tar.gz"
     echo "${checksum}  k9s.tar.gz" | sha256sum --check -
     tar -xzf k9s.tar.gz -C /usr/local/bin k9s
     rm k9s.tar.gz

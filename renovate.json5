@@ -1,0 +1,65 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  "enabledManagers": ["dockerfile", "custom.regex"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^docker\\/Dockerfile$/"],
+      "matchStrings": ["@openai/codex@(?<currentValue>\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?)"],
+      "packageNameTemplate": "@openai/codex",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^setup-lima\\.sh$/"],
+      "matchStrings": [
+        "lima_version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+lima_sha256=\"(?<currentDigest>[a-f0-9]{64})\""
+      ],
+      "packageNameTemplate": "lima-vm/lima",
+      "datasourceTemplate": "github-release-attachments",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^lima\\/azure\\.yaml$/"],
+      "matchStrings": ["minimumLimaVersion:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "packageNameTemplate": "lima-vm/lima",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^docker\\/Azure\\.Dockerfile$/"],
+      "matchStrings": [
+        "arch=\"(?:amd64|arm64)\"\\s+version=\"(?<currentValue>v\\d+\\.\\d+\\.\\d+)\"\\s+checksum=\"(?<currentDigest>[a-f0-9]{64})\""
+      ],
+      "packageNameTemplate": "derailed/k9s",
+      "datasourceTemplate": "github-release-attachments",
+      "versioningTemplate": "semver"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["debian"],
+      "matchCurrentValue": "/^sid-/",
+      "versioning": "regex:^(?<compatibility>sid)-(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})$"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["debian"],
+      "matchCurrentValue": "/^stable-/",
+      "versioning": "regex:^(?<compatibility>stable)-(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})-slim$"
+    },
+    {
+      "matchPackageNames": ["lima-vm/lima"],
+      "groupName": "Lima"
+    },
+    {
+      "matchPackageNames": ["derailed/k9s"],
+      "groupName": "k9s"
+    }
+  ]
+}

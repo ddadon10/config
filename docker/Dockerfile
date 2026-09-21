@@ -1,6 +1,6 @@
 # check=error=true
 
-FROM debian:sid-20260824
+FROM debian:sid-20260824@sha256:c1acdb109bacb5adf0f2078892ac177ee2e2ce6f88e96c5b743998b5489d36a9
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 ARG DEBIAN_FRONTEND=noninteractive

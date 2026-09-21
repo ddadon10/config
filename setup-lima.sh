@@ -9,7 +9,7 @@ if [[ ${1:-} == "--install" ]]; then
   curl -fsSLo "${lima_archive}" "${lima_url}"
   echo "${lima_sha256}  ${lima_archive}" | shasum --algorithm 256 --check
   sudo tar --extract --modification-time --no-same-owner --verbose --directory /usr/local --file "${lima_archive}"
-  rm -f "${lima_archive}"
+  trash "${lima_archive}"
 fi
 
 limactl list azure >/dev/null 2>&1 || limactl create --tty=false --name=azure lima/azure.yaml

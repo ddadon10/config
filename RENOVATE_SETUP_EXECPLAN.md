@@ -49,9 +49,10 @@ Update the three `FROM` instructions to `dated-tag@sha256:digest` using the curr
 Keep `sid-YYYYMMDD` for the main image and `stable-YYYYMMDD-slim` for the Azure and Git images so update pull requests
 remain understandable.
 
-Refactor the Lima install block to define a GitHub release tag and SHA-256 beside one another, derive both URL version
-segments from that tag, download to a temporary file, verify it with the macOS-provided `shasum`, and extract it only
-after successful verification. Keep `minimumLimaVersion` free of the GitHub tag's leading `v`.
+Refactor the Lima install block to define a GitHub release tag and SHA-256 beside one another, derive the archive name
+and URL from that tag, download the archive in the current directory, verify it with the macOS-provided `shasum`,
+extract it only after successful verification, and remove it. Keep `minimumLimaVersion` free of the GitHub tag's
+leading `v`.
 
 Refactor the k9s architecture switch so each architecture contains its own adjacent release tag and digest. Continue
 to verify the selected archive before extraction. Do not otherwise change the installed tools or their behavior.
@@ -148,3 +149,5 @@ Dashboard/update run for authenticated Lima and k9s resolution.
 - 2026-09-21: Corrected the extraction description after the fresh canonical-name run exposed 63 native Dockerfile apt
   records that earlier cached output omitted. They are all skipped as `unspecified-version`; revised the success
   criterion and findings to distinguish discovered-but-skipped apt names from the eight selected update records.
+- 2026-09-21: Replaced Lima's `mktemp` and exit-trap handling with a predictable release archive filename downloaded
+  into and removed from the current directory, following the user's requested simpler lifecycle.

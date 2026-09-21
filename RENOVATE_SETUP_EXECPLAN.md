@@ -151,3 +151,4 @@ Dashboard/update run for authenticated Lima and k9s resolution.
   criterion and findings to distinguish discovered-but-skipped apt names from the eight selected update records.
 - 2026-09-21: Replaced Lima's `mktemp` and exit-trap handling with a predictable release archive filename downloaded
   into and removed from the current directory, following the user's requested simpler lifecycle.
+- 2026-09-21: Made the final Lima archive cleanup idempotent with `rm -f`, as requested.

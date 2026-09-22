@@ -142,6 +142,9 @@ RUN go install github.com/sosedoff/pgweb@latest && go clean -cache -modcache
 
 RUN npm install -g ccusage && npm cache clean --force
 
+COPY .config/nvim /root/.config/nvim
+RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
+
 RUN npm install -g @openai/codex@0.155.1 && npm cache clean --force
 
 # See: https://github.com/anomalyco/opencode/issues/46189
@@ -156,21 +159,14 @@ RUN opencode_version="$(opencode --version)" && \
     npm install --prefix /root/.config/opencode "@opencode-ai/plugin@${opencode_version}" && \
     npm cache clean --force
 
-COPY .vimrc /root/.vimrc
-COPY .config/nvim /root/.config/nvim
-RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
-
-RUN mkdir -p /root/.config/lazygit
 COPY .config/lazygit.yml /root/.config/lazygit/config.yml
-
 COPY docker/.bashrc /root/.bashrc
+COPY .vimrc /root/.vimrc
 COPY .npmrc /root/.npmrc
 COPY .codex/config.toml /etc/codex/config.toml
 COPY .codex/skills/ /etc/codex/skills/
-
 COPY AGENTS.md /etc/codex/AGENTS.md
 RUN ln -s /etc/codex/AGENTS.md /root/.config/opencode/AGENTS.md
-
 RUN mkdir -p /data/share /data/state /data/cache/gomod /data/cache/npm /data/gradle
 
 CMD ["/bin/bash"]

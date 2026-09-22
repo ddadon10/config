@@ -528,6 +528,7 @@ local treesitter_parsers = {
     'gomod',
     'gosum',
     'gotmpl',
+    'helm',
     'gowork',
     'groovy',
     'hcl',
@@ -553,6 +554,19 @@ local treesitter_parsers = {
 }
 
 if vim.env.DEV_IMAGE_BUILD == '1' then require('nvim-treesitter').install(treesitter_parsers):wait() end
+
+vim.filetype.add({
+    extension = {
+        gotmpl = 'gotmpl',
+    },
+    pattern = {
+        ['.*/templates/.*%.tpl'] = 'helm',
+        ['.*/templates/.*%.yaml'] = 'helm',
+        ['.*/templates/.*%.yml'] = 'helm',
+        ['helmfile.*%.yaml'] = 'helm',
+        ['helmfile.*%.yml'] = 'helm',
+    },
+})
 
 vim.api.nvim_create_autocmd('FileType', {
     group = vim.api.nvim_create_augroup('ConfigTreesitter', { clear = true }),

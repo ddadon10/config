@@ -160,13 +160,21 @@ RUN opencode_version="$(opencode --version)" && \
     npm cache clean --force
 
 COPY .config/lazygit.yml /root/.config/lazygit/config.yml
+
 COPY docker/.bashrc /root/.bashrc
+
 COPY .vimrc /root/.vimrc
+
 COPY .npmrc /root/.npmrc
+
 COPY .codex/config.toml /etc/codex/config.toml
+
 COPY .codex/skills/ /etc/codex/skills/
+
 COPY AGENTS.md /etc/agents/AGENTS.md
+
 RUN ln -s /etc/agents/AGENTS.md /root/.config/opencode/AGENTS.md
+
 RUN mkdir -p /data/share /data/state /data/cache/gomod /data/cache/npm /data/gradle
 
 CMD ["/bin/bash"]

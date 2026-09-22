@@ -38,7 +38,7 @@ export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
 # Codex
 export IS_SANDBOX=1
-ln -sfn /etc/codex/AGENTS.md /root/.codex/AGENTS.md
+ln -sfn /etc/agents/AGENTS.md /root/.codex/AGENTS.md
 
 # OpenCode
 export OPENCODE_DISABLE_CLAUDE_CODE=1

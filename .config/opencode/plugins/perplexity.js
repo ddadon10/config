@@ -1,8 +1,8 @@
-export const WebResearch = async ({ client }) => ({
+export const Perplexity = async ({ client }) => ({
   tool: {
-    web_research: {
+    perplexity: {
       description:
-        "Research the live web for up-to-date information, citations, and further reading. " +
+        "Search the live web with Perplexity for up-to-date information, citations, and further reading. " +
         "Use for requested web searches or facts that may have changed.",
       args: { query: { type: "string", description: "A web search query" } },
       async execute({ query }, context) {
@@ -30,11 +30,11 @@ export const WebResearch = async ({ client }) => ({
           signal: context.abort,
         })
 
-        if (!response.ok) throw new Error(`Web research failed (${response.status})`)
+        if (!response.ok) throw new Error(`Perplexity search failed (${response.status})`)
         const result = await response.json()
         const choice = result.choices?.[0]
         if (result.error || choice?.error || !choice?.message) {
-          throw new Error(`Web research failed: ${result.error?.message ?? choice?.error?.message ?? "no message"}`)
+          throw new Error(`Perplexity search failed: ${result.error?.message ?? choice?.error?.message ?? "no message"}`)
         }
         return [choice.message.content, "", ...(choice.message.annotations ?? []).map((item, index) =>
           `[${index + 1}] ${item.url_citation?.url}`)].join("\n")

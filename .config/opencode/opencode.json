@@ -1,11 +1,42 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "xai/grok-4.6",
-  "small_model": "xai/grok-build-0.1",
-  "enabled_providers": ["xai"],
+  "model": "openrouter/openai/gpt-6-sol",
+  "small_model": "openrouter/openai/gpt-6-luna",
+  "enabled_providers": ["openrouter"],
   "share": "disabled",
   "snapshot": false,
   "autoupdate": false,
   "permission": {"*": "allow"},
-  "agent": {"build": {"variant": "high"}, "plan": {"variant": "xhigh"}}
+  "agent": {"build": {"variant": "high"}, "plan": {"variant": "xhigh"}},
+  "provider": {
+    "openrouter": {
+      "whitelist": ["openai/gpt-6-astra", "openai/gpt-6-sol", "openai/gpt-6-luna"],
+      "models": {
+        "openai/gpt-6-astra": {
+          "options": {
+            "provider": {
+              "order": ["azure/us", "amazon-bedrock/us-west-2"],
+              "allow_fallbacks": false
+            }
+          }
+        },
+        "openai/gpt-6-sol": {
+          "options": {
+            "provider": {
+              "order": ["azure/eu", "azure/us", "amazon-bedrock/us-east-1"],
+              "allow_fallbacks": false
+            }
+          }
+        },
+        "openai/gpt-6-luna": {
+          "options": {
+            "provider": {
+              "order": ["azure/eu", "azure/us", "amazon-bedrock/us-east-1"],
+              "allow_fallbacks": false
+            }
+          }
+        }
+      }
+    }
+  }
 }

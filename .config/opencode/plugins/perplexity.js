@@ -36,8 +36,7 @@ export const Perplexity = async ({ client }) => ({
         if (result.error || choice?.error || !choice?.message) {
           throw new Error(`Perplexity search failed: ${result.error?.message ?? choice?.error?.message ?? "no message"}`)
         }
-        return [choice.message.content, "", ...(choice.message.annotations ?? []).map((item, index) =>
-          `[${index + 1}] ${item.url_citation?.url}`)].join("\n")
+        return [choice.message.content, "", ...(choice.message.annotations ?? []).map((item, index) => `[${index + 1}] ${item.url_citation?.url}`)].join("\n")
       },
     },
   },

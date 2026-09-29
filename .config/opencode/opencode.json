@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "openrouter/openai/gpt-6-sol",
+  "model": "openrouter/openai/gpt-6.1-sol",
   "small_model": "openrouter/openai/gpt-6-luna",
   "enabled_providers": ["openrouter"],
   "share": "disabled",
@@ -10,7 +10,7 @@
   "agent": {"build": {"variant": "high"}, "plan": {"variant": "xhigh"}},
   "provider": {
     "openrouter": {
-      "whitelist": ["openai/gpt-6-astra", "openai/gpt-6-sol", "openai/gpt-6-luna"],
+      "whitelist": ["openai/gpt-6-astra", "openai/gpt-6.1-sol", "openai/gpt-6-luna"],
       "models": {
         "openai/gpt-6-astra": {
           "options": {
@@ -20,10 +20,10 @@
             }
           }
         },
-        "openai/gpt-6-sol": {
+        "openai/gpt-6.1-sol": {
           "options": {
             "provider": {
-              "order": ["azure/eu", "azure/us", "amazon-bedrock/us-east-1"],
+              "order": ["azure/eu", "azure/us"],
               "allow_fallbacks": false
             }
           }

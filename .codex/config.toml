@@ -1,5 +1,5 @@
 model = "gpt-6.1-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 web_search = "live"
@@ -35,6 +35,10 @@ starfield = false
 
 [tui.keymap.global]
 toggle_fast_mode = "alt-s"
+
+[tui.keymap.chat]
+increase_reasoning_effort = "alt-a"
+decrease_reasoning_effort = "alt-d"
 
 [tui.keymap.editor]
 kill_whole_line = "alt-k"

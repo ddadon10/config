@@ -41,4 +41,5 @@ increase_reasoning_effort = "alt-a"
 decrease_reasoning_effort = "alt-d"
 
 [tui.keymap.editor]
+delete_forward_word = []
 kill_whole_line = "alt-k"

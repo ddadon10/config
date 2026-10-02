@@ -1,11 +1,11 @@
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 web_search = "live"
 plan_mode_reasoning_effort = "xhigh"
 check_for_update_on_startup = false
-service_tier = "fast"
+service_tier = "priority"
 suppress_unstable_features_warning = true
 
 [agents]
@@ -23,10 +23,18 @@ trust_level = "trusted"
 inherit = "all"
 
 [tui]
-whimsy = false
 show_tooltips = false
 notifications = true
 notification_method = "osc9"
 theme = "gruvbox-dark"
 terminal_title = ["spinner", "app-name"]
 status_line = ["model-with-reasoning", "context-used", "five-hour-limit", "weekly-limit", "total-input-tokens", "total-output-tokens", "fast-mode"]
+
+[tui.effects]
+starfield = false
+
+[tui.keymap.global]
+toggle_fast_mode = "alt-s"
+
+[tui.keymap.editor]
+kill_whole_line = "alt-k"

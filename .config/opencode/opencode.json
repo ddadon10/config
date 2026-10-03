@@ -7,7 +7,7 @@
   "snapshot": false,
   "autoupdate": false,
   "permission": {"*": "allow"},
-  "agent": {"build": {"variant": "high"}, "plan": {"variant": "xhigh"}},
+  "agent": {"build": {"variant": "low"}, "plan": {"variant": "xhigh"}},
   "provider": {
     "openrouter": {
       "whitelist": ["openai/gpt-6-astra", "openai/gpt-6.1-sol", "openai/gpt-6-luna"],

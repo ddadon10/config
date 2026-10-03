@@ -23,7 +23,7 @@
         "openai/gpt-6.1-sol": {
           "options": {
             "provider": {
-              "order": ["azure/eu", "azure/us"],
+              "order": ["azure/eu", "azure/us", "amazon-bedrock/us-east-1"],
               "allow_fallbacks": false
             }
           }

@@ -176,6 +176,8 @@ COPY AGENTS.md /etc/agents/AGENTS.md
 
 RUN ln -s /etc/agents/AGENTS.md /root/.config/opencode/AGENTS.md
 
-RUN mkdir -p /data/share /data/state /data/cache/gomod /data/cache/npm /data/gradle
+RUN mkdir -p /root/.codex && ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md
+
+RUN mkdir -p /data/share/agentexploration /data/state /data/cache/gomod /data/cache/npm /data/gradle
 
 CMD ["/bin/bash"]

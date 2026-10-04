@@ -50,8 +50,8 @@ user changes, and never push. After compaction, reread the entire ExecPlan and i
 
 When I ask you to explore, inspect relevant local code and evidence, and research official documentation and original
 upstream repositories. When exploring, create and use a directory under `/workspace/.agentexploration` if that parent
-directory exists; otherwise, create and use a temporary directory under `/tmp`. Keep a concise journal inside the
-created directory and report the journal's path. You may use that directory without asking to store files and
+directory exists; otherwise, create and use a directory under `/data/share/agentexploration`. Keep a concise journal inside
+the created directory and report the journal's path. You may use that directory without asking to store files and
 subdirectories, clone relevant repositories, and write and run exploratory code when useful.
 
 Return a direct synthesis backed by precise local references and official HTTPS links. For external source code, link

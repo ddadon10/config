@@ -170,7 +170,7 @@ COPY .npmrc /root/.npmrc
 
 COPY .codex/config.toml /etc/codex/config.toml
 
-COPY .codex/skills/ /etc/codex/skills/
+COPY .agents/skills/ /root/.agents/skills/
 
 COPY AGENTS.md /etc/agents/AGENTS.md
 

@@ -18,7 +18,7 @@ Do not modify files.
 
 Example output:
 
-Comparison: merge base of origin/main → HEAD
+Comparison: merge base of origin/trunk → HEAD
 
 Non-test files
 

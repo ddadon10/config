@@ -1,0 +1,6 @@
+interface:
+  display_name: "Complexity Review"
+  short_description: "Challenge complexity and estimate LOC savings"
+
+policy:
+  allow_implicit_invocation: false

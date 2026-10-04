@@ -1,0 +1,6 @@
+interface:
+  display_name: "LOC Count"
+  short_description: "Count branch changes by non-test and test files"
+
+policy:
+  allow_implicit_invocation: false

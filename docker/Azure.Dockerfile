@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     bind9-dnsutils \
     ca-certificates \
     curl \
+    fzf \
     iproute2 \
     jq \
     less \
@@ -71,6 +72,64 @@ HISTSIZE=10000
 HISTFILESIZE=20000
 HISTCONTROL=ignoreboth:erasedups
 source /usr/share/bash-completion/bash_completion
+
+# Interactive Azure and Kubernetes selection
+azsub() {
+    local subscription
+    subscription=$(az account list --query '[].[name,id]' -o tsv) || {
+        echo 'Could not list Azure subscriptions.' >&2
+        return 1
+    }
+    [[ -n "$subscription" ]] || {
+        echo 'No Azure subscriptions found.' >&2
+        return 1
+    }
+    subscription=$(fzf --height='~33%' --prompt='Subscription: ' <<< "$subscription") || {
+        echo 'No Azure subscription selected.' >&2
+        return 1
+    }
+    az account set --subscription "$(printf '%s' "$subscription" | cut -f2)" || {
+        echo 'Could not change the Azure subscription.' >&2
+        return 1
+    }
+    echo "Azure subscription changed to: $(printf '%s' "$subscription" | cut -f1)"
+}
+
+azaks() {
+    local cluster
+    cluster=$(az aks list --query '[].[resourceGroup,name]' -o tsv) || {
+        echo 'Could not list AKS clusters.' >&2
+        return 1
+    }
+    [[ -n "$cluster" ]] || {
+        echo 'No AKS clusters found in the selected subscription.' >&2
+        return 1
+    }
+    cluster=$(fzf --height='~33%' --prompt='AKS cluster: ' <<< "$cluster") || {
+        echo 'No AKS cluster selected.' >&2
+        return 1
+    }
+    az aks get-credentials \
+        --resource-group "$(printf '%s' "$cluster" | cut -f1)" \
+        --name "$(printf '%s' "$cluster" | cut -f2)"
+}
+
+azns() {
+    local namespace
+    namespace=$(kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}') || {
+        echo 'Could not list Kubernetes namespaces.' >&2
+        return 1
+    }
+    [[ -n "$namespace" ]] || {
+        echo 'No Kubernetes namespaces found.' >&2
+        return 1
+    }
+    namespace=$(fzf --height='~33%' --prompt='Namespace: ' <<< "$namespace") || {
+        echo 'No Kubernetes namespace selected.' >&2
+        return 1
+    }
+    kubectl config set-context --current --namespace="$namespace"
+}
 EOF
 
 CMD ["/bin/bash"]

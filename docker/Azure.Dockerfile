@@ -84,11 +84,15 @@ azsub() {
         echo 'No Azure subscriptions found.' >&2
         return 1
     }
-    subscription=$(fzf --prompt='Subscription: ' <<< "$subscription") || {
+    subscription=$(fzf --height='~33%' --prompt='Subscription: ' <<< "$subscription") || {
         echo 'No Azure subscription selected.' >&2
         return 1
     }
-    az account set --subscription "$(printf '%s' "$subscription" | cut -f2)"
+    az account set --subscription "$(printf '%s' "$subscription" | cut -f2)" || {
+        echo 'Could not change the Azure subscription.' >&2
+        return 1
+    }
+    echo "Azure subscription changed to: $(printf '%s' "$subscription" | cut -f1)"
 }
 
 azaks() {
@@ -101,7 +105,7 @@ azaks() {
         echo 'No AKS clusters found in the selected subscription.' >&2
         return 1
     }
-    cluster=$(fzf --prompt='AKS cluster: ' <<< "$cluster") || {
+    cluster=$(fzf --height='~33%' --prompt='AKS cluster: ' <<< "$cluster") || {
         echo 'No AKS cluster selected.' >&2
         return 1
     }
@@ -120,7 +124,7 @@ azns() {
         echo 'No Kubernetes namespaces found.' >&2
         return 1
     }
-    namespace=$(fzf --prompt='Namespace: ' <<< "$namespace") || {
+    namespace=$(fzf --height='~33%' --prompt='Namespace: ' <<< "$namespace") || {
         echo 'No Kubernetes namespace selected.' >&2
         return 1
     }

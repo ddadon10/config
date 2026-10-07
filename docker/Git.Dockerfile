@@ -14,7 +14,6 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     ca-certificates \
     git \
     openssh-client \
-    vim \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git config --global push.autoSetupRemote true
@@ -24,7 +23,6 @@ RUN ssh-keyscan github.com vs-ssh.visualstudio.com >> /root/.ssh/known_hosts
 
 COPY <<'EOF' /root/.bashrc
 export COLORTERM=truecolor
-export EDITOR=vim
 export SHELL=/bin/bash
 export TERM=xterm-256color
 

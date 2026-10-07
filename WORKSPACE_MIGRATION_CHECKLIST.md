@@ -2,6 +2,13 @@
 
 Move repositories into Docker volumes and separate active Mac configs from agent-writable files.
 
+## Implementation workflow
+
+Before implementing each change, suggest three viable, materially different approaches. Put the simplest approach that
+meets the requirements first and label it `(Recommended)`. Wait for the user's choice before implementation.
+If fewer than three viable approaches exist, present those without inventing filler. This applies especially to the
+skippable folder picker.
+
 ## Checklist
 
 - [x] Create a Docker volume named `workspace`, separate from `dev-data`.

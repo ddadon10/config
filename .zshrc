@@ -48,6 +48,15 @@ g() {
     ddadon/gitclient:current "$@"
 }
 
+# Copy into shared container storage
+dcp() {
+  [[ $# == 1 ]] || { printf 'Usage: dcp <file-or-folder>\n' >&2; return 1; }
+  local container_id
+  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
+  trap 'docker rm "$container_id" >/dev/null 2>&1' EXIT
+  docker cp "${1:a}" "$container_id:/data/shared/"
+}
+
 # Azure Client
 azure() {
   limactl start azure || return

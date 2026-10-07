@@ -7,6 +7,9 @@ Move repositories into Docker volumes and separate active Mac configs from agent
 - [x] Create a Docker volume named `workspace`, separate from `dev-data`.
 - [x] Copy existing repositories into `workspace`, preserving Git metadata, branches, uncommitted changes, and untracked files.
 - [ ] Verify migrated repositories before retiring any original host copies.
+- [ ] Archive the original host code folder as a recovery copy.
+- [ ] Restart Docker with the remaining host code-folder mount removed; retain the folder mount required by the reported
+      Docker workaround.
 - [x] Replace the `${PWD}` bind mounts in `.zshrc` with the `workspace` volume, mounted at `/workspace`.
 - [ ] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
 - [ ] Add `fzf` and `fd` to the Git client image; verify availability in the development image.

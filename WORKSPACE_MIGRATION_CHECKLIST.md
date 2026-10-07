@@ -16,8 +16,8 @@ skippable folder picker.
 - [ ] Verify migrated repositories before deleting the original host copies.
 - [x] Restart Docker without the host code-folder bind mount.
 - [x] Replace the `${PWD}` bind mounts in `.zshrc` with the `workspace` volume, mounted at `/workspace`.
-- [ ] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
-- [ ] Remove the host `git()` blocker and the `gclone`, `gfetch`, `glsremote`, `gpull`, and `gpush` aliases.
+- [x] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
+- [x] Remove the host `git()` blocker and the `gclone`, `gfetch`, `glsremote`, `gpull`, and `gpush` aliases.
 - [ ] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
       using one Neovim session per repository.
 - [ ] Create a fresh host-only config clone at `~/config`, outside container mounts.

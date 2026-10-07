@@ -21,5 +21,4 @@ RUN git config --global push.autoSetupRemote true
 RUN mkdir -p /root/.ssh
 RUN ssh-keyscan github.com vs-ssh.visualstudio.com >> /root/.ssh/known_hosts
 
-ENTRYPOINT ["/usr/bin/git"]
-CMD ["--help"]
+CMD ["/bin/bash"]

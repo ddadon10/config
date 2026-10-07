@@ -35,9 +35,7 @@ dev() {
 }
 
 # Git Client
-git() { echo "Git is disabled on the host. Use gclone, gfetch, glsremote, gpull, gpush or run git from a container." >&2; return 1; }
-
-_gitclient() {
+g() {
   docker network create git >/dev/null 2>&1 || true
   docker run \
     --rm \
@@ -50,12 +48,6 @@ _gitclient() {
     --workdir /workspace \
     ddadon/gitclient:current "$@"
 }
-
-alias gclone='_gitclient clone'
-alias gfetch='_gitclient fetch'
-alias glsremote='_gitclient ls-remote'
-alias gpull='_gitclient pull'
-alias gpush='_gitclient push'
 
 # Azure Client
 azure() {

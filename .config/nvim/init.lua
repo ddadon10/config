@@ -615,7 +615,7 @@ vim.lsp.config('lua_ls', {
 })
 
 -- Java LSP
-local project_root = vim.env.DEV_PROJECT_ROOT or vim.fn.getcwd()
+local project_root = vim.fn.getcwd()
 
 vim.lsp.config('jdtls', {
     cmd = {
@@ -776,7 +776,7 @@ vim.keymap.set('n', '<Space>j', function() fzf.jumps({ previewer = false, winopt
 vim.keymap.set('n', '<Space>m', function() fzf.marks({ previewer = false, winopts = { height = 0.50, title = 'Marks' } }) end, { desc = 'Marks' })
 vim.keymap.set('n', '<Space>p', function() fzf.global({ cwd_prompt = false, previewer = false, winopts = { height = 0.50, title = 'Pick' } }) end, { desc = 'Global Picker' })
 vim.keymap.set('n', '<Space>q', function() fzf.quickfix() end, { desc = 'Quickfix' })
-vim.keymap.set('n', '<Space>r', function() fzf.history() end, { desc = 'History' })
+vim.keymap.set('n', '<Space>r', function() fzf.history({ cwd_only = true }) end, { desc = 'History' })
 vim.keymap.set('n', '<Space>s', function() fzf.lgrep_curbuf({ winopts = { title = 'Buffer Search' } }) end, { desc = 'Current Buffer' })
 vim.keymap.set('n', '<Space>la', function() fzf.lsp_finder(lsp_opts('All Locations', false)) end, { desc = 'All Locations' })
 vim.keymap.set('n', '<Space>ld', function() fzf.lsp_definitions(lsp_opts('Definitions', false)) end, { desc = 'Definitions' })

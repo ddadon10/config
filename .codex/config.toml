@@ -27,7 +27,7 @@ show_tooltips = false
 notifications = true
 notification_method = "osc9"
 theme = "gruvbox-dark"
-terminal_title = ["spinner", "app-name"]
+terminal_title = ["spinner", "app-name", "project"]
 status_line = ["model-with-reasoning", "context-used", "five-hour-limit", "weekly-limit", "total-input-tokens", "total-output-tokens", "fast-mode"]
 
 [tui.effects]

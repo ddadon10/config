@@ -4,10 +4,8 @@ Move repositories into Docker volumes and separate active Mac configs from agent
 
 ## Implementation workflow
 
-Before implementing each change, suggest three viable, materially different approaches. Put the simplest approach that
-meets the requirements first and label it `(Recommended)`. Wait for the user's choice before implementation.
-If fewer than three viable approaches exist, present those without inventing filler. This applies especially to the
-skippable folder picker.
+Before implementing each change, show the user the concrete changes you intend to make and wait for approval.
+Present one proposed approach; do not generate alternatives unless requested.
 
 ## Checklist
 

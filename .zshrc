@@ -44,8 +44,8 @@ _gitclient() {
     --interactive \
     --tty \
     --detach-keys "ctrl-_" \
-    --mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock" \
     --network git \
+    --mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock" \
     --mount "type=volume,src=workspace,dst=/workspace" \
     --workdir /workspace \
     ddadon/gitclient:current "$@"

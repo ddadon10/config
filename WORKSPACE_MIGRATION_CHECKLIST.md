@@ -6,10 +6,8 @@ Move repositories into Docker volumes and separate active Mac configs from agent
 
 - [x] Create a Docker volume named `workspace`, separate from `dev-data`.
 - [x] Copy existing repositories into `workspace`, preserving Git metadata, branches, uncommitted changes, and untracked files.
-- [ ] Verify migrated repositories before retiring any original host copies.
-- [ ] Archive the original host code folder as a recovery copy.
-- [ ] Restart Docker with the remaining host code-folder mount removed; retain the folder mount required by the reported
-      Docker workaround.
+- [ ] Verify migrated repositories before deleting the original host copies.
+- [x] Restart Docker without the host code-folder bind mount.
 - [x] Replace the `${PWD}` bind mounts in `.zshrc` with the `workspace` volume, mounted at `/workspace`.
 - [ ] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
 - [ ] Add `fzf` and `fd` to the Git client image; verify availability in the development image.
@@ -32,7 +30,8 @@ Move repositories into Docker volumes and separate active Mac configs from agent
 - [ ] Limit Neovim's `<Space>r` file history picker to the current directory with `fzf.history({ cwd_only = true })`.
 - [ ] Review the migration's security model against the code, focusing on volume mounts and host config separation.
 - [ ] Verify persistence after container removal, access from both clients, and separation from active host configs.
+- [ ] Delete the original host code folder at the end of the migration, after verification.
 
 ## Deferred
 
-- Long-term backups and retirement of original host recovery copies.
+- Long-term backups.

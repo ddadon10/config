@@ -17,6 +17,7 @@ skippable folder picker.
 - [x] Restart Docker without the host code-folder bind mount.
 - [x] Replace the `${PWD}` bind mounts in `.zshrc` with the `workspace` volume, mounted at `/workspace`.
 - [x] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
+- [x] Restore the Git client's orange Git prompt and Azure-style shell exports, with Vim available as its editor.
 - [x] Remove the host `git()` blocker and the `gclone`, `gfetch`, `glsremote`, `gpull`, and `gpush` aliases.
 - [ ] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
       using one Neovim session per repository.

@@ -17,9 +17,6 @@ skippable folder picker.
 - [x] Restart Docker without the host code-folder bind mount.
 - [x] Replace the `${PWD}` bind mounts in `.zshrc` with the `workspace` volume, mounted at `/workspace`.
 - [ ] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
-- [ ] Add `fzf` and `fd` to the Git client image; verify availability in the development image.
-- [ ] Add a startup directory picker to both launchers: list immediate directories under `/workspace`, enter the selection,
-      and show Escape/Ctrl+C as skip keys. Skipping or an empty workspace opens the shell at `/workspace`.
 - [ ] Remove the host `git()` blocker and the `gclone`, `gfetch`, `glsremote`, `gpull`, and `gpush` aliases.
 - [ ] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
       using one Neovim session per repository.
@@ -41,4 +38,5 @@ skippable folder picker.
 
 ## Deferred
 
+- Skippable startup directory picker for `dev` and `g`; use `cd` to navigate for now.
 - Long-term backups.

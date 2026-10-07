@@ -20,8 +20,8 @@ Present one proposed approach; do not generate alternatives unless requested.
 - [x] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
       using one Neovim session per repository.
 - [x] Create a fresh host-only config clone at `~/config`, outside container mounts.
-- [ ] Pull changes into that clone, review them, and manually copy approved configs into their active Mac locations.
-- [ ] Update active config loading paths and dependencies so they no longer load agent-writable files.
+- [x] Bring changes into the host-only clone, review them, and manually copy approved Zsh and Ghostty configs into place.
+- [x] Replace Ghostty's old code-folder include with a manually copied active config.
 - [ ] Add `dcp <file-or-folder>` to import directly into `/data/shared` in `dev-data`, retaining the source name.
 - [ ] Add `dget <source> <destination-folder>` to export from `/data/shared` into an existing host folder,
       retaining the source name.

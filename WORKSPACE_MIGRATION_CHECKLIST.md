@@ -31,15 +31,19 @@ Present one proposed approach; do not generate alternatives unless requested.
       as `dcp`; user successfully exported `dget-test.txt` on macOS.
 - [x] Implement transfers with a temporary stopped development container and normal `docker cp` behavior, independent of running
       dev containers. No `--force` option or custom overwrite checks.
-- [ ] Clean `.DS_Store` from migrated development folders using `fd` inside the container.
-- [ ] Include `project` in `.codex/config.toml`'s `terminal_title`.
-- [ ] Remove `.config/lazygit.yml`'s `notARepository: quit` override.
-- [ ] Limit Neovim's `<Space>r` file history picker to the current directory with `fzf.history({ cwd_only = true })`.
-- [ ] Review the migration's security model against the code, focusing on volume mounts and host config separation.
-- [ ] Verify persistence after container removal, access from both clients, and separation from active host configs.
+- [x] Clean `.DS_Store` from migrated development folders using `fd` inside the container; verified none remain under `/workspace`.
+- [x] Include `project` in `.codex/config.toml`'s `terminal_title`.
+- [x] Limit Neovim's `<Space>r` file history picker to the current directory with `fzf.history({ cwd_only = true })`.
+- [x] Review the migration's security model against the code: `dev` mounts named volumes without host directories;
+      transfer helpers mount only `dev-data` and copy explicitly selected paths. Host active configs are manually copied
+      from the separate host clone. Review changes before activating host configs or building images on the host;
+      verification of actual host paths and running-container mounts remains below.
+- [x] Verify persistence after container removal and repository access from both `dev` and `g`.
+- [ ] Verify active host configs have no references or symlinks into the old host code folder.
 - [ ] Delete the original host code folder at the end of the migration, after verification.
 
 ## Deferred
 
+- Changing lazygit's behavior outside a repository.
 - Skippable startup directory picker for `dev` and `g`; use `cd` to navigate for now.
 - Long-term backups.

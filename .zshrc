@@ -54,7 +54,7 @@ dcp() {
   local container_id
   container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
   trap 'docker rm "$container_id" >/dev/null 2>&1' EXIT
-  docker cp "${1:a}" "$container_id:/data/shared/"
+  docker cp --quiet "${1:a}" "$container_id:/data/shared/"
 }
 
 # Azure Client

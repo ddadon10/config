@@ -22,10 +22,10 @@ Present one proposed approach; do not generate alternatives unless requested.
 - [x] Create a fresh host-only config clone at `~/config`, outside container mounts.
 - [x] Bring changes into the host-only clone, review them, and manually copy approved Zsh and Ghostty configs into place.
 - [x] Replace Ghostty's old code-folder include with a manually copied active config.
-- [ ] Add `dcp <file-or-folder>` to import directly into `/data/shared` in `dev-data`, retaining the source name.
-      Draft uses normal `docker cp` behavior (overwrites files and merges folders) with a temporary stopped development
+- [x] Add `dcp <file-or-folder>` to import directly into `/data/shared` in `dev-data`, retaining the source name.
+      Uses normal `docker cp` behavior (overwrites files and merges folders) with a temporary stopped development
       container, removed afterward. The development image creates `/data/shared` at build time; the existing volume was initialized
-      once manually. Awaiting design agreement and Docker runtime verification.
+      once manually. User tested successfully on macOS; confirmed `README.md` arrived in `/data/shared`.
 - [ ] Add `dget <source> <destination-folder>` to export from `/data/shared` into an existing host folder,
       retaining the source name.
 - [ ] Implement transfers with a temporary lightweight container and normal `docker cp` behavior, independent of running

@@ -17,7 +17,7 @@ Present one proposed approach; do not generate alternatives unless requested.
 - [x] Make `dev` open a development shell and `g` open an interactive Git client in that shared workspace.
 - [x] Restore the Git client's orange Git prompt and Azure-style terminal exports.
 - [x] Remove the host `git()` blocker and the `gclone`, `gfetch`, `glsremote`, `gpull`, and `gpush` aliases.
-- [ ] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
+- [x] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
       using one Neovim session per repository.
 - [ ] Create a fresh host-only config clone at `~/config`, outside container mounts.
 - [ ] Pull changes into that clone, review them, and manually copy approved configs into their active Mac locations.

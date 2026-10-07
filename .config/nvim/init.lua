@@ -615,7 +615,7 @@ vim.lsp.config('lua_ls', {
 })
 
 -- Java LSP
-local project_root = vim.env.DEV_PROJECT_ROOT or vim.fn.getcwd()
+local project_root = vim.fn.getcwd()
 
 vim.lsp.config('jdtls', {
     cmd = {

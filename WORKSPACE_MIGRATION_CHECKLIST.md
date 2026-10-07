@@ -27,7 +27,8 @@ Present one proposed approach; do not generate alternatives unless requested.
       container, removed afterward. The development image creates `/data/shared` at build time; the existing volume was initialized
       once manually. User tested successfully on macOS; confirmed `README.md` arrived in `/data/shared`.
 - [ ] Add `dget <source> <destination-folder>` to export from `/data/shared` into an existing host folder,
-      retaining the source name.
+      retaining the source name. Implemented with the same stopped dev container, `docker cp --quiet`, and cleanup
+      as `dcp`; awaiting user runtime testing on macOS.
 - [ ] Implement transfers with a temporary lightweight container and normal `docker cp` behavior, independent of running
       dev containers. No `--force` option or custom overwrite checks.
 - [ ] Clean `.DS_Store` from migrated development folders using `fd` inside the container.

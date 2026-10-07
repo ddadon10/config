@@ -19,7 +19,7 @@ Present one proposed approach; do not generate alternatives unless requested.
 - [x] Remove the host `git()` blocker and the `gclone`, `gfetch`, `glsremote`, `gpull`, and `gpush` aliases.
 - [x] Remove `DEV_PROJECT_ROOT` from `.zshrc` and Neovim; derive Java LSP state from the startup repository directory,
       using one Neovim session per repository.
-- [ ] Create a fresh host-only config clone at `~/config`, outside container mounts.
+- [x] Create a fresh host-only config clone at `~/config`, outside container mounts.
 - [ ] Pull changes into that clone, review them, and manually copy approved configs into their active Mac locations.
 - [ ] Update active config loading paths and dependencies so they no longer load agent-writable files.
 - [ ] Add `dcp <file-or-folder>` to import directly into `/data/shared` in `dev-data`, retaining the source name.

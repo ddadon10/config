@@ -62,7 +62,7 @@ ps1_azure_blue='\[\033[38;2;0;120;212m\]'
 ps1_path_blue='\[\033[38;2;69;133;136m\]'
 ps1_arrow_yellow='\[\033[38;2;215;153;33m\]'
 ps1_reset_attr='\[\033[0m\]'
-ps1_azure_icon=$'\u25b2'
+ps1_azure_icon=$'\U000F0805'
 ps1_arrow_icon=$'\u276F'
 
 PS1="${ps1_azure_blue}${ps1_azure_icon}${ps1_reset_attr} ${ps1_path_blue}\\w${ps1_reset_attr} ${ps1_arrow_yellow}${ps1_arrow_icon}${ps1_reset_attr} "

@@ -30,7 +30,7 @@ ps1_git_orange='\[\033[38;2;240;80;50m\]'
 ps1_path_blue='\[\033[38;2;69;133;136m\]'
 ps1_arrow_yellow='\[\033[38;2;215;153;33m\]'
 ps1_reset_attr='\[\033[0m\]'
-ps1_git_icon=$'\ue0a0'
+ps1_git_icon=$'\uE702'
 ps1_arrow_icon=$'\u276F'
 
 PS1="${ps1_git_orange}${ps1_git_icon}${ps1_reset_attr} ${ps1_path_blue}\\w${ps1_reset_attr} ${ps1_arrow_yellow}${ps1_arrow_icon}${ps1_reset_attr} "

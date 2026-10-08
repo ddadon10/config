@@ -1,3 +1,7 @@
+# Ghostty Shell Integration
+export GHOSTTY_SHELL_FEATURES=title
+builtin source /usr/local/share/ghostty/ghostty.bash
+
 # Aliases
 alias cat='bat --plain --paging never'
 alias grep='grep --color=auto'
@@ -61,10 +65,6 @@ shopt -s extglob
 HISTSIZE=10000
 HISTFILESIZE=20000
 HISTCONTROL=ignoreboth:erasedups
-
-# Terminal Title
-trap 'printf "\033]2;%s\033\\\\" "❯ ${BASH_COMMAND} - ${PWD}"' DEBUG
-PROMPT_COMMAND='printf "\033]2;%s\033\\\\" "❯ ${PWD}"'
 
 # Clipboard (OSC-52)
 pbcopy() {

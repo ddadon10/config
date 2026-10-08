@@ -73,6 +73,10 @@ EOF
 # See: https://github.com/ghostty-org/ghostty/discussions/8268
 RUN cp /usr/share/terminfo/g/ghostty /usr/share/terminfo/x/xterm-ghostty
 
+RUN mkdir -p /usr/local/share/ghostty && \
+    curl -fsSL https://raw.githubusercontent.com/ghostty-org/ghostty/refs/tags/v1.3.1/src/shell-integration/bash/ghostty.bash \
+        -o /usr/local/share/ghostty/ghostty.bash
+
 RUN npm install -g typescript && npm cache clean --force
 
 RUN npm install -g \
@@ -91,9 +95,9 @@ RUN <<EOF
         aarch64) arch="arm64" ;;
         *) exit 1 ;;
     esac
-    ver=$(curl -sSfL "https://api.github.com/repos/LuaLS/lua-language-server/releases/latest" | jq -r '.tag_name')
+    ver=$(curl -fsSL "https://api.github.com/repos/LuaLS/lua-language-server/releases/latest" | jq -r '.tag_name')
     mkdir -p /opt/lua-language-server
-    curl -sSfL "https://github.com/LuaLS/lua-language-server/releases/download/${ver}/lua-language-server-${ver}-linux-${arch}.tar.gz" | tar -xzf - -C /opt/lua-language-server
+    curl -fsSL "https://github.com/LuaLS/lua-language-server/releases/download/${ver}/lua-language-server-${ver}-linux-${arch}.tar.gz" | tar -xzf - -C /opt/lua-language-server
     ln -s /opt/lua-language-server/bin/lua-language-server /usr/local/bin/lua-language-server
 EOF
 
@@ -118,7 +122,7 @@ RUN <<EOF
         aarch64) arch="arm64" ;;
         *) exit 1 ;;
     esac
-    curl -sSfL -o /usr/local/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${arch}/kubectl"
+    curl -fsSL -o /usr/local/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${arch}/kubectl"
     chmod +x /usr/local/bin/kubectl
 EOF
 

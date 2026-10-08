@@ -6,6 +6,16 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["/^docker\\/Dockerfile$/"],
+      "matchStrings": [
+        "ghostty-org/ghostty/refs/tags/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/src/shell-integration/bash/ghostty\\.bash"
+      ],
+      "packageNameTemplate": "ghostty-org/ghostty",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^docker\\/Dockerfile$/"],
       "matchStrings": ["@openai/codex@(?<currentValue>\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?)"],
       "packageNameTemplate": "@openai/codex",
       "datasourceTemplate": "npm"

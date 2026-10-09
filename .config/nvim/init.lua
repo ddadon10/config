@@ -104,7 +104,7 @@ miniclue.setup({
     clues = {
         { mode = 'n', keys = '<Space>g', desc = '+Git' },
         { mode = 'n', keys = '<Space>l', desc = '+LSP' },
-        { mode = 'n', keys = '<Leader>g', desc = '+Git' },
+        { mode = 'n', keys = '<Leader>e', desc = '+Explorer' },
         { mode = { 'n', 'x' }, keys = 'gr', desc = '+LSP' },
     },
     triggers = {
@@ -449,6 +449,94 @@ require('aerial').setup({
 })
 
 -- NvimTree
+local tree_api = require('nvim-tree.api')
+local tree_changes = { enabled = false, base = 'origin/HEAD', paths = {} }
+
+local function tree_git(...)
+    local result = vim.system({ 'git', ... }):wait()
+    if result.code ~= 0 then
+        vim.notify(vim.trim(result.stderr or 'Git failed'), vim.log.levels.ERROR)
+        return
+    end
+    return (result.stdout:gsub('\n$', ''))
+end
+
+local function refresh_tree_changes(target, directory)
+    local base = 'HEAD'
+    if target ~= 'working' then
+        local commit = tree_git('-C', directory, 'rev-parse', '--verify', '--end-of-options', target .. '^{commit}')
+        if not commit then return end
+        base = tree_git('-C', directory, 'merge-base', commit, 'HEAD')
+        if not base then return end
+    end
+
+    local changed = tree_git('-C', directory, 'diff', '--name-status', '-z', '--find-renames', '--diff-filter=AMR', base, '--')
+    if not changed then return end
+    local staged = tree_git('-C', directory, 'diff', '--cached', '--name-status', '-z', '--find-renames', '--diff-filter=AMR', base, '--')
+    if not staged then return end
+    local untracked = tree_git('-C', directory, 'ls-files', '--others', '--exclude-standard', '-z')
+    if not untracked then return end
+
+    local paths = {}
+    local priorities = { ['?'] = 1, M = 2, A = 3, R = 4 }
+    local function add(relative, status)
+        local path = directory .. '/' .. relative
+        if priorities[status] > (priorities[paths[path]] or 0) then paths[path] = status end
+        path = vim.fs.dirname(path)
+        while path and path ~= directory do
+            paths[path] = paths[path] or true -- Todo: Better comment
+            path = vim.fs.dirname(path)
+        end
+    end
+
+    for _, diff in ipairs({ changed, staged }) do
+        local entries = vim.split(diff, '\0', { plain = true, trimempty = true })
+        local i = 1
+        while i <= #entries do
+            local status, relative = entries[i]:sub(1, 1), entries[i + 1]
+            i = i + 2
+            if status == 'R' then
+                relative = entries[i] -- Todo: Better comment
+                i = i + 1
+            end
+            add(relative, status)
+        end
+    end
+    for _, relative in ipairs(vim.split(untracked, '\0', { plain = true, trimempty = true })) do add(relative, '?') end
+
+    tree_changes.enabled, tree_changes.base, tree_changes.root, tree_changes.paths = true, target, directory, paths
+    tree_api.tree.reload()
+    return true
+end
+
+local function schedule_tree_changes()
+    if not tree_changes.enabled or tree_changes.pending then return end
+    tree_changes.pending = true
+    vim.schedule(function()
+        tree_changes.pending = false
+        if tree_changes.enabled then refresh_tree_changes(tree_changes.base, tree_changes.root) end
+    end)
+end
+
+local TreeChangesDecorator = tree_api.Decorator:extend()
+
+function TreeChangesDecorator:new()
+    self.enabled = tree_changes.enabled
+    self.highlight_range = 'none'
+    self.icon_placement = 'before'
+    self.status_icons = {
+        A = { str = 'A', hl = { 'NvimTreeGitNewIcon' } },
+        M = { str = 'M', hl = { 'NvimTreeGitDirtyIcon' } },
+        R = { str = 'R', hl = { 'NvimTreeGitRenamedIcon' } },
+        ['?'] = { str = '?', hl = { 'NvimTreeGitNewIcon' } },
+    }
+end
+
+function TreeChangesDecorator:icons(node)
+    local icon = self.status_icons[tree_changes.paths[node.absolute_path]]
+    if icon then return { icon } end
+end
+
 local function attach_nvim_tree(bufnr)
     local api = require('nvim-tree.api')
     local function map(mode, lhs, rhs, desc) vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, silent = true, desc = desc }) end
@@ -477,7 +565,6 @@ local function attach_nvim_tree(bufnr)
     map('n', '<Leader>yp', api.fs.paste, 'Paste')
     map('n', '<Leader>yr', api.fs.copy.relative_path, 'Copy Relative Path')
     map({ 'n', 'x' }, '<Leader>yx', api.fs.cut, 'Cut')
-    map('n', '<Leader>gf', api.filter.git.clean.toggle, 'Toggle Changed Files')
     map('n', '<Leader>gj', api.node.navigate.git.next, 'Next Change')
     map('n', '<Leader>gk', api.node.navigate.git.prev, 'Previous Change')
     map('n', 'ge', api.node.navigate.diagnostics.next, 'Next Diagnostic')
@@ -493,12 +580,51 @@ local function attach_nvim_tree(bufnr)
 end
 
 require('nvim-tree').setup({
-    filters = { git_ignored = false },
+    filters = {
+        git_ignored = false,
+        custom = function(path)
+            return tree_changes.enabled 
+                and path:sub(1, #tree_changes.root + 1) == tree_changes.root .. '/'
+                and not tree_changes.paths[path]
+        end,
+    },
     on_attach = attach_nvim_tree,
     prefer_startup_root = true,
+    renderer = {
+        decorators = vim.list_extend(tree_api.config.default().renderer.decorators, { TreeChangesDecorator }),
+    },
     update_focused_file = { enable = true, update_root = { enable = true } },
     view = { width = 45 },
 })
+
+vim.api.nvim_create_user_command('TreeChanges', function(opts)
+    if opts.args == 'off' or opts.args == '' and tree_changes.enabled then
+        tree_changes.enabled = false
+        tree_api.tree.reload()
+        vim.notify('TreeChanges: off')
+        return
+    end
+
+    local target = opts.args ~= '' and opts.args or tree_changes.base
+    local directory = tree_changes.root
+    if opts.args ~= '' or not directory then
+        directory = tree_git('rev-parse', '--show-toplevel')
+        if not directory then return end
+        directory = vim.fs.normalize(directory)
+    end
+    if refresh_tree_changes(target, directory) then
+        tree_api.tree.open({ path = tree_changes.root })
+        vim.notify('TreeChanges: ' .. tree_changes.base)
+    end
+end, { nargs = '?', desc = 'Toggle or select changed files' })
+
+vim.api.nvim_create_autocmd({ 'BufWritePost', 'FocusGained' }, {
+    group = vim.api.nvim_create_augroup('ConfigTreeChanges', { clear = true }),
+    callback = schedule_tree_changes,
+})
+for _, event in ipairs({ 'FileCreated', 'FileRemoved', 'NodeRenamed', 'FolderCreated', 'FolderRemoved' }) do
+    tree_api.events.subscribe(tree_api.events.Event[event], schedule_tree_changes)
+end
 
 vim.api.nvim_create_autocmd('VimEnter', {
     group = layout_group,
@@ -806,7 +932,9 @@ vim.keymap.set('n', 'qq', '<cmd>wqall<cr>', { desc = 'Save all buffers and quit 
 vim.keymap.set('n', '{', '<cmd>bprevious<cr>', { desc = 'Previous buffer' })
 vim.keymap.set('n', '}', '<cmd>bnext<cr>', { desc = 'Next buffer' })
 vim.keymap.set('n', '|', close_current_buffer, { desc = 'Close current buffer' })
-vim.keymap.set('n', '<Leader>e', function() require('nvim-tree.api').tree.toggle() end, { desc = 'Toggle Explorer' })
+vim.keymap.set('n', '<Leader>et', function() require('nvim-tree.api').tree.toggle() end, { desc = 'Toggle Explorer' })
+vim.keymap.set('n', '<Leader>ef', '<cmd>TreeChanges<cr>', { desc = 'Toggle Changed Files' })
+vim.keymap.set('n', '<Leader>eF', ':TreeChanges ', { desc = 'Choose Change Filter' })
 vim.keymap.set('n', '<Leader>o', '<cmd>AerialToggle!<cr>', { desc = 'Toggle Outline' })
 vim.keymap.set('n', '<Leader>t', toggle_terminal, { desc = 'Toggle Terminal' })
 vim.keymap.set('n', '<Leader>q', function() require('quicker').toggle({ focus = true, height = 16, open_cmd_mods = { split = 'botright' } }) end, { desc = 'Toggle Quickfix' })

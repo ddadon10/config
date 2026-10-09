@@ -273,7 +273,7 @@ require('fzf-lua').setup({
 local function git_output(...)
     local result = vim.system({ 'git', ... }):wait()
     if result.code ~= 0 then
-        vim.notify(vim.trim(result.stderr or 'Git failed'), vim.log.levels.ERROR)
+        vim.notify('git_output: ' .. vim.trim(result.stderr or 'Git failed'), vim.log.levels.ERROR)
         return
     end
     return (result.stdout:gsub('\n$', ''))
@@ -482,7 +482,8 @@ local function refresh_tree_changes(base, directory)
         if priorities[status] > (priorities[paths[path]] or 0) then paths[path] = status end
         path = vim.fs.dirname(path)
         while path and path ~= directory do
-            paths[path] = paths[path] or true -- Todo: Better comment
+            -- Keep parent folders visible; `or true` preserves statuses from file-to-folder replacements.
+            paths[path] = paths[path] or true
             path = vim.fs.dirname(path)
         end
     end
@@ -491,10 +492,12 @@ local function refresh_tree_changes(base, directory)
         local entries = vim.split(diff, '\0', { plain = true, trimempty = true })
         local i = 1
         while i <= #entries do
+            -- Changes use two entries: { 'M', 'file.lua' }.
             local status, relative = entries[i]:sub(1, 1), entries[i + 1]
             i = i + 2
             if status == 'R' then
-                relative = entries[i] -- Todo: Better comment
+                -- Renames use three entries: { 'R100', 'old.lua', 'new.lua' }; add the new path to the tree.
+                relative = entries[i]
                 i = i + 1
             end
             add(relative, status)
@@ -579,9 +582,7 @@ require('nvim-tree').setup({
     },
     on_attach = attach_nvim_tree,
     prefer_startup_root = true,
-    renderer = {
-        decorators = vim.list_extend(tree_api.config.default().renderer.decorators, { TreeChangesDecorator }),
-    },
+    renderer = { decorators = vim.list_extend(tree_api.config.default().renderer.decorators, { TreeChangesDecorator }) },
     update_focused_file = { enable = true, update_root = { enable = true } },
     view = { width = 45 },
 })

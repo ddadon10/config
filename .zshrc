@@ -11,7 +11,7 @@ fi
 dev() {
   while :; do
     dev_web_port=$((RANDOM % 16384 + 49152))
-    lsof -nP -iTCP:"$dev_web_port" -sTCP:LISTEN >/dev/null 2>&1 || break
+    lsof -nP -iTCP:"${dev_web_port}" -sTCP:LISTEN >/dev/null 2>&1 || break
   done
 
   docker network create dev >/dev/null 2>&1 || true
@@ -64,8 +64,8 @@ dcp() {
   [[ $# == 1 ]] || { printf 'Usage: dcp <file-or-folder>\n' >&2; return 1; }
   local container_id
   container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
-  trap "docker rm \"$container_id\" >/dev/null" EXIT
-  docker cp --quiet "${1:a}" "$container_id:/data/shared/"
+  trap "docker rm \"${container_id}\" >/dev/null" EXIT
+  docker cp --quiet "${1:a}" "${container_id}:/data/shared/"
 }
 
 # dget copies a file or folder from /data/shared to the host.
@@ -73,8 +73,8 @@ dget() {
   [[ $# == 2 && -d "$2" ]] || { printf 'Usage: dget <source> <existing-destination-folder>\n' >&2; return 1; }
   local container_id
   container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
-  trap "docker rm \"$container_id\" >/dev/null" EXIT
-  docker cp --quiet "$container_id:/data/shared/$1" "${2:a}"
+  trap "docker rm \"${container_id}\" >/dev/null" EXIT
+  docker cp --quiet "${container_id}:/data/shared/$1" "${2:a}"
 }
 
 # Shell customization

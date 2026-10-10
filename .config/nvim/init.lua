@@ -3,7 +3,6 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.qs_highlight_on_keys = { 'f', 'F', 't', 'T' }
 vim.o.breakindent = true
-vim.o.clipboard = 'unnamedplus'
 vim.o.completeitemalign = 'kind,abbr,menu'
 vim.o.completeopt = 'menu,menuone,noselect,fuzzy'
 vim.o.expandtab = true
@@ -31,6 +30,20 @@ vim.o.tabstop = 4
 vim.o.wrap = true
 
 vim.opt.shortmess:append('IscWa')
+
+-- Clipboard
+vim.g.clipboard = {
+    name = 'OSC 52 copy, local paste',
+    copy = {
+        ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+        ['*'] = require('vim.ui.clipboard.osc52').copy('+'),
+    },
+    paste = {
+        ['+'] = function() return { vim.fn.getreg('"', 1, true), vim.fn.getregtype('"'):sub(1, 1) } end,
+        ['*'] = function() return { vim.fn.getreg('"', 1, true), vim.fn.getregtype('"'):sub(1, 1) } end,
+    },
+}
+vim.o.clipboard = 'unnamedplus'
 
 -- Autosave
 local autosave_timers = {}

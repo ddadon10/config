@@ -70,7 +70,7 @@ HISTCONTROL=ignoreboth:erasedups
 pbcopy() {
   local b64
   b64=$(base64 | tr -d '\n')
-  printf '\033]52;c;%s\033\134' "$b64" >/dev/tty
+  printf '\033]52;c;%s\033\134' "${b64}" >/dev/tty
 }
 
 # Bash Completion

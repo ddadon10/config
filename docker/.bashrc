@@ -66,11 +66,11 @@ HISTSIZE=10000
 HISTFILESIZE=20000
 HISTCONTROL=ignoreboth:erasedups
 
-# Clipboard (OSC-52)
+# pbcopy copies standard input to the host clipboard using OSC 52.
 pbcopy() {
   local b64
   b64=$(base64 | tr -d '\n')
-  printf '\033]52;c;%s\a' "$b64" >/dev/tty
+  printf '\033]52;c;%s\033\134' "${b64}" >/dev/tty
 }
 
 # Bash Completion

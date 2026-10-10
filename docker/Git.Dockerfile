@@ -26,6 +26,8 @@ export COLORTERM=truecolor
 export SHELL=/bin/bash
 export TERM=xterm-256color
 
+PROMPT_COMMAND='printf "\033]2;gitsh | %s\033\134" "$PWD"'
+
 ps1_git_orange='\[\033[38;2;240;80;50m\]'
 ps1_path_blue='\[\033[38;2;69;133;136m\]'
 ps1_arrow_yellow='\[\033[38;2;215;153;33m\]'

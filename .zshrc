@@ -7,7 +7,7 @@ if ! ssh-add -l >/dev/null 2>&1; then
   ssh-add --apple-load-keychain "${HOME}/.ssh/github_ed25519" "${HOME}/.ssh/azure_rsa"
 fi
 
-# Dev Env
+# dev starts a development container.
 dev() {
   while :; do
     dev_web_port=$((RANDOM % 16384 + 49152))
@@ -33,8 +33,8 @@ dev() {
     ddadon/dev:current
 }
 
-# Git Client
-g() {
+# gitsh starts a git client container.
+gitsh() {
   docker network create git >/dev/null 2>&1 || true
   docker run \
     --rm \
@@ -48,25 +48,7 @@ g() {
     ddadon/gitclient:current "$@"
 }
 
-# Copy into shared container storage
-dcp() {
-  [[ $# == 1 ]] || { printf 'Usage: dcp <file-or-folder>\n' >&2; return 1; }
-  local container_id
-  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
-  trap "docker rm \"$container_id\" >/dev/null" EXIT
-  docker cp --quiet "${1:a}" "$container_id:/data/shared/"
-}
-
-# Copy out of shared container storage
-dget() {
-  [[ $# == 2 && -d "$2" ]] || { printf 'Usage: dget <source> <existing-destination-folder>\n' >&2; return 1; }
-  local container_id
-  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
-  trap "docker rm \"$container_id\" >/dev/null" EXIT
-  docker cp --quiet "$container_id:/data/shared/$1" "${2:a}"
-}
-
-# Azure Client
+# azure starts an Azure client container in a Lima VM.
 azure() {
   limactl start azure || return
   docker --context azure run \
@@ -75,6 +57,24 @@ azure() {
     --tty \
     ddadon/azureclient:current
   limactl stop azure
+}
+
+# dcp copies a file or folder from the host to /data/shared.
+dcp() {
+  [[ $# == 1 ]] || { printf 'Usage: dcp <file-or-folder>\n' >&2; return 1; }
+  local container_id
+  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
+  trap "docker rm \"$container_id\" >/dev/null" EXIT
+  docker cp --quiet "${1:a}" "$container_id:/data/shared/"
+}
+
+# dget copies a file or folder from /data/shared to the host.
+dget() {
+  [[ $# == 2 && -d "$2" ]] || { printf 'Usage: dget <source> <existing-destination-folder>\n' >&2; return 1; }
+  local container_id
+  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
+  trap "docker rm \"$container_id\" >/dev/null" EXIT
+  docker cp --quiet "$container_id:/data/shared/$1" "${2:a}"
 }
 
 # Shell customization

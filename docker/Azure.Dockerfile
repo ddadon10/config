@@ -73,7 +73,7 @@ HISTFILESIZE=20000
 HISTCONTROL=ignoreboth:erasedups
 source /usr/share/bash-completion/bash_completion
 
-# Interactive Azure and Kubernetes selection
+# azsub interactively selects the active Azure subscription.
 azsub() {
     local subscription
     subscription=$(az account list --query '[].[name,id]' -o tsv) || {
@@ -95,6 +95,7 @@ azsub() {
     echo "Azure subscription changed to: $(printf '%s' "$subscription" | cut -f1)"
 }
 
+# azaks interactively selects an AKS cluster and fetches its credentials.
 azaks() {
     local cluster
     cluster=$(az aks list --query '[].[resourceGroup,name]' -o tsv) || {
@@ -114,6 +115,7 @@ azaks() {
         --name "$(printf '%s' "$cluster" | cut -f2)"
 }
 
+# azns interactively selects the namespace for the current Kubernetes context.
 azns() {
     local namespace
     namespace=$(kubectl get namespaces -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}') || {

@@ -5,7 +5,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^docker\\/Dockerfile$/"],
+      "managerFilePatterns": ["/^docker\\/(?:Dockerfile|[^/]+\\.Dockerfile)$/"],
       "matchStrings": [
         "ghostty-org/ghostty/refs/tags/(?<currentValue>v\\d+\\.\\d+\\.\\d+)/src/shell-integration/bash/ghostty\\.bash"
       ],
@@ -56,6 +56,10 @@
     }
   ],
   "packageRules": [
+    {
+      "matchPackageNames": ["ghostty-org/ghostty"],
+      "groupName": "Ghostty"
+    },
     {
       "matchDatasources": ["npm"],
       "matchPackageNames": ["@openai/codex"],

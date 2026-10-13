@@ -51,6 +51,7 @@ source /usr/share/bash-completion/bash_completion
 bind '"\C-i": menu-complete'
 bind '"\e[Z": menu-complete-backward'
 bind 'set bell-style none'
+bind 'set colored-completion-prefix on'
 bind 'set colored-stats on'
 bind 'set menu-complete-display-prefix on'
 bind 'set show-all-if-ambiguous on'

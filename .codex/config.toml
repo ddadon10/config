@@ -1,5 +1,7 @@
 model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
+model_context_window = 300000
+model_auto_compact_token_limit = 270000
 approval_policy = "never"
 sandbox_mode = "danger-full-access"
 web_search = "live"

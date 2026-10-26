@@ -150,7 +150,7 @@ RUN npm install -g ccusage && npm cache clean --force
 COPY .config/nvim /root/.config/nvim
 RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
-RUN npm install -g @openai/codex@0.163.0 && npm cache clean --force
+RUN npm install -g @openai/codex@0.164.0 && npm cache clean --force
 
 # See: https://github.com/anomalyco/opencode/issues/46189
 RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 1.19.2 --no-modify-path && \

@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
 
 ENV LANG=C.UTF-8
+ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
 RUN apt-get update && apt-get install --yes --no-install-recommends \
     bash-completion \

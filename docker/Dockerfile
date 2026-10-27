@@ -168,6 +168,8 @@ COPY .config/lazygit.yml /root/.config/lazygit/config.yml
 
 COPY docker/.bashrc /root/.bashrc
 
+COPY docker/.inputrc /root/.inputrc
+
 COPY .vimrc /root/.vimrc
 
 COPY .npmrc /root/.npmrc

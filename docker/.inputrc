@@ -1,0 +1,9 @@
+$include /etc/inputrc
+
+"\C-i": menu-complete
+"\e[Z": menu-complete-backward
+set bell-style none
+set colored-completion-prefix on
+set colored-stats on
+set menu-complete-display-prefix on
+set show-all-if-ambiguous on

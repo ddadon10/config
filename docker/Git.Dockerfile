@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /usr/local/share/ghostty && \
-    curl -fsSL https://raw.githubusercontent.com/ghostty-org/ghostty/refs/tags/v1.3.1/src/shell-integration/bash/ghostty.bash \
+    curl -fsSL https://raw.githubusercontent.com/ghostty-org/ghostty/refs/tags/v1.4.0/src/shell-integration/bash/ghostty.bash \
         -o /usr/local/share/ghostty/ghostty.bash
 
 RUN git config --global push.autoSetupRemote true

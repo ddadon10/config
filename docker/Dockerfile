@@ -74,7 +74,7 @@ EOF
 RUN cp /usr/share/terminfo/g/ghostty /usr/share/terminfo/x/xterm-ghostty
 
 RUN mkdir -p /usr/local/share/ghostty && \
-    curl -fsSL https://raw.githubusercontent.com/ghostty-org/ghostty/refs/tags/v1.3.1/src/shell-integration/bash/ghostty.bash \
+    curl -fsSL https://raw.githubusercontent.com/ghostty-org/ghostty/refs/tags/v1.4.0/src/shell-integration/bash/ghostty.bash \
         -o /usr/local/share/ghostty/ghostty.bash
 
 RUN npm install -g typescript && npm cache clean --force

@@ -153,7 +153,7 @@ RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 RUN npm install -g @openai/codex@0.164.0 && npm cache clean --force
 
 # See: https://github.com/anomalyco/opencode/issues/46189
-RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 1.19.4 --no-modify-path && \
+RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 2.2.0 --no-modify-path && \
     mv /root/.opencode/bin/opencode /usr/local/bin/opencode && \
     rmdir /root/.opencode/bin /root/.opencode
 

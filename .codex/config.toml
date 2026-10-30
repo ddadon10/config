@@ -2,9 +2,10 @@ model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 model_context_window = 400000
 model_auto_compact_token_limit = 360000
-approval_policy = "never"
-sandbox_mode = "danger-full-access"
-web_search = "live"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+sandbox_mode = "workspace-write"
+web_search = "indexed"
 plan_mode_reasoning_effort = "xhigh"
 check_for_update_on_startup = false
 service_tier = "priority"
@@ -13,10 +14,58 @@ suppress_unstable_features_warning = true
 [agents]
 max_concurrent_threads_per_session = 6
 
+[sandbox_workspace_write]
+network_access = true
+
 [features]
 runtime_metrics = true
 default_mode_request_user_input = true
 apply_patch_streaming_events = true
+
+[features.network_proxy]
+enabled = true
+
+[features.network_proxy.domains]
+# For additional package registry and download domains, see Dependabot's egress allowlist:
+# https://github.com/dependabot/proxy/blob/main/internal/handlers/egress_allowlist_defaults.yaml
+
+# GitHub
+"github.com" = "allow"
+"api.github.com" = "allow"
+"codeload.github.com" = "allow"
+"raw.githubusercontent.com" = "allow"
+"objects.githubusercontent.com" = "allow"
+"release-assets.githubusercontent.com" = "allow"
+"github-cloud.githubusercontent.com" = "allow"
+
+# Go modules
+"proxy.golang.org" = "allow"
+"sum.golang.org" = "allow"
+
+# Npm
+"registry.npmjs.org" = "allow"
+
+# Yarn
+"registry.yarnpkg.com" = "allow"
+"repo.yarnpkg.com" = "allow"
+
+# Maven
+"repo.maven.apache.org" = "allow"
+"repo1.maven.org" = "allow"
+"dl.google.com" = "allow"
+"maven.google.com" = "allow"
+
+# Gradle
+"services.gradle.org" = "allow"
+"plugins-artifacts.gradle.org" = "allow"
+"repo.gradle.org" = "allow"
+"downloads.gradle.org" = "allow"
+"plugins.gradle.org" = "allow"
+
+# Local
+"localhost" = "allow"
+"127.0.0.1" = "allow"
+"::1" = "allow"
 
 [projects."/workspace"]
 trust_level = "trusted"

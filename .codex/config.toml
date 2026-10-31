@@ -46,10 +46,6 @@ enabled = true
 # Yarn
 "registry.yarnpkg.com" = "allow"
 
-# Pip
-"pypi.org" = "allow"
-"files.pythonhosted.org" = "allow"
-
 # Maven
 "repo.maven.apache.org" = "allow"
 "repo1.maven.org" = "allow"

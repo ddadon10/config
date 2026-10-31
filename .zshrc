@@ -20,6 +20,9 @@ dev() {
     --interactive \
     --tty \
     --detach-keys "ctrl-_" \
+    --security-opt seccomp=unconfined \
+    --security-opt apparmor=unconfined \
+    --security-opt systempaths=unconfined \
     --env "GIT_USER_NAME=$(/usr/bin/git config --global user.name)" \
     --env "GIT_USER_EMAIL=$(/usr/bin/git config --global user.email)" \
     --env "DEV_WEB_PORT=${dev_web_port}" \

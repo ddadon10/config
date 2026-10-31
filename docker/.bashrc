@@ -34,9 +34,6 @@ export GRADLE_USER_HOME=/data/gradle
 # Node
 export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
-# Codex
-export IS_SANDBOX=1
-
 # OpenCode
 export OPENCODE_DISABLE_CLAUDE_CODE=1
 export OPENCODE_DISABLE_LSP_DOWNLOAD=true

@@ -27,6 +27,8 @@ vim.o.splitbelow = true
 vim.o.splitkeep = 'screen'
 vim.o.splitright = true
 vim.o.tabstop = 4
+vim.o.title = true
+vim.o.titlestring = 'nvim | %{fnamemodify(getcwd(), ":t")}'
 vim.o.wrap = true
 
 vim.opt.shortmess:append('IscWa')

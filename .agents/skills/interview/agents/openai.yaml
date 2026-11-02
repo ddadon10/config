@@ -1,0 +1,6 @@
+interface:
+  display_name: "Interview"
+  short_description: "Interview the user rigorously about a plan or design"
+
+policy:
+  allow_implicit_invocation: false

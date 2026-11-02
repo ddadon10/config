@@ -15,7 +15,6 @@ export LANG=C.UTF-8
 export MANPAGER='bat --plain --language man'
 export PATH="${HOME}/.local/bin:${HOME}/go/bin:${PATH}"
 export SHELL=/bin/bash
-[[ -n "${TMUX:-}" ]] || export TERM=xterm-ghostty
 
 # XDG
 export XDG_CACHE_HOME=/data/cache

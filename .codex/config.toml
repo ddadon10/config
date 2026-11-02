@@ -79,6 +79,7 @@ status_line = ["model-with-reasoning", "context-used", "five-hour-limit", "weekl
 
 [tui.effects]
 starfield = false
+effort = false
 
 [tui.keymap.global]
 toggle_fast_mode = "alt-s"

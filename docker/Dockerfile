@@ -41,6 +41,7 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     nodejs \
     npm \
     openjdk-21-jdk-headless \
+    openssh-client \
     postgresql \
     procps \
     psmisc \
@@ -63,6 +64,10 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     yq \
     zip \
     && rm -rf /var/lib/apt/lists/*
+
+RUN git config --global push.autoSetupRemote true
+
+RUN mkdir -p /root/.ssh && ssh-keyscan github.com vs-ssh.visualstudio.com >> /root/.ssh/known_hosts
 
 RUN <<EOF
     cluster_version="$(pg_lsclusters --no-header | grep -o '^[^ ]*')"

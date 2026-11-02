@@ -63,6 +63,9 @@ enabled = true
 "localhost" = "allow"
 "127.0.0.1" = "allow"
 
+[feedback]
+enabled = false
+
 [sandbox_workspace_write]
 network_access = true
 writable_roots = ["/data/cache", "/data/gradle", "/data/share/agentexploration"]

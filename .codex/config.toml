@@ -73,9 +73,6 @@ writable_roots = ["/data/cache", "/data/gradle", "/data/share/agentexploration"]
 [shell_environment_policy]
 inherit = "all"
 
-[skills.bundled]
-enabled = false
-
 [tui]
 show_tooltips = false
 notifications = true

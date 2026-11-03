@@ -19,7 +19,6 @@ dev() {
     --rm \
     --interactive \
     --tty \
-    --env TERM \
     --detach-keys "ctrl-_" \
     --security-opt seccomp=unconfined \
     --security-opt apparmor=unconfined \
@@ -46,7 +45,6 @@ azure() {
     --rm \
     --interactive \
     --tty \
-    --env TERM \
     ddadon/azureclient:current
   limactl stop azure
 }

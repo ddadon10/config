@@ -17,12 +17,9 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     iproute2 \
     jq \
     less \
-    ncurses-term \
     openssh-client \
     vim \
     && rm -rf /var/lib/apt/lists/*
-
-RUN cp /usr/share/terminfo/g/ghostty /usr/share/terminfo/x/xterm-ghostty
 
 # Install Azure CLI
 RUN curl -fsSL 'https://azurecliprod.blob.core.windows.net/$root/deb_install.sh' | bash
@@ -60,6 +57,7 @@ COPY <<'EOF' /root/.bashrc
 export COLORTERM=truecolor
 export EDITOR=vim
 export SHELL=/bin/bash
+export TERM=xterm-256color
 
 ps1_azure_blue='\[\033[38;2;0;120;212m\]'
 ps1_path_blue='\[\033[38;2;69;133;136m\]'

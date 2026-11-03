@@ -54,7 +54,6 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     shellcheck \
     strace \
     sudo \
-    tmux \
     tree \
     tree-sitter-cli \
     unzip \
@@ -171,8 +170,6 @@ RUN opencode_version="$(opencode --version)" && \
     npm cache clean --force
 
 COPY .config/lazygit.yml /root/.config/lazygit/config.yml
-
-COPY .config/tmux /root/.config/tmux
 
 COPY docker/.bashrc /root/.bashrc
 

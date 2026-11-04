@@ -27,6 +27,8 @@ vim.o.splitbelow = true
 vim.o.splitkeep = 'screen'
 vim.o.splitright = true
 vim.o.tabstop = 4
+vim.o.title = true
+vim.o.titlestring = 'nvim | %{fnamemodify(getcwd(), ":t")}'
 vim.o.wrap = true
 
 vim.opt.shortmess:append('IscWa')
@@ -219,6 +221,13 @@ vim.api.nvim_create_autocmd('BufReadPost', {
     command = 'setlocal readonly nomodifiable',
 })
 
+local function toggle_readonly()
+    if vim.bo.buftype ~= '' then return end
+    local locked = vim.bo.readonly or not vim.bo.modifiable
+    vim.bo.readonly, vim.bo.modifiable = not locked, locked
+    vim.cmd('redrawstatus')
+end
+
 -- Layout
 local buffers = {}
 local layout_windows = {}
@@ -375,7 +384,8 @@ local function statusline()
     local fileformat = ({ unix = 'LF', dos = 'CRLF', mac = 'CR' })[vim.bo.fileformat]
     local indentation = vim.bo.expandtab and 'Spaces:' .. vim.bo.shiftwidth or 'Tabs:' .. vim.bo.tabstop
     local filetype = vim.bo.filetype:gsub('^%l', string.upper)
-    local fileinfo = { 'Ln:%l Col:%c', encoding, fileformat, indentation, filetype }
+    local lock = (vim.bo.readonly or not vim.bo.modifiable) and '\u{f023}' or '' -- nf-fa-lock
+    local fileinfo = { 'Ln:%l Col:%c', encoding, fileformat, indentation, filetype, lock }
 
     return MiniStatusline.combine_groups({
         { hl = mode_hl, strings = { mode } },
@@ -968,6 +978,7 @@ vim.keymap.set('n', '<Leader>c', 'gcc', { desc = 'Toggle Line Comment', remap = 
 vim.keymap.set('x', '<Leader>c', 'gc', { desc = 'Toggle Comment', remap = true })
 vim.keymap.set('n', '<Leader>d', diff_buffer, { desc = 'Diff Buffer' })
 vim.keymap.set({ 'n', 'x' }, '<Leader>f', function() vim.lsp.buf.format() end, { desc = 'Format' })
+vim.keymap.set('n', '<Leader>r', toggle_readonly, { desc = 'Toggle Read-Only' })
 vim.keymap.set('n', '<Leader>s', '<cmd>write<cr>', { desc = 'Save Buffer' })
 vim.keymap.set('n', 'qq', '<cmd>wqall<cr>', { desc = 'Save all buffers and quit Neovim' })
 vim.keymap.set('n', '{', '<cmd>bprevious<cr>', { desc = 'Previous buffer' })

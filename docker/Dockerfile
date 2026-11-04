@@ -41,6 +41,7 @@ RUN apt-get update && apt-get install --yes --no-install-recommends \
     nodejs \
     npm \
     openjdk-21-jdk-headless \
+    openssh-client \
     postgresql \
     procps \
     psmisc \
@@ -164,6 +165,10 @@ RUN opencode_version="$(opencode --version)" && \
     npm install --prefix /root/.config/opencode "@opencode-ai/plugin@${opencode_version}" && \
     npm cache clean --force
 
+COPY docker/.gitconfig /root/.gitconfig
+
+COPY docker/ssh/ssh_config.d /etc/ssh/ssh_config.d
+
 COPY .config/lazygit.yml /root/.config/lazygit/config.yml
 
 COPY docker/.bashrc /root/.bashrc
@@ -184,6 +189,6 @@ RUN ln -s /etc/agents/AGENTS.md /root/.config/opencode/AGENTS.md
 
 RUN mkdir -p /root/.codex && ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md
 
-RUN mkdir -p /data/shared /data/share/agentexploration /data/state /data/cache/gomod /data/cache/npm /data/gradle
+RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state
 
 CMD ["/bin/bash"]

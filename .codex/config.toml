@@ -14,10 +14,10 @@ suppress_unstable_features_warning = true
 [agents]
 max_concurrent_threads_per_session = 6
 
-[sandbox_workspace_write]
-network_access = true
-
 [features]
+apps = false
+image_generation = false
+plugins = false
 runtime_metrics = true
 default_mode_request_user_input = true
 apply_patch_streaming_events = true
@@ -64,8 +64,18 @@ enabled = true
 "localhost" = "allow"
 "127.0.0.1" = "allow"
 
+[feedback]
+enabled = false
+
+[sandbox_workspace_write]
+network_access = true
+writable_roots = ["/data/cache", "/data/gradle", "/data/share/agentexploration"]
+
 [shell_environment_policy]
 inherit = "all"
+
+[skills.bundled]
+enabled = false
 
 [tui]
 show_tooltips = false
@@ -77,9 +87,7 @@ status_line = ["model-with-reasoning", "context-used", "five-hour-limit", "weekl
 
 [tui.effects]
 starfield = false
-
-[tui.keymap.global]
-toggle_fast_mode = "alt-s"
+effort = false
 
 [tui.keymap.chat]
 increase_reasoning_effort = "alt-a"
@@ -88,3 +96,6 @@ decrease_reasoning_effort = "alt-d"
 [tui.keymap.editor]
 delete_forward_word = []
 kill_whole_line = "alt-k"
+
+[tui.keymap.global]
+toggle_fast_mode = "alt-s"

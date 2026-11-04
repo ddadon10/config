@@ -1,8 +1,7 @@
 # Environment
 
 - You are in a Docker container. You cannot run Docker.
-- You cannot run `git pull` or `git push`. When merging another branch into the current branch, merge
-  `origin/<other-branch>` into this branch directly.
+- Only run `git push` when explicitly requested.
 - Use `rg` instead of `grep`, and `fd` instead of `find`.
 
 # Workflow

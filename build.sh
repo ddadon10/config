@@ -8,11 +8,6 @@ docker build --file docker/Dockerfile --tag ddadon/dev:current .
 docker push ddadon/dev:previous
 docker push ddadon/dev:current
 
-docker tag ddadon/gitclient:current ddadon/gitclient:previous
-docker build --file docker/Git.Dockerfile --tag ddadon/gitclient:current .
-docker push ddadon/gitclient:previous
-docker push ddadon/gitclient:current
-
 docker image prune --force
 
 limactl start azure

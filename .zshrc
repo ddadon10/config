@@ -23,32 +23,20 @@ dev() {
     --security-opt seccomp=unconfined \
     --security-opt apparmor=unconfined \
     --security-opt systempaths=unconfined \
+    --env TERM \
     --env "GIT_USER_NAME=$(/usr/bin/git config --global user.name)" \
     --env "GIT_USER_EMAIL=$(/usr/bin/git config --global user.email)" \
     --env "DEV_WEB_PORT=${dev_web_port}" \
+    --env SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock \
     --publish "127.0.0.1:${dev_web_port}:${dev_web_port}" \
     --network dev \
+    --mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock" \
     --mount "type=volume,src=workspace,dst=/workspace" \
     --mount "type=volume,src=dev-codex-home,dst=/root/.codex" \
     --mount "type=volume,src=dev-data,dst=/data" \
     --mount "type=volume,src=dev-maven,dst=/root/.m2" \
     --workdir /workspace \
     ddadon/dev:current
-}
-
-# gitsh starts a git client container.
-gitsh() {
-  docker network create git >/dev/null 2>&1 || true
-  docker run \
-    --rm \
-    --interactive \
-    --tty \
-    --detach-keys "ctrl-_" \
-    --network git \
-    --mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock" \
-    --mount "type=volume,src=workspace,dst=/workspace" \
-    --workdir /workspace \
-    ddadon/gitclient:current "$@"
 }
 
 # azure starts an Azure client container in a Lima VM.

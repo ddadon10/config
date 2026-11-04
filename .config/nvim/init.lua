@@ -384,7 +384,7 @@ local function statusline()
     local fileformat = ({ unix = 'LF', dos = 'CRLF', mac = 'CR' })[vim.bo.fileformat]
     local indentation = vim.bo.expandtab and 'Spaces:' .. vim.bo.shiftwidth or 'Tabs:' .. vim.bo.tabstop
     local filetype = vim.bo.filetype:gsub('^%l', string.upper)
-    local lock = (vim.bo.readonly or not vim.bo.modifiable) and '' or ''
+    local lock = (vim.bo.readonly or not vim.bo.modifiable) and '\u{f023}' or '' -- nf-fa-lock
     local fileinfo = { 'Ln:%l Col:%c', encoding, fileformat, indentation, filetype, lock }
 
     return MiniStatusline.combine_groups({

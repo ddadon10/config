@@ -2,8 +2,8 @@
 set -euo pipefail
 
 if [[ ${1:-} == "--install" ]]; then
-  lima_version="v2.2.1"
-  lima_sha256="9e9eacce88f37e185c346bad73aa6136f738d8cdf8c3bb23cd42b071824bc66e"
+  lima_version="v2.3.0"
+  lima_sha256="b7af444bd8f91d3c307477e562f2cf3bd7595d62b9429185e4fa841563578cfc"
   lima_archive="lima-${lima_version#v}-Darwin-arm64.tar.gz"
   lima_url="https://github.com/lima-vm/lima/releases/download/${lima_version}/${lima_archive}"
   curl -fsSLo "${lima_archive}" "${lima_url}"

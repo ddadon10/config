@@ -1,4 +1,4 @@
-minimumLimaVersion: 2.2.1
+minimumLimaVersion: 2.3.0
 base: template:docker
 cpus: 2
 memory: 2GiB

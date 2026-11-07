@@ -153,18 +153,6 @@ RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
 RUN npm install -g @openai/codex@0.167.0 && npm cache clean --force
 
-# See: https://github.com/anomalyco/opencode/issues/46189
-RUN curl -fsSL https://opencode.ai/install | bash -s -- --version 1.19.5 --no-modify-path && \
-    mv /root/.opencode/bin/opencode /usr/local/bin/opencode && \
-    rmdir /root/.opencode/bin /root/.opencode
-
-COPY .config/opencode /root/.config/opencode
-
-# See: https://github.com/anomalyco/opencode/issues/37888
-RUN opencode_version="$(opencode --version)" && \
-    npm install --prefix /root/.config/opencode "@opencode-ai/plugin@${opencode_version}" && \
-    npm cache clean --force
-
 COPY docker/.gitconfig /root/.gitconfig
 
 COPY docker/ssh/ssh_config.d /etc/ssh/ssh_config.d
@@ -181,13 +169,15 @@ COPY .npmrc /root/.npmrc
 
 COPY .codex/config.toml /etc/codex/config.toml
 
+COPY .codex/openrouter.config.toml /etc/codex/openrouter.config.toml
+
 COPY .agents/skills/ /root/.agents/skills/
 
 COPY AGENTS.md /etc/agents/AGENTS.md
 
-RUN ln -s /etc/agents/AGENTS.md /root/.config/opencode/AGENTS.md
-
-RUN mkdir -p /root/.codex && ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md
+RUN mkdir -p /root/.codex && \
+    ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md && \
+    ln -s /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
 
 RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state
 

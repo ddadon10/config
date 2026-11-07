@@ -33,12 +33,6 @@ export GRADLE_USER_HOME=/data/gradle
 # Node
 export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
-# OpenCode
-export OPENCODE_DISABLE_CLAUDE_CODE=1
-export OPENCODE_DISABLE_LSP_DOWNLOAD=true
-# See: https://github.com/anomalyco/opencode/blob/014614d35b397775e5d397a490fc72368c894ec2/packages/opencode/src/share/share-next.ts#L23
-export OPENCODE_DISABLE_SHARE=1
-
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"
 [ "$(git config --global --get user.email 2>/dev/null || true)" = "${GIT_USER_EMAIL}" ] || git config --global user.email "${GIT_USER_EMAIL}"

@@ -1,0 +1,12 @@
+model = "openai/gpt-6.1-terra"
+model_provider = "openrouter"
+model_reasoning_effort = "xhigh"
+service_tier = "default"
+
+[model_providers.openrouter]
+name = "OpenRouter"
+base_url = "https://openrouter.ai/api/v1"
+
+[model_providers.openrouter.auth]
+command = "/usr/bin/cat"
+args = ["/data/share/openrouter/api_key.txt"]

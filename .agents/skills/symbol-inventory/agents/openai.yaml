@@ -1,0 +1,6 @@
+interface:
+  display_name: "Symbol Inventory"
+  short_description: "Perform an inventory of changed symbols in dependency order"
+
+policy:
+  allow_implicit_invocation: false

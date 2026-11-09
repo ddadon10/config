@@ -31,7 +31,6 @@ enabled = true
 
 # GitHub
 "github.com" = "allow"
-"api.github.com" = "allow"
 "codeload.github.com" = "allow"
 "raw.githubusercontent.com" = "allow"
 "release-assets.githubusercontent.com" = "allow"
@@ -45,6 +44,10 @@ enabled = true
 
 # Yarn
 "registry.yarnpkg.com" = "allow"
+
+# Pip
+"pypi.org" = "allow"
+"files.pythonhosted.org" = "allow"
 
 # Maven
 "repo.maven.apache.org" = "allow"

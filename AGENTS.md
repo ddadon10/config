@@ -95,6 +95,15 @@ recommendation after the options.
 
    Useful when only response-header latency should be bounded.
 
+## Explain
+
+When I ask you to explain, give a concise, direct answer and always link to the relevant canonical documentation:
+official documentation, specifications, or original upstream sources. Link to the specific section supporting each
+claim, using the relevant version. For repository behavior, also cite exact files and lines and distinguish what
+the platform provides from what our code implements. State when documentation leaves a point unresolved.
+Follow any requested format, structure, and style; otherwise choose the simplest useful presentation. Ask one short
+format question only when the choice would materially change the explanation.
+
 ## Iterate
 
 When I ask you to iterate, optimize for rapid feedback between us. Address my latest input, make enough progress for me

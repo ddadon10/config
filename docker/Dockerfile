@@ -151,7 +151,7 @@ RUN npm install -g ccusage && npm cache clean --force
 COPY .config/nvim /root/.config/nvim
 RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
-RUN npm install -g @openai/codex@0.167.0 && npm cache clean --force
+RUN npm install -g @openai/codex@0.167.1 && npm cache clean --force
 
 COPY docker/.gitconfig /root/.gitconfig
 

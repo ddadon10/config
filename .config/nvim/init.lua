@@ -268,7 +268,7 @@ require('fzf-lua').setup({
     actions = {
         files = {
             true,
-            ['alt-q'] = { fn = fzf_actions.file_sel_to_qf, prefix = 'select-all' },
+            ['ctrl-q'] = { fn = fzf_actions.file_sel_to_qf, prefix = 'select-all' },
         },
     },
     defaults = {

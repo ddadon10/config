@@ -6,11 +6,8 @@
 
 # Workflow
 
-- Do not expand the scope beyond what the request requires.
-- Keep validation proportional to the change. Run focused checks once after related edits, and run broad test suites
-  only when requested or clearly necessary.
-- Treat my corrections as instructions for the rest of the conversation. Apply them to later responses and actions
-  unless I explicitly revise them.
+- Keep validation proportional. Run focused checks once after related edits, and broad test suites only when necessary.
+- Use my corrections to guide later responses and actions when relevant, adapting to the current context.
 - Use a todo list for any task that is not a single straightforward change.
 
 # Code Style

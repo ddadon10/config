@@ -19,6 +19,7 @@ apps = false
 image_generation = false
 plugins = false
 runtime_metrics = true
+tui_workspace = true
 default_mode_request_user_input = true
 apply_patch_streaming_events = true
 

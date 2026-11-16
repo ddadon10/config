@@ -7,7 +7,7 @@ service_tier = "priority"
 approval_policy = "on-request"
 approvals_reviewer = "auto_review"
 sandbox_mode = "workspace-write"
-web_search = "cached"
+web_search = "indexed"
 check_for_update_on_startup = false
 suppress_unstable_features_warning = true
 

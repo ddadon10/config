@@ -63,6 +63,10 @@ enabled = true
 "downloads.gradle.org" = "allow"
 "plugins.gradle.org" = "allow"
 
+# Azure
+"ssh.dev.azure.com" = "allow"
+"vs-ssh.visualstudio.com" = "allow"
+
 # Localhost
 "localhost" = "allow"
 "127.0.0.1" = "allow"

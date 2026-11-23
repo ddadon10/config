@@ -81,6 +81,7 @@ writable_roots = ["/data/cache", "/data/gradle", "/data/share/agentexploration"]
 enabled = false
 
 [tui]
+copy_on_select = "never"
 show_tooltips = false
 notification_method = "osc9"
 theme = "gruvbox-dark"

@@ -137,8 +137,10 @@ RUN <<EOF
     rm -rf /var/lib/apt/lists/*
 EOF
 
-RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
-    ln -sf /usr/bin/batcat /usr/local/bin/bat
+RUN <<EOF
+    curl -fsSL https://teamwork-graph.atlassian.com/cli/install | bash -s -- --install-dir /usr/local/bin --skip-login --skip-skills --yes
+    twg skills install --yes
+EOF
 
 RUN npm install -g firebase-tools && npm cache clean --force
 
@@ -175,10 +177,13 @@ COPY .agents/skills/ /root/.agents/skills/
 
 COPY AGENTS.md /etc/agents/AGENTS.md
 
+RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
+    ln -sf /usr/bin/batcat /usr/local/bin/bat
+
 RUN mkdir -p /root/.codex && \
     ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md && \
     ln -s /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
 
-RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state
+RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state/twg
 
 CMD ["/bin/bash"]

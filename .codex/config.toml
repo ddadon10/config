@@ -66,6 +66,12 @@ enabled = true
 "ssh.dev.azure.com" = "allow"
 "vs-ssh.visualstudio.com" = "allow"
 
+# Atlassian
+# See: https://atlassian.github.io/twg-cli/agents/skills/#network-allowlist
+"api.atlassian.com" = "allow"
+"api.media.atlassian.com" = "allow"
+"*.frontend.public.atl-paas.net" = "allow"
+
 # Localhost
 "localhost" = "allow"
 "127.0.0.1" = "allow"

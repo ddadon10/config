@@ -153,6 +153,10 @@ RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
 RUN npm install -g @openai/codex@0.172.0 && npm cache clean --force
 
+RUN curl -fsSL https://teamwork-graph.atlassian.com/cli/install \
+    | bash -s -- --install-dir /usr/local/bin --skip-login --skip-skills --yes \
+    && twg skills install --yes
+
 COPY docker/.gitconfig /root/.gitconfig
 
 COPY docker/ssh/ssh_config.d /etc/ssh/ssh_config.d
@@ -179,6 +183,6 @@ RUN mkdir -p /root/.codex && \
     ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md && \
     ln -s /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
 
-RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state
+RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state/twg
 
 CMD ["/bin/bash"]

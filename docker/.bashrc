@@ -33,6 +33,9 @@ export GRADLE_USER_HOME=/data/gradle
 # Node
 export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
+# Atlassian
+export TWG_CONFIG_DIR="${XDG_STATE_HOME}/twg"
+
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"
 [ "$(git config --global --get user.email 2>/dev/null || true)" = "${GIT_USER_EMAIL}" ] || git config --global user.email "${GIT_USER_EMAIL}"

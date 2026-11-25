@@ -137,8 +137,10 @@ RUN <<EOF
     rm -rf /var/lib/apt/lists/*
 EOF
 
-RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
-    ln -sf /usr/bin/batcat /usr/local/bin/bat
+RUN <<EOF
+    curl -fsSL https://teamwork-graph.atlassian.com/cli/install | bash -s -- --install-dir /usr/local/bin --skip-login --skip-skills --yes
+    twg skills install --yes
+EOF
 
 RUN npm install -g firebase-tools && npm cache clean --force
 
@@ -152,10 +154,6 @@ COPY .config/nvim /root/.config/nvim
 RUN XDG_DATA_HOME=/usr/local/share DEV_IMAGE_BUILD=1 nvim --headless "+qa"
 
 RUN npm install -g @openai/codex@0.172.0 && npm cache clean --force
-
-RUN curl -fsSL https://teamwork-graph.atlassian.com/cli/install \
-    | bash -s -- --install-dir /usr/local/bin --skip-login --skip-skills --yes \
-    && twg skills install --yes
 
 COPY docker/.gitconfig /root/.gitconfig
 
@@ -178,6 +176,9 @@ COPY .codex/openrouter.config.toml /etc/codex/openrouter.config.toml
 COPY .agents/skills/ /root/.agents/skills/
 
 COPY AGENTS.md /etc/agents/AGENTS.md
+
+RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
+    ln -sf /usr/bin/batcat /usr/local/bin/bat
 
 RUN mkdir -p /root/.codex && \
     ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md && \

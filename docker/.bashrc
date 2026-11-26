@@ -35,6 +35,7 @@ export NPM_CONFIG_CACHE="${XDG_CACHE_HOME}/npm"
 
 # Atlassian
 export TWG_CONFIG_DIR="${XDG_STATE_HOME}/twg"
+export TWG_AGENT_DEFAULTS=1
 
 # Git
 [ "$(git config --global --get user.name 2>/dev/null || true)" = "${GIT_USER_NAME}" ] || git config --global user.name "${GIT_USER_NAME}"

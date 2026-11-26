@@ -71,6 +71,7 @@ enabled = true
 "api.atlassian.com" = "allow"
 "api.media.atlassian.com" = "allow"
 "*.frontend.public.atl-paas.net" = "allow"
+"*.atlassian.net" = "allow"
 
 # Localhost
 "localhost" = "allow"

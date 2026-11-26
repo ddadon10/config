@@ -68,8 +68,7 @@ enabled = true
 
 # Atlassian
 # See: https://atlassian.github.io/twg-cli/agents/skills/#network-allowlist
-"api.atlassian.com" = "allow"
-"api.media.atlassian.com" = "allow"
+"*.atlassian.com" = "allow"
 "*.frontend.public.atl-paas.net" = "allow"
 "*.atlassian.net" = "allow"
 
@@ -88,6 +87,7 @@ writable_roots = ["/data/cache", "/data/gradle", "/data/share/agentexploration"]
 enabled = false
 
 [tui]
+resume_cwd = "current"
 copy_on_select = "never"
 show_tooltips = false
 notification_method = "osc9"

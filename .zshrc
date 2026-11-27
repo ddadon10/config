@@ -9,12 +9,17 @@ fi
 
 # dev starts a development container.
 dev() {
+  [[ $# == 1 && $1 =~ ^[a-z0-9]+$ ]] || { printf 'Usage: dev <customer>\n' >&2; return 1; }
+  local network="network-$1"
+  local workspace="workspace-$1"
+  local dev_web_port
+
   while :; do
     dev_web_port=$((RANDOM % 16384 + 49152))
     lsof -nP -iTCP:"${dev_web_port}" -sTCP:LISTEN >/dev/null 2>&1 || break
   done
 
-  docker network create dev >/dev/null 2>&1 || true
+  docker network create "${network}" >/dev/null 2>&1 || true
   docker run \
     --rm \
     --interactive \
@@ -29,13 +34,11 @@ dev() {
     --env "DEV_WEB_PORT=${dev_web_port}" \
     --env SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock \
     --publish "127.0.0.1:${dev_web_port}:${dev_web_port}" \
-    --network dev \
+    --network "${network}" \
     --mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock" \
-    --mount "type=volume,src=workspace,dst=/workspace" \
-    --mount "type=volume,src=dev-codex-home,dst=/root/.codex" \
-    --mount "type=volume,src=dev-data,dst=/data" \
-    --mount "type=volume,src=dev-maven,dst=/root/.m2" \
-    --workdir /workspace \
+    --mount "type=volume,src=${workspace},dst=/workspace" \
+    --mount "type=volume,src=downloads,dst=/downloads" \
+    --workdir /workspace/code \
     ddadon/dev:current
 }
 
@@ -50,22 +53,22 @@ azure() {
   limactl stop azure
 }
 
-# dcp copies a file or folder from the host to /data/shared.
+# dcp copies a file or folder from the host to /downloads.
 dcp() {
   [[ $# == 1 ]] || { printf 'Usage: dcp <file-or-folder>\n' >&2; return 1; }
   local container_id
-  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
+  container_id=$(docker create --mount "type=volume,src=downloads,dst=/downloads" ddadon/dev:current) || return
   trap "docker rm \"${container_id}\" >/dev/null" EXIT
-  docker cp --quiet "${1:a}" "${container_id}:/data/shared/"
+  docker cp --quiet "${1:a}" "${container_id}:/downloads/"
 }
 
-# dget copies a file or folder from /data/shared to the host.
+# dget copies a file or folder from /downloads to the host.
 dget() {
   [[ $# == 2 && -d "$2" ]] || { printf 'Usage: dget <source> <existing-destination-folder>\n' >&2; return 1; }
   local container_id
-  container_id=$(docker create --mount "type=volume,src=dev-data,dst=/data" ddadon/dev:current) || return
+  container_id=$(docker create --mount "type=volume,src=downloads,dst=/downloads" ddadon/dev:current) || return
   trap "docker rm \"${container_id}\" >/dev/null" EXIT
-  docker cp --quiet "${container_id}:/data/shared/$1" "${2:a}"
+  docker cp --quiet "${container_id}:/downloads/$1" "${2:a}"
 }
 
 # Shell customization

@@ -181,7 +181,8 @@ RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
     ln -sf /usr/bin/batcat /usr/local/bin/bat
 
 RUN <<EOF
-    mkdir -p /downloads \
+    mkdir -p \
+        /downloads \
         /workspace/cache/{gomod,npm} \
         /workspace/code \
         /workspace/data/{agentexploration,codex,gradle,maven,openrouter,ssh,twg} \

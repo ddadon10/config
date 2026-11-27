@@ -9,4 +9,4 @@ base_url = "https://openrouter.ai/api/v1"
 
 [model_providers.openrouter.auth]
 command = "/usr/bin/cat"
-args = ["/workspace/data/openrouter/api_key.txt"]
+args = ["/workspace/local/.config/openrouter/api_key.txt"]

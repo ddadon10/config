@@ -22,7 +22,7 @@ export XDG_DATA_HOME=/workspace/xdg/share
 export XDG_STATE_HOME=/workspace/xdg/state
 
 # Codex
-export CODEX_HOME=/workspace/data/codex
+export CODEX_HOME=/workspace/local/.codex
 
 # Go
 export CGO_ENABLED=0
@@ -31,13 +31,13 @@ export GOMODCACHE=/workspace/cache/gomod
 # Java
 dpkg_arch="$(dpkg --print-architecture)"
 export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-${dpkg_arch}"
-export GRADLE_USER_HOME=/workspace/data/gradle
+export GRADLE_USER_HOME=/workspace/local/.gradle
 
 # Node
 export NPM_CONFIG_CACHE=/workspace/cache/npm
 
 # Atlassian
-export TWG_CONFIG_DIR=/workspace/data/twg
+export TWG_CONFIG_DIR=/workspace/local/.config/twg
 export TWG_AGENT_DEFAULTS=1
 
 # Git

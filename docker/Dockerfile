@@ -185,12 +185,13 @@ RUN <<EOF
         /downloads \
         /workspace/cache/{gomod,npm} \
         /workspace/code \
-        /workspace/data/{agentexploration,codex,gradle,maven,openrouter,ssh,twg} \
+        /workspace/local/{.agentexploration,.codex,.gradle,.m2,.ssh} \
+        /workspace/local/.config/{openrouter,twg} \
         /workspace/xdg/{cache,share,state}
 
-    ln -s /etc/agents/AGENTS.md /workspace/data/codex/AGENTS.md
-    ln -s /etc/codex/openrouter.config.toml /workspace/data/codex/openrouter.config.toml
-    ln -s /workspace/data/maven /root/.m2
+    ln -s /etc/agents/AGENTS.md /workspace/local/.codex/AGENTS.md
+    ln -s /etc/codex/openrouter.config.toml /workspace/local/.codex/openrouter.config.toml
+    ln -s /workspace/local/.m2 /root/.m2
 EOF
 
 CMD ["/bin/bash"]

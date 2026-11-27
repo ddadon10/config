@@ -38,7 +38,7 @@ dev() {
     --mount "type=bind,src=/run/host-services/ssh-auth.sock,target=/run/host-services/ssh-auth.sock" \
     --mount "type=volume,src=${workspace},dst=/workspace" \
     --mount "type=volume,src=downloads,dst=/downloads" \
-    --workdir /workspace/code \
+    --workdir /workspace/home \
     ddadon/dev:current
 }
 

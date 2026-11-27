@@ -184,7 +184,7 @@ RUN <<EOF
     mkdir -p \
         /downloads \
         /workspace/cache/{gomod,npm} \
-        /workspace/code \
+        /workspace/home \
         /workspace/local/{.agentexploration,.codex,.gradle,.m2,.ssh} \
         /workspace/local/.config/{openrouter,twg} \
         /workspace/xdg/{cache,share,state}

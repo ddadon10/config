@@ -180,10 +180,18 @@ COPY AGENTS.md /etc/agents/AGENTS.md
 RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd && \
     ln -sf /usr/bin/batcat /usr/local/bin/bat
 
-RUN mkdir -p /root/.codex && \
-    ln -s /etc/agents/AGENTS.md /root/.codex/AGENTS.md && \
-    ln -s /etc/codex/openrouter.config.toml /root/.codex/openrouter.config.toml
+RUN <<EOF
+    mkdir -p \
+        /downloads \
+        /workspace/cache/{gomod,npm} \
+        /workspace/home \
+        /workspace/local/{.agentexploration,.codex,.gradle,.m2,.ssh} \
+        /workspace/local/.config/{openrouter,twg} \
+        /workspace/xdg/{cache,share,state}
 
-RUN mkdir -p /data/cache/gomod /data/cache/npm /data/gradle /data/share/agentexploration /data/share/ssh /data/shared /data/state/twg
+    ln -s /etc/agents/AGENTS.md /workspace/local/.codex/AGENTS.md
+    ln -s /etc/codex/openrouter.config.toml /workspace/local/.codex/openrouter.config.toml
+    ln -s /workspace/local/.m2 /root/.m2
+EOF
 
 CMD ["/bin/bash"]

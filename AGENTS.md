@@ -45,8 +45,8 @@ user changes, and never push. After compaction, reread the entire ExecPlan and i
 ## Explore
 
 When I ask you to explore, inspect relevant local code and evidence, and research official documentation and original
-upstream repositories. When exploring, create and use a directory under `/workspace/.agentexploration` if that parent
-directory exists; otherwise, create and use a directory under `/data/share/agentexploration`. Keep a concise journal inside
+upstream repositories. If `.agentexploration/` already exists in the current working directory, create and use a task
+directory there. Otherwise, create and use one under `/workspace/data/agentexploration/`. Keep a concise journal inside
 the created directory and report the journal's path. You may use that directory without asking to store files and
 subdirectories, clone relevant repositories, and write and run exploratory code when useful.
 

@@ -81,7 +81,7 @@ enabled = false
 
 [sandbox_workspace_write]
 network_access = true
-writable_roots = ["/data/cache", "/data/gradle", "/data/share/agentexploration"]
+writable_roots = ["/workspace/cache", "/workspace/data/agentexploration", "/workspace/data/gradle", "/workspace/xdg/cache"]
 
 [skills.bundled]
 enabled = false
